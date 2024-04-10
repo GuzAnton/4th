@@ -35,7 +35,7 @@ resource "digitalocean_loadbalancer" "web" {
 }
 
 resource "digitalocean_firewall" "web" {
-  name = ${var.name}-firewall
+  name = "${var.name}-firewall"
 
   droplet_ids = digitalocean_droplet.web.*.id
   
@@ -54,5 +54,19 @@ resource "digitalocean_firewall" "web" {
     port_range = 1-65535
     source_addresses = [digitalocean_vpc.project.ip_range]
   }
-  
+  outbound_rule {
+    protocol = "tcp"
+    port_range = 1-65535
+    destination_addresses = [digitalocean_vpc.project.ip_range]
+  }
+  outbound_rule {
+    protocol = "udp"
+    port_range = 1-65535
+    destination_addresses = [digitalocean_vpc.project.ip_range]
+  }
+  outbound_rule {
+    protocol = "icmp"
+    port_range = 1-65535
+    destination_addresses = [digitalocean_vpc.project.ip_range]
+  }
 }
