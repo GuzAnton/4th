@@ -19,3 +19,14 @@ variable "droplet_size" {
   default = "s-1vcpu-1gb"
 }
 
+variable "domain_name" {
+  type = string
+}
+
+variable "subdomain" {
+  type = string
+}
+
+variable "LoadBalancer_Name" {
+  default = "web"
+}
