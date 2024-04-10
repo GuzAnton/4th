@@ -30,3 +30,7 @@ variable "subdomain" {
 variable "LoadBalancer_Name" {
   default = "web"
 }
+
+variable "FireWall_Name" {
+  default = "web"
+}
