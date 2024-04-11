@@ -44,10 +44,10 @@ resource "digitalocean_loadbalancer" "web" {
 }
 
 resource "digitalocean_firewall" "web" {
-  
+
   #only for internal vpc traffic
-  
-  name = var.FireWall_Name
+
+  name        = var.FireWall_Name
   droplet_ids = digitalocean_droplet.web.*.id
 
   inbound_rule {
@@ -86,20 +86,20 @@ resource "digitalocean_firewall" "web" {
   }
 
   outbound_rule {
-    protocol = "udp"
-    port_range = "53"
+    protocol              = "udp"
+    port_range            = "53"
     destination_addresses = ["0.0.0.0/0"]
   }
 
   outbound_rule {
-    protocol = "tcp"
-    port_range = "80"
+    protocol              = "tcp"
+    port_range            = "80"
     destination_addresses = ["0.0.0.0/0"]
   }
 
   outbound_rule {
-    protocol = "tcp"
-    port_range = "443"
+    protocol              = "tcp"
+    port_range            = "443"
     destination_addresses = ["0.0.0.0/0"]
   }
 }
@@ -107,7 +107,7 @@ resource "digitalocean_firewall" "web" {
 resource "digitalocean_certificate" "web" {
   name    = "web-certificate"
   type    = "lets_encrypt"
-  domains = [var.digitalocean_domain]
+  domains = ["var.domain_name"]
 
   lifecycle {
     create_before_destroy = true
@@ -116,13 +116,13 @@ resource "digitalocean_certificate" "web" {
 
 #Just for testing reson create new domain
 resource "digitalocean_domain" "web" {
-  name       = var.domain_name
+  name = var.domain_name
 }
 
 resource "digitalocean_record" "web" {
-  domain = data.digitalocean_domain.web.name
-  type = "A"
-  name = var.subdomain
-  value = digitalocean_loadbalancer.web.ip
-  ttl = 600
+  domain = var.domain_name
+  type   = "A"
+  name   = var.subdomain
+  value  = digitalocean_loadbalancer.web.ip
+  ttl    = 300
 }
