@@ -1,9 +1,9 @@
 resource "digitalocean_droplet" "web" {
-  count    = var.droplet_count
-  image    = var.image
+  count    = var.web_droplet_count
+  image    = var.web_image
   name     = "web-${count.index + 1}"
   region   = var.region
-  size     = var.droplet_size
+  size     = var.web_droplet_size
   ssh_keys = [digitalocean_ssh_key.default.fingerprint]
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-webserver"]
@@ -18,6 +18,21 @@ resource "digitalocean_droplet" "web" {
   }
 }
 
+resource "digitalocean_droplet" "db" {
+  count    = var.db_droplet_count
+  image    = var.db_image
+  name     = "db-${count.index + 1}"
+  region   = var.region
+  size     = var.db_droplet_size
+  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
+  vpc_uuid = digitalocean_vpc.project.id
+  tags     = ["${var.name}-db"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "digitalocean_ssh_key" "default" {
   name       = "Terraform Example"
   public_key = file("D:/System/Users/User-Arch/.ssh/id_rsa.pub")
@@ -26,14 +41,16 @@ resource "digitalocean_ssh_key" "default" {
 resource "digitalocean_loadbalancer" "web" {
   name        = var.LoadBalancer_Name
   region      = var.region
-  droplet_ids = digitalocean_droplet.web.*.id
+  
 
   forwarding_rule {
     entry_port       = 443
     entry_protocol   = "https"
-    target_port      = 80
+    
+    target_port      = 8080
     target_protocol  = "http"
-    certificate_name = digitalocean_certificate.web.id
+    
+    certificate_name = digitalocean_certificate.certificate.name
   }
   vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
@@ -41,8 +58,15 @@ resource "digitalocean_loadbalancer" "web" {
   lifecycle {
     create_before_destroy = true
   }
-}
 
+  healthcheck {
+    port = 8080
+    protocol = "http"
+    path = "/"
+  }
+  
+  droplet_ids = digitalocean_droplet.web.*.id
+}
 resource "digitalocean_firewall" "web" {
 
   #only for internal vpc traffic
@@ -104,10 +128,10 @@ resource "digitalocean_firewall" "web" {
   }
 }
 
-resource "digitalocean_certificate" "web" {
+resource "digitalocean_certificate" "certificate" {
   name    = "web-certificate"
   type    = "lets_encrypt"
-  domains = ["var.domain_name"]
+  domains = ["fouth.app"]
 
   lifecycle {
     create_before_destroy = true
@@ -116,11 +140,11 @@ resource "digitalocean_certificate" "web" {
 
 #Just for testing reson create new domain
 resource "digitalocean_domain" "web" {
-  name = var.domain_name
+  name = "fourt.app"
 }
 
 resource "digitalocean_record" "web" {
-  domain = var.domain_name
+  domain = digitalocean_domain.web.name
   type   = "A"
   name   = var.subdomain
   value  = digitalocean_loadbalancer.web.ip

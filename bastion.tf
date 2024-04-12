@@ -1,6 +1,6 @@
 resource "digitalocean_droplet" "bastion" {
-  count    = 1
-  image    = var.image_bastion
+
+  image    = var.bastion_image
   name     = "Bastion"
   region   = var.region
   size     = "s-1vcpu-1gb"
@@ -12,8 +12,8 @@ resource "digitalocean_droplet" "bastion" {
   }
 }
 
-resource "digitalocean_firewall" "Bastion" {
-  name        = "Bastion_Firewall"
+resource "digitalocean_firewall" "bastion" {
+  name        = var.Bastion_firewall_name
   droplet_ids = [digitalocean_droplet.bastion.id]
   inbound_rule {
     protocol         = "tcp"
@@ -23,11 +23,11 @@ resource "digitalocean_firewall" "Bastion" {
   outbound_rule {
     protocol              = "tcp"
     port_range            = "22"
-    destination_addresses = [digitalocean_vpc.web.ip_range]
+    destination_addresses = [digitalocean_vpc.project.ip_range]
   }
 
   outbound_rule {
     protocol              = "icmp"
-    destination_addresses = [digitalocean_vpc.web.ip_range]
+    destination_addresses = [digitalocean_vpc.project.ip_range]
   }
 }
