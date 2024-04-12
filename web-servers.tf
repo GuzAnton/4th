@@ -39,17 +39,17 @@ resource "digitalocean_ssh_key" "default" {
 }
 
 resource "digitalocean_loadbalancer" "web" {
-  name        = var.LoadBalancer_Name
-  region      = var.region
-  
+  name   = var.LoadBalancer_Name
+  region = var.region
+
 
   forwarding_rule {
-    entry_port       = 443
-    entry_protocol   = "https"
-    
-    target_port      = 8080
-    target_protocol  = "http"
-    
+    entry_port     = 443
+    entry_protocol = "https"
+
+    target_port     = 8080
+    target_protocol = "http"
+
     certificate_name = digitalocean_certificate.certificate.name
   }
   vpc_uuid               = digitalocean_vpc.project.id
@@ -60,11 +60,11 @@ resource "digitalocean_loadbalancer" "web" {
   }
 
   healthcheck {
-    port = 8080
+    port     = 8080
     protocol = "http"
-    path = "/"
+    path     = "/"
   }
-  
+
   droplet_ids = digitalocean_droplet.web.*.id
 }
 resource "digitalocean_firewall" "web" {
@@ -149,4 +149,11 @@ resource "digitalocean_record" "web" {
   name   = var.subdomain
   value  = digitalocean_loadbalancer.web.ip
   ttl    = 300
+}
+resource "digitalocean_record" "mx" {
+  domain   = digitalocean_domain.web.id
+  type     = "MX"
+  name     = "@"
+  priority = 10
+  value    = digitalocean_loadbalancer.web.ip
 }
