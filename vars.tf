@@ -27,7 +27,7 @@ variable "db_droplet_size" {
   default = "s-1vcpu-1gb"
 }
 variable "domain_name" {
-  type = string
+  type    = string
   default = "myexample.app"
 }
 variable "subdomain" {
