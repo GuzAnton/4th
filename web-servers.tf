@@ -131,17 +131,17 @@ resource "digitalocean_firewall" "web" {
 resource "digitalocean_certificate" "certificate" {
   name    = "web-certificate"
   type    = "lets_encrypt"
-  domains = ["fouth.app"]
+  domains = ["${var.subdomain}.${data.digitalocean_domain.web.name}"]
 
   lifecycle {
     create_before_destroy = true
   }
 }
 
-#Just for testing reson create new domain
-resource "digitalocean_domain" "web" {
-  name = "fourt.app"
-}
+# #Just for testing reson create new domain
+# resource "digitalocean_domain" "web" {
+#   name = "fourt.app"
+# }
 
 resource "digitalocean_record" "web" {
   domain = digitalocean_domain.web.name
@@ -150,10 +150,10 @@ resource "digitalocean_record" "web" {
   value  = digitalocean_loadbalancer.web.ip
   ttl    = 300
 }
-resource "digitalocean_record" "mx" {
-  domain   = digitalocean_domain.web.id
-  type     = "MX"
-  name     = "@"
-  priority = 10
-  value    = digitalocean_loadbalancer.web.ip
-}
+# resource "digitalocean_record" "mx" {
+#   domain   = digitalocean_domain.web.id
+#   type     = "MX"
+#   name     = "@"
+#   priority = 10
+#   value    = digitalocean_loadbalancer.web.ip
+#}

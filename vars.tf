@@ -26,6 +26,9 @@ variable "web_droplet_size" {
 variable "db_droplet_size" {
   default = "s-1vcpu-1gb"
 }
+variable "domain_name" {
+  type = string
+}
 variable "subdomain" {
   type    = string
   default = "@"
