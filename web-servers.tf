@@ -131,17 +131,18 @@ resource "digitalocean_firewall" "web" {
 resource "digitalocean_certificate" "certificate" {
   name    = "web-certificate"
   type    = "lets_encrypt"
-  domains = ["${var.subdomain}.${data.digitalocean_domain.web.name}"]
-
+  #domains = ["${var.subdomain}.${data.digitalocean_domain.web.name}"]
+  domains = ["var.domain_name"]
+  
   lifecycle {
     create_before_destroy = true
   }
 }
 
-# #Just for testing reson create new domain
-# resource "digitalocean_domain" "web" {
-#   name = "fourt.app"
-# }
+#Just for testing reson create new domain
+resource "digitalocean_domain" "web" {
+  name = var.domain_name
+}
 
 resource "digitalocean_record" "web" {
   domain = digitalocean_domain.web.name
