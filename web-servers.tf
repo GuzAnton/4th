@@ -131,8 +131,7 @@ resource "digitalocean_firewall" "web" {
 resource "digitalocean_certificate" "certificate" {
   name = "web-certificate"
   type = "lets_encrypt"
-  #domains = ["${var.subdomain}.${data.digitalocean_domain.web.name}"]
-  domains = ["var.domain_name"]
+  domains = ["${var.subdomain}.${data.digitalocean_domain.web.name}"]
 
   lifecycle {
     create_before_destroy = true
@@ -140,22 +139,15 @@ resource "digitalocean_certificate" "certificate" {
 }
 
 #Just for testing reson create new domain
-resource "digitalocean_domain" "web" {
-  name       = var.domain_name
-  ip_address = digitalocean_loadbalancer.web.id
-}
+# resource "digitalocean_domain" "web" {
+#   name       = var.domain_name
+#   ip_address = digitalocean_loadbalancer.web.id
+# }
 
 resource "digitalocean_record" "web" {
-  domain = digitalocean_domain.web.name
+  domain = data.digitalocean_domain.web.name
   type   = "A"
   name   = var.subdomain
   value  = digitalocean_loadbalancer.web.ip
   ttl    = 300
 }
-# resource "digitalocean_record" "mx" {
-#   domain   = digitalocean_domain.web.id
-#   type     = "MX"
-#   name     = "@"
-#   priority = 10
-#   value    = digitalocean_loadbalancer.web.ip
-#}

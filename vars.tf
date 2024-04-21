@@ -28,7 +28,7 @@ variable "db_droplet_size" {
 }
 variable "domain_name" {
   type    = string
-  default = "myexample.app"
+  default = "fourthestate.app"
 }
 variable "subdomain" {
   type    = string
