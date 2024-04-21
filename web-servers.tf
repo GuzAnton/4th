@@ -35,7 +35,7 @@ resource "digitalocean_droplet" "db" {
 
 resource "digitalocean_ssh_key" "default" {
   name       = "Terraform Example"
-  public_key = file("D:/System/Users/User-Arch/.ssh/id_rsa.pub")
+  public_key = file("~/.ssh/id_rsa.pub")
 }
 
 resource "digitalocean_loadbalancer" "web" {
