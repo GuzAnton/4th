@@ -1,0 +1,28 @@
+- name: Setup Nginx
+  hosts: websrv
+  gather_facts: no
+  become: yes
+  tasks:
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      tags:
+        - package
+
+    - name: Start & Enable Nginx
+      service: 
+        name: nginx
+        state: started
+        enabled: yes
+      tags:
+        - service
+
+    - name: Disable default website
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      tags:
+        - conf
