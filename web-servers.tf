@@ -6,12 +6,7 @@ resource "digitalocean_droplet" "web" {
   size     = var.web_droplet_size
   ssh_keys = [digitalocean_ssh_key.default.fingerprint]
   vpc_uuid = digitalocean_vpc.project.id
-  tags     = ["${var.name}-webserver"]
-
-  user_data = <<EOF
-  packages:
-    - nginx
-  EOF
+  tags     = ["${var.name}-web"]
 
   lifecycle {
     create_before_destroy = true
