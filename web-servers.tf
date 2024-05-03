@@ -39,25 +39,29 @@ resource "digitalocean_loadbalancer" "web" {
 
 
   forwarding_rule {
-    entry_port     = 443
-    entry_protocol = "https"
+    entry_port     = 80
+    entry_protocol = "http"
 
-    target_port     = 8080
+    target_port     = 80
     target_protocol = "http"
 
-    certificate_name = digitalocean_certificate.certificate.name
+    # certificate_name = digitalocean_certificate.certificate.name
   }
   vpc_uuid               = digitalocean_vpc.project.id
-  redirect_http_to_https = true
+  # redirect_http_to_https = true
 
   lifecycle {
     create_before_destroy = true
   }
 
   healthcheck {
-    port     = 8080
-    protocol = "http"
-    path     = "/"
+    port                     = 80
+    protocol                 = "http"
+    path                     = "/"
+    check_interval_seconds   = 10
+    response_timeout_seconds = 5
+    unhealthy_threshold      = 5
+    healthy_threshold        = 2
   }
 
   droplet_ids = digitalocean_droplet.web.*.id
@@ -121,28 +125,4 @@ resource "digitalocean_firewall" "web" {
     port_range            = "443"
     destination_addresses = ["0.0.0.0/0"]
   }
-}
-
-resource "digitalocean_certificate" "certificate" {
-  name = "web-certificate"
-  type = "lets_encrypt"
-  domains = ["${var.subdomain}.${data.digitalocean_domain.web.name}"]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-#Just for testing reson create new domain
-# resource "digitalocean_domain" "web" {
-#   name       = var.domain_name
-#   ip_address = digitalocean_loadbalancer.web.id
-# }
-
-resource "digitalocean_record" "web" {
-  domain = data.digitalocean_domain.web.name
-  type   = "A"
-  name   = var.subdomain
-  value  = digitalocean_loadbalancer.web.ip
-  ttl    = 300
 }
