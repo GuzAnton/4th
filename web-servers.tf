@@ -23,13 +23,20 @@ resource "digitalocean_droplet" "db" {
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-db"]
 
+  user_data = <<EOF
+    #cloud-config
+    packages:
+        - nginx
+        - docker
+  EOF
+
   lifecycle {
     create_before_destroy = true
   }
 }
 
 resource "digitalocean_ssh_key" "default" {
-  name       = "Terraform Example"
+  name       = "key"
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
@@ -47,7 +54,7 @@ resource "digitalocean_loadbalancer" "web" {
 
     # certificate_name = digitalocean_certificate.certificate.name
   }
-  vpc_uuid               = digitalocean_vpc.project.id
+  vpc_uuid = digitalocean_vpc.project.id
   # redirect_http_to_https = true
 
   lifecycle {
@@ -70,8 +77,14 @@ resource "digitalocean_firewall" "web" {
 
   #only for internal vpc traffic
 
-  name        = var.FireWall_Name
+  name        = var.FireWall_Name_Web
   droplet_ids = digitalocean_droplet.web.*.id
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = ["193.93.77.227",]
+  }
 
   inbound_rule {
     protocol         = "tcp"
@@ -107,6 +120,73 @@ resource "digitalocean_firewall" "web" {
     protocol              = "icmp"
     destination_addresses = [digitalocean_vpc.project.ip_range]
   }
+
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "53"
+    destination_addresses = ["0.0.0.0/0"]
+  }
+
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "80"
+    destination_addresses = ["0.0.0.0/0"]
+  }
+
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "443"
+    destination_addresses = ["0.0.0.0/0"]
+  }
+}
+
+resource "digitalocean_firewall" "db" {
+
+  #only for internal vpc traffic
+
+  name        = var.FireWall_Name_DB
+  droplet_ids = digitalocean_droplet.db.*.id
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = ["193.93.77.227"]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "1-65535"
+    source_addresses = [digitalocean_vpc.project.ip_range]
+  }
+
+  inbound_rule {
+    protocol         = "udp"
+    port_range       = "1-65535"
+    source_addresses = [digitalocean_vpc.project.ip_range]
+  }
+
+  # inbound_rule {
+  #   protocol         = "icmp"
+  #   port_range       = "1-65535"
+  #   source_addresses = [digitalocean_vpc.project.ip_range]
+  # }
+
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "1-65535"
+    destination_addresses = [digitalocean_vpc.project.ip_range]
+  }
+
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "1-65535"
+    destination_addresses = [digitalocean_vpc.project.ip_range]
+  }
+
+  # outbound_rule {
+  #   protocol              = "icmp"
+  #   destination_addresses = [digitalocean_vpc.project.ip_range]
+  # }
 
   outbound_rule {
     protocol              = "udp"

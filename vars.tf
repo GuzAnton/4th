@@ -37,8 +37,12 @@ variable "subdomain" {
 variable "LoadBalancer_Name" {
   default = "web"
 }
-variable "FireWall_Name" {
+variable "FireWall_Name_Web" {
   default = "web"
+}
+
+variable "FireWall_Name_DB" {
+  default = "db"
 }
 variable "Bastion_firewall_name" {
   default = "bastion"

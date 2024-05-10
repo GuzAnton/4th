@@ -1,5 +1,5 @@
 - name: Setup Nginx
-  hosts: websrv
+  hosts: all
   gather_facts: no
   become: yes
   tasks:
