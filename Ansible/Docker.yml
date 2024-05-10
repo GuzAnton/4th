@@ -1,5 +1,5 @@
 - name : Setup Docker
-  hosts: all
+  hosts: web-servers
   gather_facts: no
   become: true
   tasks:
