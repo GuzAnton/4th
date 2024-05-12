@@ -9,9 +9,10 @@
         creates: ~/.ssh/id_rsa
 
     - name: Retrieve public key
-      shell:
+      command:
         cmd: cat ~/.ssh/id_rsa.pub
       register: public_key_output
+      changed_when: false
 
     - name: Add public key to authorized_keys on web_servers
       authorized_key:
