@@ -1,29 +1,16 @@
----
-- name: Generate SSH key pair
+- name: Generate SSH key pair and add to authorized_keys
   hosts: localhost
   tasks:
     - name: Generate SSH key pair if it doesn't exist
-      shell:
-        cmd: |
-          ssh-keygen 
+      command: ssh-keygen
+      args:
         creates: ~/.ssh/id_rsa
 
     - name: Retrieve public key
-      command:
-        cmd: cat ~/.ssh/id_rsa.pub
+      command: cat ~/.ssh/id_rsa.pub
       register: public_key_output
       changed_when: false
 
     - name: Add public key to authorized_keys on web_servers
-      authorized_key:
-        user: "{{ root }}"
-        state: present
-        key: "{{ public_key_output.stdout }}"
-      delegate_to: bastion
-
-    - name: Add public key to authorized_keys on db_servers
-      authorized_key:
-        user: "{{ root }}"
-        state: present
-        key: "{{ public_key_output.stdout }}"
-      delegate_to: bastion
+      shell: 'echo "{{ public_key_output.stdout }}" >> ~/.ssh/authorized_keys'
+      delegate_to: web_servers
