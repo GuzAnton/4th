@@ -1,5 +1,5 @@
 - name: Setup Nginx
-  hosts: web-servers
+  hosts: web_servers
   gather_facts: no
   become: yes
   tasks:
