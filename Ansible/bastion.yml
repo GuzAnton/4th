@@ -15,14 +15,14 @@
 
     - name: Add public key to authorized_keys on web_servers
       authorized_key:
-        user: "{{ ansible_user }}"
+        user: "{{ lookup('env', 'USER') }}"
         state: present
         key: "{{ public_key_output.stdout }}"
       delegate_to: web_servers
 
     - name: Add public key to authorized_keys on db_servers
       authorized_key:
-        user: "{{ ansible_user }}"
+        user: "{{ lookup('env', 'USER') }}"
         state: present
         key: "{{ public_key_output.stdout }}"
       delegate_to: db_servers
