@@ -1,0 +1,28 @@
+---
+- name: Configure SSH access from bastion to web_servers and db_servers
+  hosts: bastion
+  gather_facts: no
+  tasks:
+    - name: Generate SSH key pair
+      ansible.builtin.openssh_keypair:
+        path: ~/.ssh/id_rsa
+        force: no
+
+    - name: Retrieve public key
+      ansible.builtin.slurp:
+        src: ~/.ssh/id_rsa.pub
+      register: public_key
+
+    - name: Add public key to authorized_keys for web_servers
+      ansible.builtin.lineinfile:
+        path: ~/.ssh/authorized_keys
+        line: "{{ public_key.content | b64decode }}"
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['web_servers'] }}"
+
+    - name: Add public key to authorized_keys for db_servers
+      ansible.builtin.lineinfile:
+        path: ~/.ssh/authorized_keys
+        line: "{{ public_key.content | b64decode }}"
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['db_servers'] }}"
