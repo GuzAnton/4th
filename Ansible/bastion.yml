@@ -1,6 +1,6 @@
 ---
 - name: Configure SSH access from bastion to web_servers and db_servers
-  hosts: bastion
+  hosts: localhost
   gather_facts: no
   tasks:
     - name: Generate SSH key pair
