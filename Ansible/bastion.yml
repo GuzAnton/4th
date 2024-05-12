@@ -7,3 +7,17 @@
         type: rsa
         size: 4096
         state: present
+
+    - name: Add public key to authorized_keys on web_servers
+      authorized_key:
+       user: root
+       state: present
+       key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      delegate_to: web_servers
+
+    - name: Add public key to authorized_keys on db_servers
+      authorized_key:
+        user: root
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      delegate_to: db_servers
