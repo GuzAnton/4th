@@ -1,32 +1,28 @@
 ---
-- name: Configure SSH access from bastion to web_servers and db_servers
+- name: Generate SSH key pair
   hosts: localhost
-  gather_facts: false
-
   tasks:
-    - name: Generate SSH key pair
-      ansible.posix.openssh_keypair:
-        path: ~/.ssh/id_rsa
-        type: rsa
-        size: 4096
+    - name: Generate SSH key pair if it doesn't exist
+      shell:
+        cmd: |
+          ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -N "" -f ~/.ssh/id_rsa
+        creates: ~/.ssh/id_rsa
 
     - name: Retrieve public key
-      ansible.builtin.slurp:
-        src: ~/.ssh/id_rsa.pub
-      register: public_key
+      shell:
+        cmd: cat ~/.ssh/id_rsa.pub
+      register: public_key_output
 
     - name: Add public key to authorized_keys on web_servers
-      ansible.builtin.copy:
-        content: "{{ public_key.content }}"
-        dest: "/root/.ssh/authorized_keys"
-        mode: "0600"
-      delegate_to: "{{ item }}"
-      with_items: "{{ groups['web_servers'] }}"
+      authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ public_key_output.stdout }}"
+      delegate_to: web_servers
 
     - name: Add public key to authorized_keys on db_servers
-      ansible.builtin.copy:
-        content: "{{ public_key.content }}"
-        dest: "/root/.ssh/authorized_keys"
-        mode: "0600"
-      delegate_to: "{{ item }}"
-      with_items: "{{ groups['db_servers'] }}"
+      authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ public_key_output.stdout }}"
+      delegate_to: db_servers
