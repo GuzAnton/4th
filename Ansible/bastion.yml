@@ -2,15 +2,8 @@
   hosts: localhost
   tasks:
     - name: Generate SSH key pair if it doesn't exist
-      command: ssh-keygen
-      args:
-        creates: ~/.ssh/id_rsa
-
-    - name: Retrieve public key
-      command: cat ~/.ssh/id_rsa.pub
-      register: public_key_output
-      changed_when: false
-
-    - name: Add public key to authorized_keys on web_servers
-      shell: 'echo "{{ public_key_output.stdout }}" >> ~/.ssh/authorized_keys'
-      delegate_to: web_servers
+      openssh_keypair:
+        path: ~/.ssh/id_rsa
+        type: rsa
+        size: 4096
+        state: present
