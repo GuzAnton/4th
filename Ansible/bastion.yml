@@ -5,7 +5,7 @@
     - name: Generate SSH key pair if it doesn't exist
       shell:
         cmd: |
-          ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -N "" -f ~/.ssh/id_rsa
+          ssh-keygen 
         creates: ~/.ssh/id_rsa
 
     - name: Retrieve public key
@@ -16,14 +16,14 @@
 
     - name: Add public key to authorized_keys on web_servers
       authorized_key:
-        user: "{{ ansible_user }}"
+        user: "{{ root }}"
         state: present
         key: "{{ public_key_output.stdout }}"
       delegate_to: bastion
 
     - name: Add public key to authorized_keys on db_servers
       authorized_key:
-        user: "{{ ansible_user }}"
+        user: "{{ root }}"
         state: present
         key: "{{ public_key_output.stdout }}"
       delegate_to: bastion
