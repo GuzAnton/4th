@@ -42,3 +42,11 @@ resource "digitalocean_firewall" "bastion" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
+
+resource "null_resource" "generate_ssh_key" {
+  depends_on = [digitalocean_droplet.bastion]
+
+  provisioner "local-exec" {
+    command = "ssh-keygen -t rsa -b 4096 -C 'bastion' -f ~/.ssh/id_rsa -N ''"
+  }
+}
