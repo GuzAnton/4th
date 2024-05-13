@@ -47,3 +47,6 @@ variable "FireWall_Name_DB" {
 variable "Bastion_firewall_name" {
   default = "bastion"
 }
+variable "MyIP" {
+  default = "193.93.77.227"
+}

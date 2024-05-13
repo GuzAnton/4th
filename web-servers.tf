@@ -83,7 +83,7 @@ resource "digitalocean_firewall" "web" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = ["176.36.180.171"]
+    source_addresses = [var.MyIP]
   }
 
   inbound_rule {
@@ -150,7 +150,7 @@ resource "digitalocean_firewall" "db" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = ["193.93.77.227"]
+    source_addresses = [var.MyIP]
   }
 
   inbound_rule {
