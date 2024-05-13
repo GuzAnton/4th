@@ -25,7 +25,7 @@ resource "digitalocean_firewall" "bastion" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = ["176.36.180.171"]
+    source_addresses = ["193.93.77.227"]
   }
   outbound_rule {
     protocol              = "tcp"
@@ -42,5 +42,3 @@ resource "digitalocean_firewall" "bastion" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-
-  
