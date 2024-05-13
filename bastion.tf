@@ -85,7 +85,7 @@ resource "null_resource" "copy_ssh_key_to_web" {
   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
   provisioner "local-exec" {
-    command = "ssh root@${each.value} 'echo \"$(cat ~/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+    command = "ssh root@${each.value} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
   }
 }
 
@@ -95,6 +95,6 @@ resource "null_resource" "copy_ssh_key_to_db" {
   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
   provisioner "local-exec" {
-    command = "ssh root@${each.value} 'echo \"$(cat ~/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+    command = "ssh root@${each.value} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
   }
 }
