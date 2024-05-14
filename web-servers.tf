@@ -8,6 +8,11 @@ resource "digitalocean_droplet" "web" {
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-web"]
 
+  user_data = <<-EOF
+    #!/bin/bash
+    echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+
+    EOF
 
   lifecycle {
     create_before_destroy = true
@@ -24,6 +29,11 @@ resource "digitalocean_droplet" "db" {
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-db"]
 
+user_data = <<-EOF
+    #!/bin/bash
+    echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+  
+    EOF
   lifecycle {
     create_before_destroy = true
   }

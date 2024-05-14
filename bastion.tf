@@ -15,6 +15,8 @@ resource "digitalocean_droplet" "bastion" {
   #cloud-config
   packages:
     - ansible
+  #!/bin/bash
+    echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
   EOF
 }
 
