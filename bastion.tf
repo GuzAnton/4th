@@ -66,53 +66,41 @@ resource "null_resource" "copy_ssh_key_from_bastion" {
   }
 }
 
+# resource "null_resource" "copy_ssh_key_to_web" {
+#   for_each = { for instance in digitalocean_droplet.web : instance.ipv4_address => instance.ipv4_address }
+
+#   depends_on = [null_resource.copy_ssh_key_from_bastion]
+
+#   provisioner "local-exec" {
+#     command = "ssh root@${each.value} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+#   }
+# }
+
+# resource "null_resource" "copy_ssh_key_to_db" {
+#   for_each = toset(digitalocean_droplet.db[*].ipv4_address)
+
+#   depends_on = [null_resource.copy_ssh_key_from_bastion]
+
+#   provisioner "local-exec" {
+#     command = "ssh root@${each.value} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+#   }
+# }
 resource "null_resource" "copy_ssh_key_to_web" {
-  for_each = toset(digitalocean_droplet.web[*].ipv4_address)
+  for_each = { for _, instance in digitalocean_droplet.web : instance.ipv4_address => instance.ipv4_address }
 
   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
   provisioner "local-exec" {
-    command = "ssh root@${each.value} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+    command = "ssh root@${each.key} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
   }
 }
 
 resource "null_resource" "copy_ssh_key_to_db" {
-  for_each = toset(digitalocean_droplet.db[*].ipv4_address)
+  for_each = { for _, instance in digitalocean_droplet.db : instance.ipv4_address => instance.ipv4_address }
 
   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
   provisioner "local-exec" {
-    command = "ssh root@${each.value} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+    command = "ssh root@${each.key} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
   }
 }
-
-# resource "null_resource" "configure_ssh" {
-#   # Этот ресурс используется только для настройки SSH.
-#   # Он не создает новый ресурс, но может выполнять команды локально
-#   # после создания других ресурсов.
-
-#   # Возможность обновлять SSH конфигурацию после создания других ресурсов.
-#   triggers = {
-#     always_run = "${timestamp()}"
-#   }
-
-#   # Провиженеры, которые будут выполняться после создания других ресурсов.
-#   provisioner "local-exec" {
-#     command = <<-EOT
-#       # Создаем временный файл с конфигурацией SSH.
-#       echo "StrictHostKeyChecking no" > ~/.ssh/temp_config
-      
-#       # Копируем временный файл конфигурации SSH на все серверы веб.
-#       ${join("\n", formatlist("scp -i /path/to/private/key ~/.ssh/temp_config root@%s:~/.ssh/config", digitalocean_droplet.web[*].ipv4_address))}
-      
-#       # Копируем временный файл конфигурации SSH на все серверы баз данных.
-#       ${join("\n", formatlist("scp -i /path/to/private/key ~/.ssh/temp_config root@%s:~/.ssh/config", digitalocean_droplet.db[*].ipv4_address))}
-      
-#       # Копируем временный файл конфигурации SSH на сервер бастиона.
-#       scp -i /path/to/private/key ~/.ssh/temp_config root@${digitalocean_droplet.bastion.ipv4_address}:~/.ssh/config
-      
-#       # Удаляем временный файл конфигурации SSH.
-#       rm -f ~/.ssh/temp_config
-#     EOT
-#   }
-# }
