@@ -1,2 +1,2 @@
-- import_playbook: db-servers.yml
+- import_playbook: DB.yml
 - import_playbook: web.yml

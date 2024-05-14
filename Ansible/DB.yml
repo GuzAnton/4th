@@ -1,5 +1,5 @@
 - name : Setup Docker
-  hosts: db-servers
+  hosts: db_servers
   gather_facts: no
   become: true
   tasks:
