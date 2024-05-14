@@ -97,6 +97,8 @@ resource "null_resource" "copy_ssh_key_to_db" {
   }
 }
 resource "null_resource" "clone_repository" {
+  depends_on = [digitalocean_droplet.bastion]
+  
   provisioner "local-exec" {
     command = "git clone https://github.com/GuzAnton/4th.git"
   }
