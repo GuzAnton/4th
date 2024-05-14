@@ -8,12 +8,7 @@ resource "digitalocean_droplet" "bastion" {
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-bastion"]
 
-  provisioner "remote-exec" {
-    inline = [
-      "git clone https://github.com/GuzAnton/4th.git"
-    ]
-  }
-
+  
   lifecycle {
     create_before_destroy = true
   }
@@ -22,7 +17,21 @@ resource "digitalocean_droplet" "bastion" {
   packages:
     - ansible
   EOF
+
+  connection {
+    type        = "ssh"
+    host = self.ipv4_address
+    user        = "root"
+    private_key = file("~/.ssh/id_rsa")  # Путь к вашему приватному ключу
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "git clone https://github.com/GuzAnton/4th.git ~/4th"
+    ]
+  }
 }
+
 
 resource "digitalocean_firewall" "bastion" {
   name        = var.Bastion_firewall_name
