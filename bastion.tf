@@ -96,3 +96,8 @@ resource "null_resource" "copy_ssh_key_to_db" {
     command = "scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value}:~/.ssh/authorized_keys"
   }
 }
+resource "null_resource" "clone_repository" {
+  provisioner "local-exec" {
+    command = "git clone https://github.com/GuzAnton/4th.git"
+  }
+}
