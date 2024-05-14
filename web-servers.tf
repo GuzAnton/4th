@@ -33,10 +33,9 @@ resource "digitalocean_droplet" "db" {
   user_data = <<-EOF
     #!/bin/bash
     echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
-    # Дополнительные команды для настройки
-    # ...
-    EOF
     
+    EOF
+
   lifecycle {
     create_before_destroy = true
   }
