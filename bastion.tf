@@ -60,7 +60,7 @@ resource "null_resource" "generate_ssh_key" {
 
 resource "null_resource" "copy_ssh_key_from_bastion" {
   provisioner "local-exec" {
-    command = "scp root@${digitalocean_droplet.bastion.ipv4_address}:~/.ssh/id_rsa.pub ~/.ssh/bastion_id_rsa.pub"
+    command = "scp -o StrictHostKeyChecking=no root@${digitalocean_droplet.bastion.ipv4_address}:~/.ssh/id_rsa.pub ~/.ssh/bastion_id_rsa.pub"
   }
 }
 
