@@ -8,6 +8,12 @@ resource "digitalocean_droplet" "bastion" {
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-bastion"]
 
+  provisioner "remote-exec" {
+    inline = [
+      "git clone https://github.com/GuzAnton/4th.git"
+    ]
+  }
+
   lifecycle {
     create_before_destroy = true
   }
@@ -94,12 +100,5 @@ resource "null_resource" "copy_ssh_key_to_db" {
 
   provisioner "local-exec" {
     command = "scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value}:~/.ssh/authorized_keys"
-  }
-}
-resource "null_resource" "clone_repository" {
-  depends_on = [digitalocean_droplet.bastion]
-  
-  provisioner "local-exec" {
-    command = "git clone https://github.com/GuzAnton/4th.git"
   }
 }
