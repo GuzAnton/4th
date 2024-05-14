@@ -83,22 +83,27 @@ resource "null_resource" "copy_ssh_key_from_bastion" {
 #     command = "ssh root@${each.value} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
 #   }
 # }
-resource "null_resource" "copy_ssh_key_to_web" {
-  count = length(digitalocean_droplet.web)
+# 
 
-  depends_on = [null_resource.copy_ssh_key_from_bastion]
 
-  provisioner "local-exec" {
-    command = "ssh root@${digitalocean_droplet.web[count.index].ipv4_address} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
-  }
-}
 
-resource "null_resource" "copy_ssh_key_to_db" {
-  count = length(digitalocean_droplet.db)
 
-  depends_on = [null_resource.copy_ssh_key_from_bastion]
+#resource "null_resource" "copy_ssh_key_to_web" {
+#   count = length(digitalocean_droplet.web)
 
-  provisioner "local-exec" {
-    command = "ssh root@${digitalocean_droplet.db[count.index].ipv4_address} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
-  }
-}
+#   depends_on = [null_resource.copy_ssh_key_from_bastion]
+
+#   provisioner "local-exec" {
+#     command = "ssh root@${digitalocean_droplet.web[count.index].ipv4_address} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+#   }
+# }
+
+# resource "null_resource" "copy_ssh_key_to_db" {
+#   count = length(digitalocean_droplet.db)
+
+#   depends_on = [null_resource.copy_ssh_key_from_bastion]
+
+#   provisioner "local-exec" {
+#     command = "ssh root@${digitalocean_droplet.db[count.index].ipv4_address} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+#   }
+# }
