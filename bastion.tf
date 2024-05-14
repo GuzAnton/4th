@@ -134,7 +134,7 @@ resource "null_resource" "copy_ssh_key_to_web" {
   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
   provisioner "local-exec" {
-    command = "sleep 45 && scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value}:~/.ssh/authorized_keys"
+    command = "sleep 120 && scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value}:~/.ssh/authorized_keys"
   }
 }
 
