@@ -86,21 +86,21 @@ resource "null_resource" "copy_ssh_key_from_bastion" {
 #   }
 # }
 resource "null_resource" "copy_ssh_key_to_web" {
-  for_each = { for _, instance in digitalocean_droplet.web : instance.ipv4_address => instance.ipv4_address }
+  count = length(digitalocean_droplet.web)
 
   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
   provisioner "local-exec" {
-    command = "ssh root@${each.key} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+    command = "ssh root@${digitalocean_droplet.web[count.index].ipv4_address} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
   }
 }
 
 resource "null_resource" "copy_ssh_key_to_db" {
-  for_each = { for _, instance in digitalocean_droplet.db : instance.ipv4_address => instance.ipv4_address }
+  count = length(digitalocean_droplet.db)
 
   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
   provisioner "local-exec" {
-    command = "ssh root@${each.key} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+    command = "ssh root@${digitalocean_droplet.db[count.index].ipv4_address} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
   }
 }
