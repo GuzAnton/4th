@@ -86,7 +86,7 @@ resource "null_resource" "copy_ssh_key_from_bastion" {
 # 
 
 
-
+#   THIS CODE WORKS
 
 # resource "null_resource" "copy_ssh_key_to_web" {
 #   count = length(digitalocean_droplet.web)
@@ -107,3 +107,23 @@ resource "null_resource" "copy_ssh_key_from_bastion" {
 #     command = "ssh root@${digitalocean_droplet.db[count.index].ipv4_address} 'echo \"$(cat ~/.ssh/bastion_id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
 #   }
 # }
+
+resource "null_resource" "copy_ssh_key_to_web" {
+  for_each = { for instance in digitalocean_droplet.web : instance.ipv4_address => instance }
+
+  depends_on = [null_resource.copy_ssh_key_from_bastion]
+
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value.ipv4_address}:~/.ssh/authorized_keys"
+  }
+}
+
+resource "null_resource" "copy_ssh_key_to_db" {
+  for_each = { for instance in digitalocean_droplet.db : instance.ipv4_address => instance }
+
+  depends_on = [null_resource.copy_ssh_key_from_bastion]
+
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value.ipv4_address}:~/.ssh/authorized_keys"
+  }
+}
