@@ -48,5 +48,5 @@ variable "Bastion_firewall_name" {
   default = "bastion"
 }
 variable "MyIP" {
-  default = "195.49.149.58"
+  default = "46.211.102.26"
 }
