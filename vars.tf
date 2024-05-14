@@ -3,7 +3,7 @@ variable "region" {
 }
 variable "do_token" {}
 variable "web_droplet_count" {
-  default = 1
+  default = 3
 }
 variable "db_droplet_count" {
   default = 1
