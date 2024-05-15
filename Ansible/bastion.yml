@@ -14,7 +14,7 @@
         content: |
           #!/bin/bash
           while IFS= read -r ip; do
-            ssh-keyscan -H $ip >> ~/.ssh/known_hosts
+            ssh-keyscan -T none -H $ip >> ~/.ssh/known_hosts
           done <<< "{{ inventory_file_content.content | b64decode }}"
         dest: known_hosts_script.j2
       delegate_to: localhost
