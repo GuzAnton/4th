@@ -1,20 +1,8 @@
-- name: Add hosts to known_hosts
+- name: Run script to update known_hosts
   hosts: localhost
   gather_facts: no
   become: yes
 
   tasks:
-    - name: Read IP addresses from inventory file
-      ansible.builtin.slurp:
-        src: inventory.txt
-      register: inventory_file_content
-
-    - name: Create Jinja2 template for script file
-      ansible.builtin.copy:
-        content: |
-          #!/bin/bash
-          while IFS= read -r ip; do
-            ssh-keyscan -T none -H $ip >> ~/.ssh/known_hosts
-          done <<< "{{ inventory_file_content.content | b64decode }}"
-        dest: known_hosts_script.j2
-      delegate_to: localhost
+    - name: Run the script to update known_hosts
+      shell: "bash ./known_hosts"

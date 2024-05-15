@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Process web_servers and db_servers
+for group in "web_servers" "db_servers"; do
+    # Extract IP addresses for the group
+    ips=$(grep "\[$group\]" inventory.txt -A 1000 | grep -v "\[" | awk '{print $1}')
+
+    # Add SSH keys to known_hosts if they don't already exist
+    for ip in $ips; do
+        # Check if the key already exists
+        if ! grep -q "$ip" ~/.ssh/known_hosts; then
+            ssh-keyscan -T 5 -H $ip >> ~/.ssh/known_hosts
+        fi
+    done
+done
+
