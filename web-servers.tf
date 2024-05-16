@@ -45,7 +45,7 @@ resource "digitalocean_loadbalancer" "web" {
     target_port     = 80
     target_protocol = "http"
 
-    certificate_name = cloudflare_ssl_certificate.cert.id
+    certificate_name = cloudflare_custom_ssl.cert.id
   }
   vpc_uuid = digitalocean_vpc.project.id
   redirect_http_to_https = true
@@ -200,15 +200,13 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-resource "cloudflare_record" "example" {
-  zone_id = data.cloudflare_zones.example.zones[0].id
-  name    = var.domain_name
-  value   = digitalocean_loadbalancer.web.ip
-  type    = "A"
-}
-resource "cloudflare_ssl_certificate" "cert" {
-  zone_id     = data.cloudflare_zones.example.zones[0].id
-  type        = "origin-ecc"
-  csr         = filebase64("${path.module}~/.ssh/cert.csr")
-  private_key = filebase64("${path.module}~/.ssh/id_rsa")
+resource "null_resource" "upload_certificate" {
+  provisioner "local-exec" {
+    command = <<EOT
+      ./upload_certificate.sh ${var.cf_api_token} ${data.cloudflare_zones.example.zones[0].id} ${var.csr_path} ${var.private_key_path}
+    EOT
+  }
+  triggers = {
+    always_run = "${timestamp()}"
+  }
 }

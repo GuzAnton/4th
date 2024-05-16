@@ -51,12 +51,14 @@ variable "cf_api_token" {
   description = "Cloudflare API token"
   type        = string
 }
-# variable "domain_name" {
-#   description = "Domain name for TLS certificate"
-#   type        = string
-# }
-
-
+variable "csr_path" {
+  description = "Path to CSR file"
+  type        = string
+}
+variable "private_key_path" {
+  description = "Path to private key file"
+  type        = string
+}
 variable "MyIP" {
   default = "164.92.190.148"
 }
