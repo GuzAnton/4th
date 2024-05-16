@@ -18,6 +18,6 @@ output "bastion_private_ip" {
 output "web_public_ip" {
   value = digitalocean_droplet.web.*.ipv4_address
 }
-output "db_public_ip"{
+output "db_public_ip" {
   value = digitalocean_droplet.db.*.ipv4_address
 }

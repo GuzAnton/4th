@@ -8,7 +8,7 @@ resource "digitalocean_droplet" "bastion" {
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-bastion"]
 
-  
+
   lifecycle {
     create_before_destroy = true
   }
@@ -20,9 +20,9 @@ resource "digitalocean_droplet" "bastion" {
 
   connection {
     type        = "ssh"
-    host = self.ipv4_address
+    host        = self.ipv4_address
     user        = "root"
-    private_key = file("~/.ssh/id_rsa")  # Путь к вашему приватному ключу
+    private_key = file("~/.ssh/id_rsa") # Путь к вашему приватному ключу
   }
 
   provisioner "remote-exec" {
@@ -65,10 +65,10 @@ resource "null_resource" "generate_ssh_key" {
     ]
 
     connection {
-      type     = "ssh"
-      user     = "root"
+      type        = "ssh"
+      user        = "root"
       private_key = file("~/.ssh/id_rsa")
-      host     = digitalocean_droplet.bastion.ipv4_address
+      host        = digitalocean_droplet.bastion.ipv4_address
     }
   }
 }

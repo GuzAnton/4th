@@ -47,7 +47,7 @@ resource "digitalocean_loadbalancer" "web" {
 
     certificate_name = cloudflare_custom_ssl.cert.id
   }
-  vpc_uuid = digitalocean_vpc.project.id
+  vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
 
   lifecycle {
@@ -198,6 +198,13 @@ resource "digitalocean_firewall" "db" {
     protocol              = "tcp"
     port_range            = "443"
     destination_addresses = ["0.0.0.0/0"]
+  }
+}
+resource "cloudflare_custom_ssl" "cert" {
+  zone_id = data.cloudflare_zones.example.zones[0].id
+  custom_ssl_options {
+    certificate = file(var.csr_path)
+    private_key = file(var.private_key_path)
   }
 }
 resource "null_resource" "upload_certificate" {
