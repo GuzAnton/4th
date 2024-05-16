@@ -58,5 +58,5 @@ variable "domain_name" {
 
 
 variable "MyIP" {
-  default = "46.101.86.21"
+  default = "164.92.190.148"
 }
