@@ -51,10 +51,10 @@ variable "cf_api_token" {
   description = "Cloudflare API token"
   type        = string
 }
-variable "domain_name" {
-  description = "Domain name for TLS certificate"
-  type        = string
-}
+# variable "domain_name" {
+#   description = "Domain name for TLS certificate"
+#   type        = string
+# }
 
 
 variable "MyIP" {
