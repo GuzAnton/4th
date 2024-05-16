@@ -47,6 +47,16 @@ variable "FireWall_Name_DB" {
 variable "Bastion_firewall_name" {
   default = "bastion"
 }
+variable "cf_api_token" {
+  description = "Cloudflare API token"
+  type        = string
+}
+variable "domain_name" {
+  description = "Domain name for TLS certificate"
+  type        = string
+}
+
+
 variable "MyIP" {
   default = "46.101.86.21"
 }

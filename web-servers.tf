@@ -39,16 +39,16 @@ resource "digitalocean_loadbalancer" "web" {
 
 
   forwarding_rule {
-    entry_port     = 80
-    entry_protocol = "http"
+    entry_port     = 443
+    entry_protocol = "https"
 
     target_port     = 80
     target_protocol = "http"
 
-    # certificate_name = digitalocean_certificate.certificate.name
+    certificate_name = cloudflare_ssl_certificate.cert.id
   }
   vpc_uuid = digitalocean_vpc.project.id
-  # redirect_http_to_https = true
+  redirect_http_to_https = true
 
   lifecycle {
     create_before_destroy = true
@@ -199,4 +199,16 @@ resource "digitalocean_firewall" "db" {
     port_range            = "443"
     destination_addresses = ["0.0.0.0/0"]
   }
+}
+resource "cloudflare_record" "example" {
+  zone_id = data.cloudflare_zones.example.zones[0].id
+  name    = var.domain_name
+  value   = digitalocean_loadbalancer.web.ip
+  type    = "A"
+}
+resource "cloudflare_ssl_certificate" "cert" {
+  zone_id     = data.cloudflare_zones.example.zones[0].id
+  type        = "origin-ecc"
+  csr         = filebase64("${path.module}~/.ssh/cert.csr")
+  private_key = filebase64("${path.module}~/.ssh/id_rsa")
 }
