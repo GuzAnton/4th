@@ -16,7 +16,3 @@ data "cloudflare_zones" "example" {
     name = var.domain_name
   }
 }
-
-# data "external" "cert_id" {
-#   program = ["bash", "-c", "source certificate.env && echo $TF_VAR_cert_id"]
-# }
