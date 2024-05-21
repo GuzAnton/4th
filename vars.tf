@@ -28,7 +28,7 @@ variable "db_droplet_size" {
 }
 variable "domain_name" {
   type    = string
-  default = "fourthestate.app"
+  default = "Fourthestate.app"
 }
 variable "subdomain" {
   type    = string
@@ -58,6 +58,9 @@ variable "csr_path" {
 variable "private_key_path" {
   description = "Path to private key file"
   type        = string
+}
+variable "cert_id" {
+  default = data.external.cert_id.result["CERT_ID"]
 }
 variable "MyIP" {
   default = "164.92.190.148"

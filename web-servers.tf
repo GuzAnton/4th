@@ -44,8 +44,8 @@ resource "digitalocean_loadbalancer" "web" {
 
     target_port     = 80
     target_protocol = "http"
-
-    certificate_name = cloudflare_custom_ssl.cert.id
+    certificate_name = digitalocean_certificate.cert.name
+    
   }
   vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
@@ -63,7 +63,7 @@ resource "digitalocean_loadbalancer" "web" {
     unhealthy_threshold      = 5
     healthy_threshold        = 2
   }
-
+  
   droplet_ids = digitalocean_droplet.web.*.id
 }
 
@@ -200,20 +200,9 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-resource "cloudflare_custom_ssl" "cert" {
-  zone_id = data.cloudflare_zones.example.zones[0].id
-  custom_ssl_options {
-    certificate = file(var.csr_path)
-    private_key = file(var.private_key_path)
-  }
-}
-resource "null_resource" "upload_certificate" {
-  provisioner "local-exec" {
-    command = <<EOT
-      ./upload_certificate.sh ${var.cf_api_token} ${data.cloudflare_zones.example.zones[0].id} ${var.csr_path} ${var.private_key_path}
-    EOT
-  }
-  triggers = {
-    always_run = "${timestamp()}"
-  }
+resource "digitalocean_certificate" "cert" {
+  name              = "custom-terraform-example"
+  type              = "custom"
+  private_key       = file(var.private_key_path)
+  leaf_certificate  = file("${path.module}/certs/leaf.crt")
 }
