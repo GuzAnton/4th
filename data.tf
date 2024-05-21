@@ -17,6 +17,6 @@ data "cloudflare_zones" "example" {
   }
 }
 
-data "external" "cert_id" {
-  program = ["bash", "-c", "source certificate.env && echo $TF_VAR_cert_id"]
-}
+# data "external" "cert_id" {
+#   program = ["bash", "-c", "source certificate.env && echo $TF_VAR_cert_id"]
+# }
