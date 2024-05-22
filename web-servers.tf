@@ -203,6 +203,7 @@ resource "digitalocean_firewall" "db" {
 resource "digitalocean_certificate" "cert" {
   name              = "custom-terraform-example"
   type              = "custom"
-  private_key       = "file(var.private_key_path)"
-  leaf_certificate  = "file(./certs/leaf.crt)"
+  private_key       = file("~/.ssh/private_key") 
+  leaf_certificate  = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
+  certificate_chain = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
 }
