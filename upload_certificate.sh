@@ -1,9 +1,9 @@
 #!/bin/bash
 
 API_TOKEN="$1"
-ZONE_NAME="fourthestate.app"
-CSR_PATH="$2"
-CERT_DIR="./certs" 
+ZONE_NAME="$2"
+CSR_PATH="$3"
+CERT_DIR="${4:-./certs}"
 
 
 mkdir -p "$CERT_DIR"
@@ -31,9 +31,9 @@ create_tls_certificate() {
 if [ -f "${CERT_DIR}/certificate.pem" ]; then
     echo "TLS certificate already exists."
 else
-    
+   
     create_tls_certificate
 fi
 
 
-echo "CERT_DIR=${CERT_DIR}" > certificate.env
+echo "{\"CERT_DIR\": \"${CERT_DIR}\"}"

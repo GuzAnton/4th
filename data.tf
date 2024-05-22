@@ -17,5 +17,5 @@ data "cloudflare_zones" "example" {
   }
 }
 data "external" "cert_dir" {
-  program = ["bash", "-c", "cat certificate.env && env"]
+  program = ["bash", "upload_certificate.sh", var.cf_api_token, var.domain_name, var.csr_path, var.cert_dir]
 }
