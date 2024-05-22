@@ -12,7 +12,7 @@ mkdir -p "$CERT_DIR"
 create_tls_certificate() {
     CSR_CONTENT=$(cat "$CSR_PATH")
 
-
+    
     RESPONSE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones?name=${ZONE_NAME}/ssl/certificates" \
          -H "Authorization: Bearer ${API_TOKEN}" \
          -H "Content-Type: application/json" \
@@ -36,4 +36,10 @@ else
 fi
 
 
-jq -n --arg CERT_DIR "$CERT_DIR" '{CERT_DIR: $CERT_DIR}'
+JSON_OUTPUT=$(jq -n --arg CERT_DIR "$CERT_DIR" '{CERT_DIR: $CERT_DIR}')
+
+
+echo "DEBUG: JSON_OUTPUT=$JSON_OUTPUT" >&2
+
+
+echo "$JSON_OUTPUT"
