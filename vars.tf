@@ -59,7 +59,10 @@ variable "private_key_path" {
   description = "Path to private key file"
   type        = string
 }
-
+variable "cert_dir" {
+  description = "The directory containing the TLS certificates"
+  type        = string
+}
 variable "MyIP" {
   default = "164.92.190.148"
 }
