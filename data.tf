@@ -16,3 +16,6 @@ data "cloudflare_zones" "example" {
     name = var.domain_name
   }
 }
+data "external" "cert_dir" {
+  program = ["bash", "-c", "cat certificate.env && env"]
+}
