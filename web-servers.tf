@@ -42,10 +42,10 @@ resource "digitalocean_loadbalancer" "web" {
     entry_port     = 443
     entry_protocol = "https"
 
-    target_port     = 80
-    target_protocol = "http"
+    target_port      = 80
+    target_protocol  = "http"
     certificate_name = digitalocean_certificate.cert.name
-    
+
   }
   vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
@@ -63,7 +63,7 @@ resource "digitalocean_loadbalancer" "web" {
     unhealthy_threshold      = 5
     healthy_threshold        = 2
   }
-  
+
   droplet_ids = digitalocean_droplet.web.*.id
 }
 
@@ -203,7 +203,7 @@ resource "digitalocean_firewall" "db" {
 resource "digitalocean_certificate" "cert" {
   name              = "custom-terraform-example"
   type              = "custom"
-  private_key       = file("/root/.ssh/private.key") 
+  private_key       = file("/root/.ssh/private.key")
   leaf_certificate  = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
   certificate_chain = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
 }
