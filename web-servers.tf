@@ -204,6 +204,6 @@ resource "digitalocean_certificate" "cert" {
   name              = "custom-terraform-example"
   type              = "custom"
   private_key       = file("/root/.ssh/private.key")
-  leaf_certificate  = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
-  certificate_chain = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
+  leaf_certificate  = file("fourthestate_app.crt")
+  # certificate_chain = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
 }

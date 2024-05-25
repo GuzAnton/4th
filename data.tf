@@ -11,11 +11,3 @@ bastion ansible_host=${digitalocean_droplet.bastion.ipv4_address_private} ansibl
   TEMPLATE
 }
 
-data "cloudflare_zones" "example" {
-  filter {
-    name = var.domain_name
-  }
-}
-data "external" "cert_dir" {
-  program = ["bash", "upload_certificate.sh", var.cf_api_token, var.domain_name, var.csr_path, var.cert_dir]
-}

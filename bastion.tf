@@ -86,12 +86,6 @@ resource "null_resource" "copy_ssh_key_from_bastion" {
   }
 }
 
-# resource "null_resource" "copy_ssh_key_from_bastion" {
-#   provisioner "local-exec" {
-#     command = "scp -o StrictHostKeyChecking=no root@${digitalocean_droplet.bastion.ipv4_address}:~/.ssh/id_rsa.pub ~/.ssh/bastion_id_rsa.pub"
-#   }
-# }
-
 resource "null_resource" "copy_ssh_key_to_web" {
   for_each = { for idx, instance in digitalocean_droplet.web : idx => instance.ipv4_address }
 
