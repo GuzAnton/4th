@@ -47,22 +47,7 @@ variable "FireWall_Name_DB" {
 variable "Bastion_firewall_name" {
   default = "bastion"
 }
-# variable "cf_api_token" {
-#   description = "Cloudflare API token"
-#   type        = string
-# }
-# variable "csr_path" {
-#   description = "Path to CSR file"
-#   type        = string
-# }
-# variable "private_key_path" {
-#   description = "Path to private key file"
-#   type        = string
-# }
-# variable "cert_dir" {
-#   description = "The directory containing the TLS certificates"
-#   type        = string
-# }
+
 variable "MyIP" {
   default = "164.92.190.148"
 }

@@ -204,5 +204,4 @@ resource "digitalocean_certificate" "cert" {
   name              = "fourthestate-app-cert"
   private_key       = file("${path.module}/fourthestate_app.key")
   leaf_certificate  = file("${path.module}/fourthestate_app.crt")
-  # certificate_chain = file("${data.external.cert_dir.result.CERT_DIR}/certificate.pem")
 }
