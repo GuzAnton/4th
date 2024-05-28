@@ -1,4 +1,4 @@
-- name : Setup Docker
+- name : Setup DB
   hosts: db_servers
   gather_facts: no
   become: true
@@ -39,23 +39,51 @@
           - python3-setuptools
         state: latest
         update_cache: true
-
-    - name: Add Docker GPG apt Key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
     
-    - name: Add Docker Repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
-        state: present
+    - name: Create script for Docker setup
+      copy:
+        dest: /tmp/setup_docker.sh
+        content: |
+          #!/bin/bash
 
-    - name: Update apt and install docker-ce
-      apt:
-        name: docker-ce
-        state: latest
-        update_cache: true
+          # Remove old Docker and related packages
+          for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
+              sudo apt-get remove -y $pkg
+          done
 
+          # Add Docker's official GPG key
+          sudo apt-get update -y
+          sudo apt-get install -y ca-certificates curl
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+          # Add the repository to Apt sources
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+          # Update apt and install Docker CE
+          sudo apt-get update -y
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+    - name: Make script executable
+      file:
+        path: /tmp/setup_docker.sh
+        mode: '0755'
+
+    - name: Execute Docker setup script
+      command: /tmp/setup_docker.sh
+      register: script_output
+      ignore_errors: yes  # To ensure playbook execution continues even if script fails
+
+    - name: Debug script output
+      debug:
+        var: script_output.stdout_lines
+
+    - name: Fail if Docker installation script fails
+      fail:
+        msg: "Docker installation script failed"
+      when: script_output is defined and script_output.rc is defined and script_output.rc != 0
+   
     - name: Create necessary directories for Ghost
       file:
         path: "{{ item }}"
@@ -253,12 +281,13 @@
             webnet:
               driver: bridge
 
-    - name: Login to Docker registry
-      shell: |
-        echo "{{ registry_password }}" | docker login gitlab.fourthestate.app:5050 -u "{{ registry_username }}" --password-stdin
+- name: Login to Docker registry
+  shell: |
+    docker login {{ registry_servername }} -u '{{ registry_username }}' -p '{{ registry_password }}'
 
-    - name: Start all services
-      shell: |
-        cd /opt/web
-        docker compose pull
-        docker compose up -d
+
+    # - name: Start all services
+    #   shell: |
+    #     cd /opt/web
+    #     docker compose pull
+    #     docker compose up -d
