@@ -2,6 +2,8 @@
   hosts: db_servers
   gather_facts: no
   become: true
+  vars_files:
+    - /Ansible/group_vars/vault.yml
   tasks:
 
     - name: Install Nginx
@@ -40,39 +42,8 @@
         state: latest
         update_cache: true
     
-    - name: Create script for Docker setup
-      copy:
-        dest: /tmp/setup_docker.sh
-        content: |
-          #!/bin/bash
-
-          # Remove old Docker and related packages
-          for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
-              sudo apt-get remove -y $pkg
-          done
-
-          # Add Docker's official GPG key
-          sudo apt-get update -y
-          sudo apt-get install -y ca-certificates curl
-          sudo install -m 0755 -d /etc/apt/keyrings
-          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-          sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-          # Add the repository to Apt sources
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-          # Update apt and install Docker CE
-          sudo apt-get update -y
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-    - name: Make script executable
-      file:
-        path: /tmp/setup_docker.sh
-        mode: '0755'
-      when: "'docker-ce' not in ansible_facts.packages"
-
     - name: Execute Docker setup script
-      command: /tmp/setup_docker.sh
+      command: docker-ce.sh
       register: script_output
       ignore_errors: yes  # To ensure playbook execution continues even if script fails
       when: "'docker-ce' not in ansible_facts.packages"
