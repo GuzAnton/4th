@@ -76,7 +76,7 @@
       register: script_output
       ignore_errors: yes  # To ensure playbook execution continues even if script fails
       when: "'docker-ce' not in ansible_facts.packages"
-      
+
     - name: Debug script output
       debug:
         var: script_output.stdout_lines
@@ -284,9 +284,22 @@
               driver: bridge
 
     - name: Login to Docker registry
-      shell: |
-        docker login {{ registry_servername }} -u '{{ registry_username }}' -p '{{ registry_password }}'
+      docker_login:
+        registry: "{{ docker_registry }}"
+        username: "{{ registry_username }}"
+        password: "{{ registry_password }}"
+      register: login_result
 
+    - name: Check if docker image exists
+      shell: docker images -q "{{ docker_image }}"
+      register: image_exists
+      failed_when: false
+
+    - name: Pull Docker image if not exists
+      docker_image:
+        name: "{{ docker_image }}"
+        source: pull
+      when: image_exists.stdout == ""
 
     # - name: Start all services
     #   shell: | 
