@@ -69,12 +69,14 @@
       file:
         path: /tmp/setup_docker.sh
         mode: '0755'
+      when: "'docker-ce' not in ansible_facts.packages"
 
     - name: Execute Docker setup script
       command: /tmp/setup_docker.sh
       register: script_output
       ignore_errors: yes  # To ensure playbook execution continues even if script fails
-
+      when: "'docker-ce' not in ansible_facts.packages"
+      
     - name: Debug script output
       debug:
         var: script_output.stdout_lines
@@ -281,13 +283,13 @@
             webnet:
               driver: bridge
 
-- name: Login to Docker registry
-  shell: |
-    docker login {{ registry_servername }} -u '{{ registry_username }}' -p '{{ registry_password }}'
+    - name: Login to Docker registry
+      shell: |
+        docker login {{ registry_servername }} -u '{{ registry_username }}' -p '{{ registry_password }}'
 
 
     # - name: Start all services
-    #   shell: |
+    #   shell: | 
     #     cd /opt/web
     #     docker compose pull
     #     docker compose up -d
