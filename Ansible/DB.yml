@@ -2,8 +2,6 @@
   hosts: db_servers
   gather_facts: no
   become: true
-  vars_files:
-    - /Ansible/group_vars/vault.yml
   tasks:
 
     - name: Install Nginx
@@ -39,24 +37,14 @@
           - python3-pip
           - virtualenv
           - python3-setuptools
+          - docker
         state: latest
         update_cache: true
     
-    - name: Execute Docker setup script
-      command: docker-ce.sh
-      register: script_output
-      ignore_errors: yes  # To ensure playbook execution continues even if script fails
-      when: "'docker-ce' not in ansible_facts.packages"
 
-    - name: Debug script output
-      debug:
-        var: script_output.stdout_lines
+    - name: Run the script to install docker-ce, docker-cli
+      shell: "setup_docker.sh"
 
-    - name: Fail if Docker installation script fails
-      fail:
-        msg: "Docker installation script failed"
-      when: script_output is defined and script_output.rc is defined and script_output.rc != 0
-   
     - name: Create necessary directories for Ghost
       file:
         path: "{{ item }}"
@@ -272,8 +260,8 @@
         source: pull
       when: image_exists.stdout == ""
 
-    # - name: Start all services
-    #   shell: | 
-    #     cd /opt/web
-    #     docker compose pull
-    #     docker compose up -d
+    - name: Start all services
+      shell: |
+        cd /opt/web
+        docker compose pull
+        docker compose up -d
