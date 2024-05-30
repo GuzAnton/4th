@@ -121,15 +121,9 @@ resource "digitalocean_firewall" "web" {
     destination_addresses = ["0.0.0.0/0"]
   }
 
-  outbound_rule {
+outbound_rule {
     protocol              = "tcp"
-    port_range            = "80"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "443"
+    port_range            = "all"
     destination_addresses = ["0.0.0.0/0"]
   }
 }
@@ -190,13 +184,7 @@ resource "digitalocean_firewall" "db" {
 
   outbound_rule {
     protocol              = "tcp"
-    port_range            = "80"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "443"
+    port_range            = "all"
     destination_addresses = ["0.0.0.0/0"]
   }
 }
