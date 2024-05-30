@@ -277,30 +277,16 @@
       debug:
         var: login_result
 
-    - name: Fail if Docker login fails
-      fail:
-        msg: "Docker login failed"
-      when: login_result.failed
-
-    - name: Debug Docker login result
-      debug:
-        var: login_result
-
-    - name: Fail if Docker login fails
-      fail:
-        msg: "Docker login failed"
-      when: login_result.rc != 0
-
     - name: Check if docker image exists
       shell: docker images -q "{{ docker_image }}"
       register: image_exists
       failed_when: false
 
-    - name: Pull Docker image if not exists
-      docker_image:
-        name: "{{ docker_image }}"
-        source: pull
-      when: image_exists.stdout == ""
+    # - name: Pull Docker image if not exists
+    #   docker_image:
+    #     name: "{{ docker_image }}"
+    #     source: pull
+    #   when: image_exists.stdout == ""
 
     - name: Start all services
       shell: |

@@ -140,7 +140,11 @@ resource "digitalocean_firewall" "db" {
     port_range       = "22"
     source_addresses = [var.MyIP]
   }
-
+  inbound_rule {
+    protocol = "tcp"
+    port_range = "5050"
+    source_addresses = ["139.59.153.231"]
+  }
   inbound_rule {
     protocol         = "tcp"
     port_range       = "1-65535"
