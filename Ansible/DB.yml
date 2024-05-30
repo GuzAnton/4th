@@ -10,276 +10,276 @@
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
 
-    - name: Install Nginx
-      apt:
-        name: nginx
-        state: present
-        update_cache: yes
-      tags:
-        - package
+    # - name: Install Nginx
+    #   apt:
+    #     name: nginx
+    #     state: present
+    #     update_cache: yes
+    #   tags:
+    #     - package
 
-    - name: Start & Enable Nginx
-      service: 
-        name: nginx
-        state: started
-        enabled: yes
-      tags:
-        - service
+    # - name: Start & Enable Nginx
+    #   service: 
+    #     name: nginx
+    #     state: started
+    #     enabled: yes
+    #   tags:
+    #     - service
 
-    - name: Disable default website
-      file:
-        path: /etc/nginx/sites-enabled/default
-        state: absent
-      tags:
-        - conf
+    # - name: Disable default website
+    #   file:
+    #     path: /etc/nginx/sites-enabled/default
+    #     state: absent
+    #   tags:
+    #     - conf
 
-    - name: Copy Docker setup script to remote
-      copy:
-        src: ./setup_docker.sh
-        dest: /tmp/setup_docker.sh
-        mode: '0755'
+    # - name: Copy Docker setup script to remote
+    #   copy:
+    #     src: ./setup_docker.sh
+    #     dest: /tmp/setup_docker.sh
+    #     mode: '0755'
 
-    - name: Execute Docker setup script
-      shell: /tmp/setup_docker.sh
-      register: script_output
-      ignore_errors: yes  # To ensure
+    # - name: Execute Docker setup script
+    #   shell: /tmp/setup_docker.sh
+    #   register: script_output
+    #   ignore_errors: yes  # To ensure
 
-    - name: Install required system packages
-      apt:
-        pkg:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - python3-pip
-          - virtualenv
-          - python3-setuptools
-          - docker
-        state: latest
-        update_cache: true
+    # - name: Install required system packages
+    #   apt:
+    #     pkg:
+    #       - apt-transport-https
+    #       - ca-certificates
+    #       - curl
+    #       - software-properties-common
+    #       - python3-pip
+    #       - virtualenv
+    #       - python3-setuptools
+    #       - docker
+    #     state: latest
+    #     update_cache: true
 
-    - name: Install Docker SDK for Python
-      pip:
-        name: docker
-        state: present
+    # - name: Install Docker SDK for Python
+    #   pip:
+    #     name: docker
+    #     state: present
     
-    - name: Create directories
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-      loop:
-        - /opt
-        - /opt/web
-        - /opt/web/nginx
-        - /opt/web/ghost
-        - /opt/web/ghost/content
-        - /opt/web/ghost/content/logs
+    # - name: Create directories
+    #   ansible.builtin.file:
+    #     path: "{{ item }}"
+    #     state: directory
+    #   loop:
+    #     - /opt
+    #     - /opt/web
+    #     - /opt/web/nginx
+    #     - /opt/web/ghost
+    #     - /opt/web/ghost/content
+    #     - /opt/web/ghost/content/logs
 
 
     
-    - name: Upload Nginx configuration
-      copy:
-        dest: /opt/web/nginx/default.conf
-        content: |
-          server {
-            listen 80;
-            listen [::]:80;
-            server_name _;
+    # - name: Upload Nginx configuration
+    #   copy:
+    #     dest: /opt/web/nginx/default.conf
+    #     content: |
+    #       server {
+    #         listen 80;
+    #         listen [::]:80;
+    #         server_name _;
 
-            location / {
-              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto $scheme;
-              proxy_set_header X-Real-IP $remote_addr;
-              proxy_set_header Host $http_host;
-              proxy_pass http://ghost:2368;
+    #         location / {
+    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #           proxy_set_header X-Forwarded-Proto $scheme;
+    #           proxy_set_header X-Real-IP $remote_addr;
+    #           proxy_set_header Host $http_host;
+    #           proxy_pass http://ghost:2368;
 
-              proxy_ignore_headers Set-Cookie Cache-Control;
-              proxy_hide_header Set-Cookie;
-              add_header X-Robots-Tag "noindex, nofollow";
-              proxy_buffering on;
-            }
-          }
-    - name: Upload Ghost configuration
-      copy:
-        dest: /opt/web/ghost/config.json
-        content: |
-          {
-            "url": "http://localhost:2368",
-            "server": {
-              "port": 2368,
-              "host": "::"
-            },
-            "frontend": {
-              "url": "{{ frontend_url }}"
-            },
-            "database": {
-              "client": "mysql",
-              "connection": {
-                "host"     : "mysql",
-                "user"     : "{{ mysql_user }}",
-                "password" : "{{ mysql_password }}",
-                "database" : "{{ mysql_database }}"
-              }
-            },
-            "paths": {
-              "contentPath": "content/"
-            },
-            "privacy": {
-              "useUpdateCheck": false,
-              "useGravatar": false,
-              "useRpcPing": false
-            },
-            "imageOptimization": {
-              "maxWidth": 1240,
-              "resize": true,
-              "srcsets": false
-            },
-            "mail": {
-              "transport": "SMTP",
-              "options": {
-                "service": "Mailgun",
-                "host": "smtp.mailgun.org",
-                "secure": true,
-                "port": 465,
-                "auth": {
-                  "user": "mail_user",
-                  "pass": "mail_pass"
-                }
-              }
-            },
-            "logging": {
-              "level": "info",
-              "rotation": {
-                "enabled": true
-              },
-              "transports": ["file", "stdout"]
-            },
-            "enableGA": false,
-            "autoletters": {
-              "enabled": false,
-              "whiteList": ["bohdan.r@fourthestate.app"]
-            },
-            "membersNotifications": {
-              "enabled": false,
-              "email": {
-                "enabled": true,
-                "from": "Kyiv Independent <community@kyivindependent.com>",
-                "unsubscribeUrl": "/settings#notifications"
-              }
-            },
-            "fakeTheme": {
-              "enabled": true,
-              "config": {
-                "post": {
-                  "liveUpdatesFrom": {
-                    "type": "string",
-                    "name": "Live Updates From (Format: 'yyyy-mm-dd')"
-                  },
-                  "liveUpdatesTo": {
-                    "type": "string",
-                    "name": "Live Updates To (Format: 'yyyy-mm-dd')"
-                  },
-                  "liveUpdatesSlug": {
-                    "type": "string",
-                    "name": "Live Updates Slug (Post URL)"
-                  },
-                  "isLiveUpdatesEnded": {
-                    "type": "boolean",
-                    "name": "Is Live Updates Finished?"
-                  },
-                  "isLiveUpdatesShortNews": {
-                    "type": "boolean",
-                    "name": "Is Live Updates short news"
-                  }
-                },
-                "custom": {
-                  "enable_hot_topic": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "enable_live_updates": {
-                    "type": "boolean",
-                    "default": false
-                  }
-                }
-              }
-            },
-            "meilisearch": {
-              "enabled": false,
-              "host": "http://localhost:7700",
-              "apiKey": "{{ mail_search_api }}"
-            }
-          }
-    - name: Upload Docker Compose configuration
-      copy:
-        dest: /opt/web/compose.yml
-        content: |
-          services:
-            ghost:
-              container_name: ghost
-              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-              restart: always
-              ports:
-                - "2368:2368"
-              environment:
-                - NODE_ENV=production
-              volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-              depends_on:
-                - mysql
-              networks:
-                - webnet
+    #           proxy_ignore_headers Set-Cookie Cache-Control;
+    #           proxy_hide_header Set-Cookie;
+    #           add_header X-Robots-Tag "noindex, nofollow";
+    #           proxy_buffering on;
+    #         }
+    #       }
+    # - name: Upload Ghost configuration
+    #   copy:
+    #     dest: /opt/web/ghost/config.json
+    #     content: |
+    #       {
+    #         "url": "http://localhost:2368",
+    #         "server": {
+    #           "port": 2368,
+    #           "host": "::"
+    #         },
+    #         "frontend": {
+    #           "url": "{{ frontend_url }}"
+    #         },
+    #         "database": {
+    #           "client": "mysql",
+    #           "connection": {
+    #             "host"     : "mysql",
+    #             "user"     : "{{ mysql_user }}",
+    #             "password" : "{{ mysql_password }}",
+    #             "database" : "{{ mysql_database }}"
+    #           }
+    #         },
+    #         "paths": {
+    #           "contentPath": "content/"
+    #         },
+    #         "privacy": {
+    #           "useUpdateCheck": false,
+    #           "useGravatar": false,
+    #           "useRpcPing": false
+    #         },
+    #         "imageOptimization": {
+    #           "maxWidth": 1240,
+    #           "resize": true,
+    #           "srcsets": false
+    #         },
+    #         "mail": {
+    #           "transport": "SMTP",
+    #           "options": {
+    #             "service": "Mailgun",
+    #             "host": "smtp.mailgun.org",
+    #             "secure": true,
+    #             "port": 465,
+    #             "auth": {
+    #               "user": "mail_user",
+    #               "pass": "mail_pass"
+    #             }
+    #           }
+    #         },
+    #         "logging": {
+    #           "level": "info",
+    #           "rotation": {
+    #             "enabled": true
+    #           },
+    #           "transports": ["file", "stdout"]
+    #         },
+    #         "enableGA": false,
+    #         "autoletters": {
+    #           "enabled": false,
+    #           "whiteList": ["bohdan.r@fourthestate.app"]
+    #         },
+    #         "membersNotifications": {
+    #           "enabled": false,
+    #           "email": {
+    #             "enabled": true,
+    #             "from": "Kyiv Independent <community@kyivindependent.com>",
+    #             "unsubscribeUrl": "/settings#notifications"
+    #           }
+    #         },
+    #         "fakeTheme": {
+    #           "enabled": true,
+    #           "config": {
+    #             "post": {
+    #               "liveUpdatesFrom": {
+    #                 "type": "string",
+    #                 "name": "Live Updates From (Format: 'yyyy-mm-dd')"
+    #               },
+    #               "liveUpdatesTo": {
+    #                 "type": "string",
+    #                 "name": "Live Updates To (Format: 'yyyy-mm-dd')"
+    #               },
+    #               "liveUpdatesSlug": {
+    #                 "type": "string",
+    #                 "name": "Live Updates Slug (Post URL)"
+    #               },
+    #               "isLiveUpdatesEnded": {
+    #                 "type": "boolean",
+    #                 "name": "Is Live Updates Finished?"
+    #               },
+    #               "isLiveUpdatesShortNews": {
+    #                 "type": "boolean",
+    #                 "name": "Is Live Updates short news"
+    #               }
+    #             },
+    #             "custom": {
+    #               "enable_hot_topic": {
+    #                 "type": "boolean",
+    #                 "default": false
+    #               },
+    #               "enable_live_updates": {
+    #                 "type": "boolean",
+    #                 "default": false
+    #               }
+    #             }
+    #           }
+    #         },
+    #         "meilisearch": {
+    #           "enabled": false,
+    #           "host": "http://localhost:7700",
+    #           "apiKey": "{{ mail_search_api }}"
+    #         }
+    #       }
+    # - name: Upload Docker Compose configuration
+    #   copy:
+    #     dest: /opt/web/compose.yml
+    #     content: |
+    #       services:
+    #         ghost:
+    #           container_name: ghost
+    #           image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+    #           restart: always
+    #           ports:
+    #             - "2368:2368"
+    #           environment:
+    #             - NODE_ENV=production
+    #           volumes:
+    #             - ./ghost/content/:/app/ghost/core/content/:rw
+    #             - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+    #           depends_on:
+    #             - mysql
+    #           networks:
+    #             - webnet
 
-            mysql:
-              container_name: mysql
-              image: mysql:8.0.32
-              restart: always
-              environment:
-                MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
-                MYSQL_DATABASE: "{{ mysql_database }}"
-                MYSQL_USER: "{{ mysql_user }}"
-                MYSQL_PASSWORD: "{{ mysql_password }}"
-              ports:
-                - "3306:3306"
-              volumes:
-                - ./mysql/data:/var/lib/mysql
-              networks:
-                - webnet
+    #         mysql:
+    #           container_name: mysql
+    #           image: mysql:8.0.32
+    #           restart: always
+    #           environment:
+    #             MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+    #             MYSQL_DATABASE: "{{ mysql_database }}"
+    #             MYSQL_USER: "{{ mysql_user }}"
+    #             MYSQL_PASSWORD: "{{ mysql_password }}"
+    #           ports:
+    #             - "3306:3306"
+    #           volumes:
+    #             - ./mysql/data:/var/lib/mysql
+    #           networks:
+    #             - webnet
 
-            nginx:
-              container_name: nginx
-              image: nginx:latest
-              restart: always
-              volumes:
-                - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-              ports:
-                - "80:80"
-                - "443:443"
-              networks:
-                - webnet
+    #         nginx:
+    #           container_name: nginx
+    #           image: nginx:latest
+    #           restart: always
+    #           volumes:
+    #             - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    #           ports:
+    #             - "80:80"
+    #             - "443:443"
+    #           networks:
+    #             - webnet
 
-          networks:
-            webnet:
-              driver: bridge
+    #       networks:
+    #         webnet:
+    #           driver: bridge
 
-    - name: Log into Docker registry
-      docker_login:
-        registry: "{{ docker_registry }}"
-        username: "{{ registry_username }}"
-        password: "{{ registry_password }}"
-        reauthorize: yes
-      register: login_result
-      ignore_errors: yes
+    # - name: Log into Docker registry
+    #   docker_login:
+    #     registry: "{{ docker_registry }}"
+    #     username: "{{ registry_username }}"
+    #     password: "{{ registry_password }}"
+    #     reauthorize: yes
+    #   register: login_result
+    #   ignore_errors: yes
 
-    - name: Debug Docker login result
-      debug:
-        var: login_result
+    # - name: Debug Docker login result
+    #   debug:
+    #     var: login_result
 
-    - name: Fail if Docker login fails
-      fail:
-        msg: "Docker login failed"
-      when: login_result.failed
+    # - name: Fail if Docker login fails
+    #   fail:
+    #     msg: "Docker login failed"
+    #   when: login_result.failed
 
     # - name: Debug Docker login result
     #   debug:
