@@ -10,21 +10,21 @@
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
 
-    # - name: Install Nginx
-    #   apt:
-    #     name: nginx
-    #     state: present
-    #     update_cache: yes
-    #   tags:
-    #     - package
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      tags:
+        - package
 
-    # - name: Start & Enable Nginx
-    #   service: 
-    #     name: nginx
-    #     state: started
-    #     enabled: yes
-    #   tags:
-    #     - service
+    - name: Start & Enable Nginx
+      service: 
+        name: nginx
+        state: started
+        enabled: yes
+      tags:
+        - service
 
     # - name: Disable default website
     #   file:
@@ -43,6 +43,20 @@
     #   shell: /tmp/setup_docker.sh
     #   register: script_output
     #   ignore_errors: yes  # To ensure
+
+    # - name: Create directories
+    #   ansible.builtin.file:
+    #     path: "{{ item }}"
+    #     state: directory
+    #   loop:
+    #     - /opt
+    #     - /opt/web
+    #     - /opt/web/nginx
+    #     - /opt/web/ghost
+    #     - /opt/web/ghost/content
+    #     - /opt/web/ghost/content/logs
+
+
 
     # - name: Install required system packages
     #   apt:
@@ -63,19 +77,6 @@
     #     name: docker
     #     state: present
     
-    # - name: Create directories
-    #   ansible.builtin.file:
-    #     path: "{{ item }}"
-    #     state: directory
-    #   loop:
-    #     - /opt
-    #     - /opt/web
-    #     - /opt/web/nginx
-    #     - /opt/web/ghost
-    #     - /opt/web/ghost/content
-    #     - /opt/web/ghost/content/logs
-
-
     
     # - name: Upload Nginx configuration
     #   copy:
