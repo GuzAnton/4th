@@ -1,7 +1,8 @@
 #!/bin/bash
 # Remove old Docker and related package
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
-sudo apt-get remove -y $pkg done
+    sudo apt-get remove -y $pkg 
+done
 
 # Add Docker's official GPG key
 sudo apt-get update -y
