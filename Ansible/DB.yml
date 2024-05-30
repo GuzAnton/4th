@@ -2,7 +2,13 @@
   hosts: db_servers
   gather_facts: no
   become: true
+  vars_files:
+    - ./group_vars/all/vault.yml
   tasks:
+
+    - name: Check current user
+      debug:
+        msg: "Current user is {{ lookup('env', 'USER') }}"
 
     - name: Install Nginx
       apt:
@@ -27,6 +33,17 @@
       tags:
         - conf
 
+    - name: Copy Docker setup script to remote
+      copy:
+        src: ./setup_docker.sh
+        dest: /tmp/setup_docker.sh
+        mode: '0755'
+
+    - name: Execute Docker setup script
+      shell: /tmp/setup_docker.sh
+      register: script_output
+      ignore_errors: yes  # To ensure
+
     - name: Install required system packages
       apt:
         pkg:
@@ -40,22 +57,26 @@
           - docker
         state: latest
         update_cache: true
+
+    - name: Install Docker SDK for Python
+      pip:
+        name: docker
+        state: present
     
-
-    - name: Run the script to install docker-ce, docker-cli
-      shell: "setup_docker.sh"
-
-    - name: Create necessary directories for Ghost
-      file:
+    - name: Create directories
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
-      with_items:
+      loop:
+        - /opt
         - /opt/web
         - /opt/web/nginx
         - /opt/web/ghost
         - /opt/web/ghost/content
         - /opt/web/ghost/content/logs
 
+
+    
     - name: Upload Nginx configuration
       copy:
         dest: /opt/web/nginx/default.conf
@@ -242,26 +263,46 @@
             webnet:
               driver: bridge
 
-    - name: Login to Docker registry
+    - name: Log into Docker registry
       docker_login:
         registry: "{{ docker_registry }}"
         username: "{{ registry_username }}"
         password: "{{ registry_password }}"
+        reauthorize: yes
       register: login_result
+      ignore_errors: yes
 
-    - name: Check if docker image exists
-      shell: docker images -q "{{ docker_image }}"
-      register: image_exists
-      failed_when: false
+    - name: Debug Docker login result
+      debug:
+        var: login_result
 
-    - name: Pull Docker image if not exists
-      docker_image:
-        name: "{{ docker_image }}"
-        source: pull
-      when: image_exists.stdout == ""
+    - name: Fail if Docker login fails
+      fail:
+        msg: "Docker login failed"
+      when: login_result.failed
 
-    - name: Start all services
-      shell: |
-        cd /opt/web
-        docker compose pull
-        docker compose up -d
+    # - name: Debug Docker login result
+    #   debug:
+    #     var: login_result
+
+    # - name: Fail if Docker login fails
+    #   fail:
+    #     msg: "Docker login failed"
+    #   when: login_result.rc != 0
+
+    # - name: Check if docker image exists
+    #   shell: docker images -q "{{ docker_image }}"
+    #   register: image_exists
+    #   failed_when: false
+
+    # - name: Pull Docker image if not exists
+    #   docker_image:
+    #     name: "{{ docker_image }}"
+    #     source: pull
+    #   when: image_exists.stdout == ""
+
+    # - name: Start all services
+    #   shell: |
+    #     cd /opt/web
+    #     docker compose pull
+    #     docker compose up -d
