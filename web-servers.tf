@@ -116,20 +116,8 @@ resource "digitalocean_firewall" "web" {
   }
 
   outbound_rule {
-    protocol              = "udp"
-    port_range            = "53"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-
-  outbound_rule {
     protocol              = "tcp"
-    port_range            = "80"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "443"
+    port_range            = "all"
     destination_addresses = ["0.0.0.0/0"]
   }
 }
@@ -159,12 +147,6 @@ resource "digitalocean_firewall" "db" {
     source_addresses = [digitalocean_vpc.project.ip_range]
   }
 
-  # inbound_rule {
-  #   protocol         = "icmp"
-  #   port_range       = "1-65535"
-  #   source_addresses = [digitalocean_vpc.project.ip_range]
-  # }
-
   outbound_rule {
     protocol              = "tcp"
     port_range            = "1-65535"
@@ -190,13 +172,7 @@ resource "digitalocean_firewall" "db" {
 
   outbound_rule {
     protocol              = "tcp"
-    port_range            = "80"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "443"
+    port_range            = "all"
     destination_addresses = ["0.0.0.0/0"]
   }
 }
