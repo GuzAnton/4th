@@ -10,21 +10,21 @@
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
 
-    - name: Install Nginx
-      apt:
-        name: nginx
-        state: present
-        update_cache: yes
-      tags:
-        - package
+    # - name: Install Nginx
+    #   apt:
+    #     name: nginx
+    #     state: present
+    #     update_cache: yes
+    #   tags:
+    #     - package
 
-    - name: Start & Enable Nginx
-      service: 
-        name: nginx
-        state: started
-        enabled: yes
-      tags:
-        - service
+    # - name: Start & Enable Nginx
+    #   service: 
+    #     name: nginx
+    #     state: started
+    #     enabled: yes
+    #   tags:
+    #     - service
 
     - name: Disable default website
       file:
