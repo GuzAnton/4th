@@ -85,6 +85,11 @@ resource "digitalocean_firewall" "web" {
     source_addresses = ["0.0.0.0/0"]
   }
   inbound_rule {
+    protocol = "tcp"
+    port_range = "80"
+    source_addresses = ["0.0.0.0/0"]
+  }
+  inbound_rule {
     protocol         = "tcp"
     port_range       = "1-65535"
     source_addresses = [digitalocean_vpc.project.ip_range]
