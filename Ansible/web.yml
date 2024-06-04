@@ -36,6 +36,11 @@
       shell: /tmp/setup_docker.sh
       register: script_output
 
+    - name: Install Docker SDK for Python
+      pip:
+        name: docker
+        state: present
+        
     - name: Create directories
       ansible.builtin.file:
         path: "{{ item }}"
