@@ -1,6 +1,6 @@
 - name: Setup frontend
   hosts: web_servers
-  gather_facts: no
+  gather_facts: yes
   become: yes
   vars_files:
     - ./group_vars/all/vault.yml
