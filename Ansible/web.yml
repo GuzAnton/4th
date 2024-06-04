@@ -23,6 +23,7 @@
           - python3-pip
           - virtualenv
           - python3-setuptools
+          - docker
         state: latest
         update_cache: true
     
@@ -40,7 +41,7 @@
       pip:
         name: docker
         state: present
-        
+
     - name: Create directories
       ansible.builtin.file:
         path: "{{ item }}"
