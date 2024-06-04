@@ -160,4 +160,8 @@
         cd /web
         docker compose pull
         docker compose up -d
-        
+      register: pull_result
+
+    - name: Debug pull result
+      debug:
+        var: pull_result

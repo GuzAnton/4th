@@ -292,3 +292,7 @@
         cd /opt/web
         docker compose pull
         docker compose up -d
+
+    - name: Debug pull result
+      debug:
+        var: pull_result
