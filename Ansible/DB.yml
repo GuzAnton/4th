@@ -88,7 +88,7 @@
           # - docker
         state: latest
         update_cache: true
-      when: "'python3-pip' not in ansible_facts.packages"
+      when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
 
     - name: Install Docker SDK for Python
       pip:
