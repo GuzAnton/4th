@@ -92,7 +92,7 @@
       copy:
         dest: /web/frontend/.env
         content: |
-          NEXT_PUBLIC_GHOST_API_URL='http://146.190.177.29'
+          NEXT_PUBLIC_GHOST_API_URL='http://138.68.114.175'
           NEXT_PUBLIC_GHOST_API_KEY='{{front_public_api_key}}'
 
           NEXT_PUBLIC_GOOGLE_CLIENT_ID='21007502974-i97qj0ctd5v4qbaukbptk7dd36fbph3c.apps.googleusercontent.com'
