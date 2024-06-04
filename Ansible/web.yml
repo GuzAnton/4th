@@ -6,26 +6,26 @@
     - ./group_vars/all/vault.yml
   tasks:
 
-    - name: Disable default website
-      file:
-        path: /etc/nginx/sites-enabled/default
-        state: absent
-      tags:
-        - conf
+    # - name: Disable default website
+    #   file:
+    #     path: /etc/nginx/sites-enabled/default
+    #     state: absent
+    #   tags:
+    #     - conf
     
-    # - name: Install required system packages
-    #   apt:
-    #     pkg:
-    #       - apt-transport-https
-    #       - ca-certificates
-    #       - curl
-    #       - software-properties-common
-    #       - python3-pip
-    #       - virtualenv
-    #       - python3-setuptools
-    #       - docker
-    #     state: latest
-    #     update_cache: true
+    - name: Install required system packages
+      apt:
+        pkg:
+          # - apt-transport-https
+          # - ca-certificates
+          # - curl
+          # - software-properties-common
+          - python3-pip
+          # - virtualenv
+          # - python3-setuptools
+          # - docker
+        state: latest
+        update_cache: true
     
     - name: Copy Docker setup script to remote
       copy:
@@ -160,8 +160,3 @@
         cd /web
         docker compose pull
         docker compose up -d
-      register: pull_result
-
-    - name: Debug pull result
-      debug:
-        var: pull_result
