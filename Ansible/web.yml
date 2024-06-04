@@ -63,7 +63,7 @@
             }
             
             location ~^/socket\.io {
-              proxy_pass http://159.89.96.224;
+              proxy_pass http://172.20.0.4;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -71,7 +71,7 @@
             }
 
             location ~ ^/members/webhooks/stripe/ {
-              proxy_pass http://159.89.96.224;
+              proxy_pass http://172.20.0.4;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -80,7 +80,7 @@
             }
 
             location ~*^/(ghost|p|members|content)/ {
-              proxy_pass http://159.89.96.224;
+              proxy_pass http://172.20.0.4;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -102,7 +102,7 @@
           NEXT_PUBLIC_APPLE_CLIENT_ID='com.fourthestate.app'
           NEXT_PUBLIC_APPLE_REDIRECT_URI='https://dev-mediaplatform.fourthestate.app'
 
-          NEXT_PUBLIC_DOMAIN='167.99.132.241'
+          NEXT_PUBLIC_DOMAIN='164.90.243.167'
     
     - name: Upload Docker Compose configuration
       copy:
