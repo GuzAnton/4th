@@ -259,7 +259,6 @@
                 - "443:443"
               networks:
                 - webnet
-
           networks:
             webnet:
               driver: bridge
@@ -277,10 +276,10 @@
       debug:
         var: login_result
 
-    - name: Check if docker image exists
-      shell: docker images -q "{{ docker_image }}"
-      register: image_exists
-      failed_when: false
+    # - name: Check if docker image exists
+    #   shell: docker images -q "{{ docker_image }}"
+    #   register: image_exists
+    #   failed_when: false
 
     # - name: Pull Docker image if not exists
     #   docker_image:
