@@ -33,16 +33,33 @@
     #   tags:
     #     - conf
 
-    - name: Copy Docker setup script to remote
+    # - name: Copy Docker setup script to remote
+    #   copy:
+    #     src: ./setup_docker.sh
+    #     dest: /tmp/setup_docker.sh
+    #     mode: '0755'
+
+    # - name: Execute Docker setup script
+    #   shell: /tmp/setup_docker.sh
+    #   register: script_output
+    #   ignore_errors: yes  # To ensure
+
+    - name: Check if Docker setup script exists
+      stat:
+        path: /tmp/setup_docker.sh
+      register: script_stat
+
+    - name: Copy Docker setup script to remote if not exists
       copy:
         src: ./setup_docker.sh
         dest: /tmp/setup_docker.sh
         mode: '0755'
+      when: not script_stat.stat.exists
 
     - name: Execute Docker setup script
       shell: /tmp/setup_docker.sh
       register: script_output
-      ignore_errors: yes  # To ensure
+      when: not script_stat.stat.exists
 
     - name: Create directories
       ansible.builtin.file:
