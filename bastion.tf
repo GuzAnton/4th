@@ -32,7 +32,6 @@ resource "digitalocean_droplet" "bastion" {
   }
 }
 
-
 resource "digitalocean_firewall" "bastion" {
   name        = var.Bastion_firewall_name
   droplet_ids = [digitalocean_droplet.bastion.id]
