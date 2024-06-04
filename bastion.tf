@@ -27,7 +27,8 @@ resource "digitalocean_droplet" "bastion" {
 
   provisioner "remote-exec" {
     inline = [
-      "git clone https://github.com/GuzAnton/4th.git ~/4th"
+      "git clone https://github.com/GuzAnton/4th.git ~/4th",
+      "mkdir -p /root/4th/Ansible/group_vars/all"
     ]
   }
 }
