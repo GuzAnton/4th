@@ -130,7 +130,7 @@ resource "digitalocean_firewall" "web" {
     destination_addresses = ["0.0.0.0/0"]
   }
 
-outbound_rule {
+  outbound_rule {
     protocol              = "tcp"
     port_range            = "all"
     destination_addresses = ["0.0.0.0/0"]
