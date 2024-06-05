@@ -4,9 +4,6 @@ output "bastion_public_ip" {
 output "LoadBalancer_ip" {
   value = digitalocean_loadbalancer.web.ip
 }
-output "LoadBalancer_ip_private" {
-  value = digitalocean_loadbalancer.web.ipv4_address_private
-}
 output "web_servers_private_ips" {
   value = digitalocean_droplet.web.*.ipv4_address_private
 }
