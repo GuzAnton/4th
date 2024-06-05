@@ -6,36 +6,13 @@
     - ./group_vars/all/vault.yml
   tasks:
 
-    # - name: Disable default website
-    #   file:
-    #     path: /etc/nginx/sites-enabled/default
-    #     state: absent
-    #   tags:
-    #     - conf
-    
     - name: Install required system packages
       apt:
         pkg:
-          # - apt-transport-https
-          # - ca-certificates
-          # - curl
-          # - software-properties-common
           - python3-pip
-          # - virtualenv
-          # - python3-setuptools
-          # - docker
         state: latest
         update_cache: true
       when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
-    # - name: Copy Docker setup script to remote
-    #   copy:
-    #     src: ./setup_docker.sh
-    #     dest: /tmp/setup_docker.sh
-    #     mode: '0755'
-    
-    # - name: Execute Docker setup script
-    #   shell: /tmp/setup_docker.sh
-    #   register: script_output
 
     - name: Check if Docker setup script exists
       stat:

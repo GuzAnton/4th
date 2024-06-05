@@ -33,17 +33,6 @@
     #   tags:
     #     - conf
 
-    # - name: Copy Docker setup script to remote
-    #   copy:
-    #     src: ./setup_docker.sh
-    #     dest: /tmp/setup_docker.sh
-    #     mode: '0755'
-
-    # - name: Execute Docker setup script
-    #   shell: /tmp/setup_docker.sh
-    #   register: script_output
-    #   ignore_errors: yes  # To ensure
-
     - name: Check if Docker setup script exists
       stat:
         path: /tmp/setup_docker.sh
@@ -73,19 +62,10 @@
         - /opt/web/ghost/content
         - /opt/web/ghost/content/logs
 
-
-
     - name: Install required system packages
       apt:
         pkg:
-          # - apt-transport-https
-          # - ca-certificates
-          # - curl
-          # - software-properties-common
           - python3-pip
-          # - virtualenv
-          # - python3-setuptools
-          # - docker
         state: latest
         update_cache: true
       when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
@@ -293,17 +273,6 @@
     - name: Debug Docker login result
       debug:
         var: login_result
-
-    # - name: Check if docker image exists
-    #   shell: docker images -q "{{ docker_image }}"
-    #   register: image_exists
-    #   failed_when: false
-
-    # - name: Pull Docker image if not exists
-    #   docker_image:
-    #     name: "{{ docker_image }}"
-    #     source: pull
-    #   when: image_exists.stdout == ""
 
     - name: Start all services
       shell: |
