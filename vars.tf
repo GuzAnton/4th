@@ -24,11 +24,11 @@ variable "web_droplet_size" {
   default = "s-1vcpu-1gb"
 }
 variable "db_droplet_size" {
-  default = "s-1vcpu-1gb"
+  default = "s-2vcpu-2gb"
 }
 variable "domain_name" {
   type    = string
-  default = "Fourthestate.app"
+  default = "fourthestate.app"
 }
 variable "subdomain" {
   type    = string

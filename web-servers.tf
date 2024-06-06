@@ -56,7 +56,7 @@ resource "digitalocean_loadbalancer" "web" {
   #   healthy_threshold        = 2
   # }
 
-  droplet_ids = digitalocean_droplet.web.*.id
+  droplet_ids = [digitalocean_droplet.web.*.id]
   vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
   lifecycle {
@@ -75,16 +75,6 @@ resource "digitalocean_firewall" "web" {
     protocol         = "tcp"
     port_range       = "22"
     source_addresses = [var.MyIP]
-  }
-  inbound_rule {
-    protocol = "tcp"
-    port_range = "443"
-    source_addresses = ["0.0.0.0/0"]
-  }
-  inbound_rule {
-    protocol = "tcp"
-    port_range = "80"
-    source_addresses = ["0.0.0.0/0"]
   }
   inbound_rule {
     protocol         = "tcp"
@@ -163,11 +153,11 @@ resource "digitalocean_firewall" "db" {
     source_addresses = [digitalocean_vpc.project.ip_range]
   }
 
-  # inbound_rule {
-  #   protocol         = "icmp"
-  #   port_range       = "1-65535"
-  #   source_addresses = [digitalocean_vpc.project.ip_range]
-  # }
+  inbound_rule {
+    protocol         = "icmp"
+    port_range       = "1-65535"
+    source_addresses = [digitalocean_vpc.project.ip_range]
+  }
 
   outbound_rule {
     protocol              = "tcp"
@@ -181,10 +171,10 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = [digitalocean_vpc.project.ip_range]
   }
 
-  # outbound_rule {
-  #   protocol              = "icmp"
-  #   destination_addresses = [digitalocean_vpc.project.ip_range]
-  # }
+  outbound_rule {
+    protocol              = "icmp"
+    destination_addresses = [digitalocean_vpc.project.ip_range]
+  }
 
   outbound_rule {
     protocol              = "udp"
