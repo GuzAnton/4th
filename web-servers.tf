@@ -56,7 +56,7 @@ resource "digitalocean_loadbalancer" "web" {
   #   healthy_threshold        = 2
   # }
 
-  droplet_ids = [digitalocean_droplet.web.*.id]
+  droplet_ids = [digitalocean_droplet.web.id]
   vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
   lifecycle {
