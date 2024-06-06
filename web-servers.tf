@@ -203,6 +203,7 @@ resource "digitalocean_firewall" "db" {
 }
 resource "digitalocean_certificate" "cert" {
   name              = "fourthestate-app-cert"
-  private_key       = file("${path.module}/fourthestate_app.key")
-  leaf_certificate  = file("${path.module}/fourthestate_app.crt")
+  private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
+  leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
+  certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
 }
