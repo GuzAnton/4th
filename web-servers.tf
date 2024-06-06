@@ -41,19 +41,11 @@ resource "digitalocean_loadbalancer" "web" {
   forwarding_rule {
     entry_port     = 443
     entry_protocol = "https"
-
     target_port      = 80
     target_protocol  = "http"
     certificate_name = digitalocean_certificate.cert.name
 
   }
-  vpc_uuid               = digitalocean_vpc.project.id
-  #redirect_http_to_https = true
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
   healthcheck {
     port                     = 80
     protocol                 = "http"
@@ -65,6 +57,11 @@ resource "digitalocean_loadbalancer" "web" {
   }
 
   droplet_ids = digitalocean_droplet.web.*.id
+  vpc_uuid               = digitalocean_vpc.project.id
+  #redirect_http_to_https = true
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "digitalocean_firewall" "web" {
@@ -79,16 +76,16 @@ resource "digitalocean_firewall" "web" {
     port_range       = "22"
     source_addresses = [var.MyIP]
   }
-  inbound_rule {
-    protocol = "tcp"
-    port_range = "443"
-    source_addresses = ["0.0.0.0/0"]
-  }
-  inbound_rule {
-    protocol = "tcp"
-    port_range = "80"
-    source_addresses = ["0.0.0.0/0"]
-  }
+  # inbound_rule {
+  #   protocol = "tcp"
+  #   port_range = "443"
+  #   source_addresses = ["0.0.0.0/0"]
+  # }
+  # inbound_rule {
+  #   protocol = "tcp"
+  #   port_range = "80"
+  #   source_addresses = ["0.0.0.0/0"]
+  # }
   inbound_rule {
     protocol         = "tcp"
     port_range       = "1-65535"
