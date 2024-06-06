@@ -48,7 +48,7 @@ resource "digitalocean_loadbalancer" "web" {
 
   }
   vpc_uuid               = digitalocean_vpc.project.id
-  redirect_http_to_https = true
+  #redirect_http_to_https = true
 
   lifecycle {
     create_before_destroy = true
@@ -79,16 +79,16 @@ resource "digitalocean_firewall" "web" {
     port_range       = "22"
     source_addresses = [var.MyIP]
   }
-  # inbound_rule {
-  #   protocol = "tcp"
-  #   port_range = "443"
-  #   source_addresses = ["0.0.0.0/0"]
-  # }
-  # inbound_rule {
-  #   protocol = "tcp"
-  #   port_range = "80"
-  #   source_addresses = ["0.0.0.0/0"]
-  # }
+  inbound_rule {
+    protocol = "tcp"
+    port_range = "443"
+    source_addresses = ["0.0.0.0/0"]
+  }
+  inbound_rule {
+    protocol = "tcp"
+    port_range = "80"
+    source_addresses = ["0.0.0.0/0"]
+  }
   inbound_rule {
     protocol         = "tcp"
     port_range       = "1-65535"
