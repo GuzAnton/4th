@@ -77,6 +77,12 @@ resource "digitalocean_firewall" "web" {
     source_addresses = [var.MyIP]
   }
   inbound_rule {
+    protocol = "tcp"
+    port_range = "all"
+    source_load_balancer_uids = [digitalocean_loadbalancer.web.id]
+  }
+  
+  inbound_rule {
     protocol         = "tcp"
     port_range       = "1-65535"
     source_addresses = [digitalocean_vpc.project.ip_range]
@@ -188,21 +194,21 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-resource "digitalocean_firewall" "digitalocean_loadbalancer" {
-  name        = "balancer_firewall"
-  droplet_ids = [digitalocean_loadbalancer.web.*.id]
+# resource "digitalocean_firewall" "digitalocean_loadbalancer" {
+#   name        = "balancer_firewall"
+#   droplet_ids = [digitalocean_loadbalancer.web.*.id]
 
-  inbound_rule {
-    protocol         = "tcp"
-    port_range       = "443"
-    source_addresses = ["0.0.0.0/0"]
-  }
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "all"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-}
+#   inbound_rule {
+#     protocol         = "tcp"
+#     port_range       = "443"
+#     source_addresses = ["0.0.0.0/0"]
+#   }
+#   outbound_rule {
+#     protocol              = "tcp"
+#     port_range            = "all"
+#     destination_addresses = ["0.0.0.0/0"]
+#   }
+# }
 resource "digitalocean_certificate" "cert" {
   name              = "fourthestate-app-cert"
   private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
