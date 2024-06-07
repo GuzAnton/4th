@@ -190,7 +190,7 @@ resource "digitalocean_firewall" "db" {
 }
 resource "digitalocean_firewall" "digitalocean_loadbalancer" {
   name        = "balancer_firewall"
-  droplet_ids = [digitalocean_loadbalancer.web.id]
+  droplet_ids = [digitalocean_loadbalancer.web.*.id]
 
   inbound_rule {
     protocol         = "tcp"
