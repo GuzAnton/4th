@@ -82,7 +82,7 @@ resource "digitalocean_firewall" "web" {
   #   source_addresses = ["0.0.0.0/0"]
   # }
   inbound_rule {
-    protocol = "http"
+    protocol = "tcp"
     port_range = "80"
     source_addresses = ["0.0.0.0/0"]
   }
