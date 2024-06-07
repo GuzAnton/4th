@@ -76,11 +76,6 @@ resource "digitalocean_firewall" "web" {
     port_range       = "22"
     source_addresses = [var.MyIP]
   }
-  inbound_rule {
-    protocol                  = "tcp"
-    port_range                = "all"
-    source_load_balancer_uids = [digitalocean_loadbalancer.web.ip]
-  }
 
   inbound_rule {
     protocol         = "tcp"
