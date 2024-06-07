@@ -60,7 +60,7 @@ resource "digitalocean_loadbalancer" "web" {
 
   droplet_ids            = [digitalocean_droplet.web[0].id]
   vpc_uuid               = digitalocean_vpc.project.id
-  redirect_http_to_https = true
+  # redirect_http_to_https = true
   lifecycle {
     create_before_destroy = true
   }
