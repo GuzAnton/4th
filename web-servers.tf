@@ -39,10 +39,8 @@ resource "digitalocean_loadbalancer" "web" {
 
 
   forwarding_rule {
-    # entry_port       = 443
-    # entry_protocol   = "https"
-    entry_port = 80
-    entry_protocol = "http"
+    entry_port       = 443
+    entry_protocol   = "https"
     target_port      = 80
     target_protocol  = "http"
     certificate_name = digitalocean_certificate.cert.name
@@ -58,7 +56,7 @@ resource "digitalocean_loadbalancer" "web" {
     healthy_threshold        = 2
   }
 
-  droplet_ids            = [digitalocean_droplet.web[0].id]
+  droplet_ids            = digitalocean_droplet.web.*.id
   vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
   lifecycle {
