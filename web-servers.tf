@@ -77,7 +77,7 @@ resource "digitalocean_firewall" "web" {
     source_addresses = [var.MyIP]
   }
   inbound_rule {
-    protocol         = "https"
+    protocol         = "tcp"
     port_range       = "443"
     source_addresses = ["0.0.0.0/0"]
   }
