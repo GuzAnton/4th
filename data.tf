@@ -3,6 +3,9 @@ data "template_file" "inventory_template" {
 [web_servers]
 ${join("\n", digitalocean_droplet.web.*.ipv4_address_private)}
 
+[web-servers_public]
+${join("\n", digitalocean_droplet.web.*.ipv4_address)}
+
 [db_servers]
 ${join("\n", digitalocean_droplet.db.*.ipv4_address_private)}
 
