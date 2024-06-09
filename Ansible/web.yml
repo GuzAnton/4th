@@ -65,7 +65,7 @@
 
     - name: Copy privkey.pem from Bastion to web servers
       ansible.builtin.copy:
-        src: "/etc/letsencrypt/live/test.fourthestate.app/privkey.pem"
+        src: "~/etc/letsencrypt/live/test.fourthestate.app/privkey.pem"
         dest: "/etc/letsencrypt/live/test.fourthestate.app/"
         remote_src: yes
     
