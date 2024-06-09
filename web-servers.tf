@@ -82,8 +82,8 @@ resource "digitalocean_firewall" "web" {
   #   source_addresses = ["0.0.0.0/0"]
   # }
   inbound_rule {
-    protocol = "tcp"
-    port_range = "80"
+    protocol         = "tcp"
+    port_range       = "80"
     source_addresses = ["0.0.0.0/0"]
   }
   inbound_rule {
@@ -221,8 +221,8 @@ resource "digitalocean_certificate" "cert" {
 }
 resource "cloudflare_record" "project_subdomain" {
   zone_id = data.cloudflare_zones.fourthestate_app.zone_id
-  name = var.subdomain
-  value = element(digitalocean_droplet.web.*.ipv4_address, 0)
-  type = "A"
-  ttl = 300
+  name    = var.subdomain
+  value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
+  type    = "A"
+  ttl     = 300
 }
