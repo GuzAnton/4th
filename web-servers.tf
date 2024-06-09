@@ -11,23 +11,6 @@ resource "digitalocean_droplet" "web" {
   lifecycle {
     create_before_destroy = true
   }
-  connection {
-    type        = "ssh"
-    user        = "root"
-    private_key = file("~/.ssh/id_rsa")
-    host        = self.ipv4_address
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mkdir -p /etc/letsencrypt/live/test.fourthestate.app",
-      "sudo scp /etc/letsencrypt/live/fourthestate.app/cert.pem /etc/letsencrypt/live/test.fourthestate.app/cert.pem",
-      "sudo scp /etc/letsencrypt/live/fourthestate.app/chain.pem /etc/letsencrypt/live/test.fourthestate.app/chain.pem",
-      "sudo scp /etc/letsencrypt/live/fourthestate.app/fullchain.pem /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem",
-      "sudo scp /etc/letsencrypt/live/fourthestate.app/privkey.pem /etc/letsencrypt/live/test.fourthestate.app/privkey.pem",
-      "sudo chmod 0644 /etc/letsencrypt/live/test.fourthestate.app/*.pem",
-      "sudo chmod 0600 /etc/letsencrypt/live/test.fourthestate.app/privkey.pem"
-    ]
-  }
 }
 
 resource "digitalocean_droplet" "db" {
@@ -93,11 +76,11 @@ resource "digitalocean_firewall" "web" {
     port_range       = "22"
     source_addresses = [var.MyIP]
   }
-  # inbound_rule {
-  #   protocol         = "tcp"
-  #   port_range       = "443"
-  #   source_addresses = ["0.0.0.0/0"]
-  # }
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "443"
+    source_addresses = ["0.0.0.0/0"]
+  }
   inbound_rule {
     protocol         = "tcp"
     port_range       = "80"
@@ -242,4 +225,12 @@ resource "cloudflare_record" "project_subdomain" {
   value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
   type    = "A"
   ttl     = 300
+}
+resource "null_resource" "copy_ssl_certificates" {
+  
+  for_each = { for idx, instance in digitalocean_droplet.web : idx => instance.ipv4_address }
+  depends_on = [null_resource.some_other_resource]
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no /etc/letsencrypt/live/fourthestate.app/*.pem root@${each.value}:/etc/letsencrypt/live/test.fourthestate.app/"
+  }
 }
