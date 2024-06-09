@@ -48,14 +48,10 @@
     # - name: Change directory to where SSL certificates are located
     #   shell: scp /etc/letsencrypt/live/test.fourthestate.app/* root{{web_servers}}:/etc/letsencrypt/live/test.fourthestate.app
     - name: Copy SSL certificates to web servers
-      ansible.builtin.shell:
-        cmd: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{ ip }}:/etc/letsencrypt/live/test.fourthestate.app"
-      vars:
-        ip: "{{ hostvars[item]['ansible_host'] }}"
+      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{ item }}:/etc/letsencrypt/live/test.fourthestate.app"
       with_items: "{{ groups['web_servers'] }}"
       delegate_to: localhost
 
-    
     - name: Upload Nginx configuration
       copy:
         dest: /web/nginx/default.conf
