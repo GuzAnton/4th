@@ -20,7 +20,7 @@ resource "digitalocean_droplet" "web" {
 
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p ~/etc/letsencrypt/live/test.fourthestate.app"
+      "mkdir -p /etc/letsencrypt/live/test.fourthestate.app"
     ]
   }
 }
