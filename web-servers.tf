@@ -12,18 +12,18 @@ resource "digitalocean_droplet" "web" {
     create_before_destroy = true
   }
 
-#   provisioner "remote-exec" {
-#     inline = [
-#       # Команда, чтобы убедиться, что каталог существует
-#       "sudo mkdir -p /etc/letsencrypt/live/test.fourthestate.app",
-#       "sudo scp /etc/letsencrypt/live/fourthestate.app/cert.pem /etc/letsencrypt/live/test.fourthestate.app/cert.pem",
-#       "sudo scp /etc/letsencrypt/live/fourthestate.app/chain.pem /etc/letsencrypt/live/test.fourthestate.app/chain.pem",
-#       "sudo scp /etc/letsencrypt/live/fourthestate.app/fullchain.pem /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem",
-#       "sudo scp /etc/letsencrypt/live/fourthestate.app/privkey.pem /etc/letsencrypt/live/test.fourthestate.app/privkey.pem",
-#       "sudo chmod 0644 /etc/letsencrypt/live/test.fourthestate.app/*.pem",
-#       "sudo chmod 0600 /etc/letsencrypt/live/test.fourthestate.app/privkey.pem"
-#     ]
-#   }
+  provisioner "remote-exec" {
+    inline = [
+      # Команда, чтобы убедиться, что каталог существует
+      "sudo mkdir -p /etc/letsencrypt/live/test.fourthestate.app",
+      "sudo scp /etc/letsencrypt/live/fourthestate.app/cert.pem /etc/letsencrypt/live/test.fourthestate.app/cert.pem",
+      "sudo scp /etc/letsencrypt/live/fourthestate.app/chain.pem /etc/letsencrypt/live/test.fourthestate.app/chain.pem",
+      "sudo scp /etc/letsencrypt/live/fourthestate.app/fullchain.pem /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem",
+      "sudo scp /etc/letsencrypt/live/fourthestate.app/privkey.pem /etc/letsencrypt/live/test.fourthestate.app/privkey.pem",
+      "sudo chmod 0644 /etc/letsencrypt/live/test.fourthestate.app/*.pem",
+      "sudo chmod 0600 /etc/letsencrypt/live/test.fourthestate.app/privkey.pem"
+    ]
+  }
 }
 
 resource "digitalocean_droplet" "db" {
