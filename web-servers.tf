@@ -231,6 +231,6 @@ resource "null_resource" "copy_ssl_certificates" {
   for_each   = { for idx, instance in digitalocean_droplet.web : idx => instance.ipv4_address }
   depends_on = [digitalocean_droplet.web]
   provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no /root/etc/letsencrypt/live/fourthestate.app/*.pem root@${each.value}:/etc/letsencrypt/live/test.fourthestate.app/"
+    command = "scp -o StrictHostKeyChecking=no -i ~/.ssh/authorized_keys /root/etc/letsencrypt/live/fourthestate.app/*.pem root@${each.value}:/etc/letsencrypt/live/test.fourthestate.app/"
   }
 }
