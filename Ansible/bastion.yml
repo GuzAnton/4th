@@ -6,3 +6,4 @@
   tasks:
     - name: Run the script to update known_hosts
       shell: "bash known_hosts"
+
