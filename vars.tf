@@ -1,7 +1,12 @@
 variable "region" {
   default = "fra1"
 }
-variable "do_token" {}
+variable "do_token" {
+  type = string
+}
+variable "cf_api_token" {
+  type = string
+}
 variable "web_droplet_count" {
   default = 1
 }
