@@ -1,6 +1,6 @@
-!/bin/bash
+#!/bin/bash
 
-Process web_servers and db_servers
+# Process web_servers and db_servers
 for group in "web_servers" "db_servers"; do
     # Extract IP addresses for the group
     ips=$(grep "\[$group\]" inventory.txt -A 1000 | grep -v "\[" | awk '{print $1}')
@@ -13,3 +13,4 @@ for group in "web_servers" "db_servers"; do
         fi
     done
 done
+
