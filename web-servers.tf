@@ -220,7 +220,7 @@ resource "digitalocean_certificate" "cert" {
   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
 }
 resource "cloudflare_record" "project_subdomain" {
-  zone_id = data.cloudflare_zones.fourthestate_app.id
+  zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
   value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
   type    = "A"
