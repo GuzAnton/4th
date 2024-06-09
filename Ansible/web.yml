@@ -44,24 +44,13 @@
         - /web
         - /web/nginx
         - /web/frontend
-
-    - name: Check if directory exists on web server
-      stat:
-        path: "/etc/letsencrypt/live/test.fourthestate.app/"
-      register: ssl_directory
-
-    - name: Create directory if it doesn't exist
-      file:
-        path: "/etc/letsencrypt/live/test.fourthestate.app/"
-        state: directory
-      when: not ssl_directory.stat.exists
-
-    - name: Copy SSL certificates to web server
-      copy:
-        src: "/etc/letsencrypt/live/test.fourthestate.app/*.pem"
+    
+    - name: Copy SSL certificates from Bastion to web servers
+      ansible.builtin.copy:
+        src: "/etc/letsencrypt/live/test.fourthestate.app/*"
         dest: "/etc/letsencrypt/live/test.fourthestate.app/"
-      ignore_errors: yes
-      
+        remote_src: yes
+    
     - name: Upload Nginx configuration
       copy:
         dest: /web/nginx/default.conf
