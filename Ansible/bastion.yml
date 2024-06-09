@@ -6,6 +6,3 @@
   tasks:
     - name: Run the script to update known_hosts
       shell: "bash known_hosts"
-
-    - name: Run script to copy ssl certificates from bastion to web_servers
-      shell: "bash copy_ssl_certificates"
