@@ -228,9 +228,9 @@ resource "cloudflare_record" "project_subdomain" {
 }
 resource "null_resource" "copy_ssl_certificates" {
 
-  for_each   = { for idx, instance in digitalocean_droplet.web : idx => instance.ipv4_address }
-  depends_on = [digitalocean_droplet.web]
+  for_each   = { for idx, instance in digitalocean_droplet.bastion : idx => instance.ipv4_address }
+  depends_on = [digitalocean_droplet.bastion]
   provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa.pub ~/etc/letsencrypt/live/fourthestate.app/*.pem root@${each.value}:/etc/letsencrypt/live/test.fourthestate.app/"
+    command = "scp -o StrictHostKeyChecking=no ~/etc/letsencrypt/live/fourthestate.app/*.pem root@${each.value}:/etc/letsencrypt/live/test.fourthestate.app/"
   }
 }
