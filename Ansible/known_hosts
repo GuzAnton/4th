@@ -13,17 +13,5 @@ for group in "web_servers" "db_servers"; do
         fi
     done
 done
-# Process web_servers
-for ip in $(grep "\[web_servers\]" inventory.txt -A 1000 | grep -v "\[" | awk '{print $1}'); do
-    # Check if the directory exists on the web server
-    if ssh root@$ip "[ -d /etc/letsencrypt/live/test.fourthestate.app/ ]"; then
-        # Copy SSL certificates to the web server if the directory exists
-        scp -o StrictHostKeyChecking=no /etc/letsencrypt/live/test.fourthestate.app/*.pem root@$ip:/etc/letsencrypt/live/test.fourthestate.app/
-    else
-        # Create directory if it doesn't exist
-        ssh root@$ip "mkdir -p /etc/letsencrypt/live/test.fourthestate.app/"
-        # Copy SSL certificates to the web server
-        scp -o StrictHostKeyChecking=no /etc/letsencrypt/live/test.fourthestate.app/*.pem root@$ip:/etc/letsencrypt/live/test.fourthestate.app/
-    fi
-done
+
 
