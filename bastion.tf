@@ -105,3 +105,14 @@ resource "null_resource" "copy_ssh_key_to_db" {
     command = "scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value}:~/.ssh/authorized_keys"
   }
 }
+resource "null_resource" "copy_ssl_certificates" {
+  depends_on = [digitalocean_droplet.bastion]
+
+  provisioner "local-exec" {
+    command = "ssh -o StrictHostKeyChecking=no root@${digitalocean_droplet.bastion.ipv4_address} 'mkdir -p /etc/letsencrypt/live/test.fourthestate.app/'"
+  }
+
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ~/etc/letsencrypt/live/fourthestate.app/*.pem root@${digitalocean_droplet.bastion.ipv4_address}:/etc/letsencrypt/live/test.fourthestate.app/"
+  }
+}

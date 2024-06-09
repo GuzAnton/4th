@@ -11,6 +11,18 @@ resource "digitalocean_droplet" "web" {
   lifecycle {
     create_before_destroy = true
   }
+  connection {
+    type        = "ssh"
+    host        = self.ipv4_address
+    user        = "root"
+    private_key = file("~/.ssh/id_rsa")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p ~/etc/letsencrypt/live/fourthestate.app"
+    ]
+  }
 }
 
 resource "digitalocean_droplet" "db" {
@@ -226,11 +238,11 @@ resource "cloudflare_record" "project_subdomain" {
   type    = "A"
   ttl     = 300
 }
-# resource "null_resource" "copy_ssl_certificates" {
-#   for_each   = { for idx, instance in digitalocean_droplet.bastion : idx => instance.ipv4_address }
-#   depends_on = [digitalocean_droplet.bastion]
+resource "null_resource" "copy_ssl_certificates" {
+  for_each   = { for idx, instance in digitalocean_droplet.bastion : idx => instance.ipv4_address }
+  depends_on = [digitalocean_droplet.bastion]
 
-#   provisioner "local-exec" {
-#     command = "scp -o StrictHostKeyChecking=no ~/etc/letsencrypt/live/fourthestate.app/*.pem root@${each.value}:/etc/letsencrypt/live/test.fourthestate.app/"
-#   }
-# }
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ~/etc/letsencrypt/live/fourthestate.app/*.pem root@${each.value}:/etc/letsencrypt/live/test.fourthestate.app/"
+  }
+}
