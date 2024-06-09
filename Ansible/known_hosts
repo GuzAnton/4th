@@ -1,47 +1,15 @@
-#!/bin/bash
+!/bin/bash
 
-# Process web_servers and db_servers
-# for group in "web_servers" "db_servers"; do
-#     # Extract IP addresses for the group
-#     ips=$(grep "\[$group\]" inventory.txt -A 1000 | grep -v "\[" | awk '{print $1}')
+Process web_servers and db_servers
+for group in "web_servers" "db_servers"; do
+    # Extract IP addresses for the group
+    ips=$(grep "\[$group\]" inventory.txt -A 1000 | grep -v "\[" | awk '{print $1}')
 
-#     # Add SSH keys to known_hosts if they don't already exist
-#     for ip in $ips; do
-#         # Check if the key already exists
-#         if ! grep -q "$ip" ~/.ssh/known_hosts; then
-#             ssh-keyscan -T 5 -H $ip >> ~/.ssh/known_hosts
-#         fi
-#     done
-# done
-update_known_hosts() {
-    # Process web_servers and db_servers
-    for group in "web_servers" "db_servers"; do
-        # Extract IP addresses for the group
-        ips=$(grep "\[$group\]" inventory.txt -A 1000 | grep -v "\[" | awk '{print $1}')
-
-        # Add SSH keys to known_hosts if they don't already exist
-        for ip in $ips; do
-            # Check if the key already exists
-            if ! grep -q "$ip" ~/.ssh/known_hosts; then
-                ssh-keyscan -T 5 -H $ip >> ~/.ssh/known_hosts
-            fi
-        done
-    done
-}
-
-# Function to copy SSL certificates
-copy_ssl_certificates() {
-    # Process web_servers
-    for ip in $(grep "\[web_servers\]" inventory.txt -A 1000 | grep -v "\[" | awk '{print $1}'); do
-        # Check if SSL certificates exist on the web server
-        if ! ssh root@$ip ls /etc/letsencrypt/live/fourthestate.app/*.pem &>/dev/null; then
-            # Copy SSL certificates from bastion to web server
-            scp -o StrictHostKeyChecking=no /etc/letsencrypt/live/fourthestate.app/*.pem root@$ip:/etc/letsencrypt/live/test.fourthestate.app/
+    # Add SSH keys to known_hosts if they don't already exist
+    for ip in $ips; do
+        # Check if the key already exists
+        if ! grep -q "$ip" ~/.ssh/known_hosts; then
+            ssh-keyscan -T 5 -H $ip >> ~/.ssh/known_hosts
         fi
     done
-}
-
-# # Run functions
-# update_known_hosts
-# copy_ssl_certificates
-
+done
