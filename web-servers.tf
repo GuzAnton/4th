@@ -11,10 +11,14 @@ resource "digitalocean_droplet" "web" {
   lifecycle {
     create_before_destroy = true
   }
-
+  connection {
+    type        = "ssh"
+    user        = "root"
+    private_key = file("~/.ssh/id_rsa")
+    host        = self.ipv4_address
+  }
   provisioner "remote-exec" {
     inline = [
-      # Команда, чтобы убедиться, что каталог существует
       "sudo mkdir -p /etc/letsencrypt/live/test.fourthestate.app",
       "sudo scp /etc/letsencrypt/live/fourthestate.app/cert.pem /etc/letsencrypt/live/test.fourthestate.app/cert.pem",
       "sudo scp /etc/letsencrypt/live/fourthestate.app/chain.pem /etc/letsencrypt/live/test.fourthestate.app/chain.pem",
