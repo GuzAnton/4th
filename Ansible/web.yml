@@ -44,16 +44,17 @@
         - /web
         - /web/nginx
         - /web/frontend
-    - name: Change directory to where SSL certificates are located
-      ansible.builtin.shell:
-        cmd: |
-          cd  && cd /etc/letsencrypt/live/test.fourthestate.app/ 
     
-    - name: Copy cert.pem from Bastion to web servers
-      ansible.builtin.copy:
-        src: "/etc/letsencrypt/live/test.fourthestate.app/*"
-        dest: "/etc/letsencrypt/live/test.fourthestate.app/"
-        remote_src: yes
+    # - name: Change directory to where SSL certificates are located
+    #   shell: scp /etc/letsencrypt/live/test.fourthestate.app/* root{{web_servers}}:/etc/letsencrypt/live/test.fourthestate.app
+    - name: Copy SSL certificates to web servers
+      ansible.builtin.shell:
+        cmd: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{ ip }}:/etc/letsencrypt/live/test.fourthestate.app"
+      vars:
+        ip: "{{ hostvars[item]['ansible_host'] }}"
+      with_items: "{{ groups['web_servers'] }}"
+      delegate_to: localhost
+
     
     - name: Upload Nginx configuration
       copy:
