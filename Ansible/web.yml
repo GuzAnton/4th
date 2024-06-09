@@ -45,9 +45,27 @@
         - /web/nginx
         - /web/frontend
     
-    - name: Copy SSL certificates from Bastion to web servers
+    - name: Copy cert.pem from Bastion to web servers
       ansible.builtin.copy:
-        src: "/etc/letsencrypt/live/test.fourthestate.app/*"
+        src: "/etc/letsencrypt/live/test.fourthestate.app/cert.pem"
+        dest: "/etc/letsencrypt/live/test.fourthestate.app/"
+        remote_src: yes
+
+    - name: Copy chain.pem from Bastion to web servers
+      ansible.builtin.copy:
+        src: "/etc/letsencrypt/live/test.fourthestate.app/chain.pem"
+        dest: "/etc/letsencrypt/live/test.fourthestate.app/"
+        remote_src: yes
+
+    - name: Copy fullchain.pem from Bastion to web servers
+      ansible.builtin.copy:
+        src: "/etc/letsencrypt/live/test.fourthestate.app/fullchain.pem"
+        dest: "/etc/letsencrypt/live/test.fourthestate.app/"
+        remote_src: yes
+
+    - name: Copy privkey.pem from Bastion to web servers
+      ansible.builtin.copy:
+        src: "/etc/letsencrypt/live/test.fourthestate.app/privkey.pem"
         dest: "/etc/letsencrypt/live/test.fourthestate.app/"
         remote_src: yes
     
