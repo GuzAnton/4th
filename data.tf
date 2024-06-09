@@ -16,3 +16,9 @@ bastion ansible_host=${digitalocean_droplet.bastion.ipv4_address_private} ansibl
 #when working with load balancer we have to add this in TENPLATE section
 #[load_balancers]
 # ${join("\n", [digitalocean_loadbalancer.web.ip])}
+
+data "cloudflare_zones" "fourthestate_app" {
+  filter {
+    name = var.domain_name
+  }
+}

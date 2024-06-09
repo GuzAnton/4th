@@ -219,3 +219,10 @@ resource "digitalocean_certificate" "cert" {
   leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
 }
+resource "cloudflare_record" "project_subdomain" {
+  zone_id = data.cloudflare_zones.fourthestate_app.zone_id
+  name = var.subdomain
+  value = element(digitalocean_droplet.web.*.ipv4_address, 0)
+  type = "A"
+  ttl = 300
+}
