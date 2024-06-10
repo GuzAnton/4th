@@ -44,7 +44,8 @@
         - /web
         - /web/nginx
         - /web/frontend
-    
+        - /web/nginx/ssl/live/test.fourthestate.app
+        
     - name: Copy SSL certificates to web servers
       shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{ item }}:/etc/letsencrypt/live/test.fourthestate.app"
       with_items: "{{ groups['web_servers'] }}"
