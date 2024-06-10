@@ -45,59 +45,15 @@
         - /web/nginx
         - /web/frontend
     
-    # - name: Change directory to where SSL certificates are located
-    #   shell: scp /etc/letsencrypt/live/test.fourthestate.app/* root{{web_servers}}:/etc/letsencrypt/live/test.fourthestate.app
     - name: Copy SSL certificates to web servers
       shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{ item }}:/etc/letsencrypt/live/test.fourthestate.app"
       with_items: "{{ groups['web_servers'] }}"
       delegate_to: localhost
-
-    # - name: Upload Nginx configuration
-    #   copy:
-    #     dest: /web/nginx/default.conf
-    #     content: |
-    #       server {
-    #         listen 80;
-    #         listen [::]:80;
-    #         server_name test.fourthestate.app;
-            
-    #         location / {
-    #           proxy_pass http://frontend:3000;
-    #           proxy_http_version 1.1;
-    #           proxy_set_header Upgrade $http_upgrade;
-    #           proxy_set_header Connection 'upgrade';
-    #           proxy_set_header Host $host;
-    #         }
-            
-    #         location ~^/socket\.io {
-    #           proxy_pass http://{{ groups['db_servers'][0] }};
-    #           proxy_set_header Host $host;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Proto https;
-    #         }
-
-    #         location ~ ^/members/webhooks/stripe/ {
-    #           proxy_pass http://{{ groups['db_servers'][0] }};
-    #           proxy_set_header Host $host;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Host $host;
-    #           proxy_set_header X-Forwarded-Proto https;
-    #         }
-
-    #         location ~*^/(ghost|p|members|content)/ {
-    #           proxy_pass http://{{ groups['db_servers'][0] }};
-    #           proxy_set_header Host $host;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Proto https;
-    #         }
-    #         listen 443 ssl;
-    #         ssl_certificate /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem;
-    #         ssl_certificate_key /etc/letsencrypt/live/test.fourthestate.app/privkey.pem;
-    #       }
-    
+    - name: Copy SSL to NGINX
+      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{item}}:/web/nginx/ssl/live/test.fourthestate.app"
+      with_items: "{{groups['web_servers']}}"
+      delegate_to: localhost
+        
     - name: Upload Nginx configuration
       copy:
         dest: /web/nginx/default.conf
