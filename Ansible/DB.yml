@@ -109,7 +109,7 @@
               "host": "::"
             },
             "frontend": {
-              "url": "{{ frontend_url }}"
+              "url": "https://{{domain_name}}"
             },
             "database": {
               "client": "mysql",
