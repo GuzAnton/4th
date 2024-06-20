@@ -23,7 +23,7 @@ resource "digitalocean_droplet" "web" {
       "mkdir -p /etc/letsencrypt/live/test.fourthestate.app"
     ]
   }
-  depends_on = [ digitalocean_vpc.project ]
+  depends_on = [digitalocean_vpc.project]
 }
 
 resource "digitalocean_droplet" "db" {
@@ -39,7 +39,7 @@ resource "digitalocean_droplet" "db" {
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [ digitalocean_vpc.project ]
+  depends_on = [digitalocean_vpc.project]
 }
 
 resource "digitalocean_ssh_key" "default" {
@@ -238,6 +238,6 @@ resource "cloudflare_record" "project_subdomain" {
   name    = var.subdomain
   # value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
   value = digitalocean_loadbalancer.web.ipv4_address
-  type    = "A"
-  ttl     = 300
+  type  = "A"
+  ttl   = 300
 }
