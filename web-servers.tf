@@ -70,7 +70,7 @@ resource "digitalocean_loadbalancer" "web" {
     healthy_threshold        = 2
   }
 
-  droplet_ids            = digitalocean_droplet.web.*.id
+  droplet_ids            = [ for d in digitalocean_droplet.web : d.id]
   vpc_uuid               = digitalocean_vpc.project.id
   redirect_http_to_https = true
   lifecycle {
@@ -227,12 +227,12 @@ resource "digitalocean_firewall" "db" {
 #     destination_addresses = ["0.0.0.0/0"]
 #   }
 # }
-resource "digitalocean_certificate" "cert" {
-  name              = "fourthestate-app-cert"
-  private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
-  leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
-  certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
-}
+# resource "digitalocean_certificate" "cert" {
+#   name              = "fourthestate-app-cert"
+#   private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
+#   leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
+#   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
+# }
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
