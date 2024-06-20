@@ -47,36 +47,36 @@ resource "digitalocean_ssh_key" "default" {
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
-# resource "digitalocean_loadbalancer" "web" {
-#   name   = var.LoadBalancer_Name
-#   region = var.region
+resource "digitalocean_loadbalancer" "web" {
+  name   = var.LoadBalancer_Name
+  region = var.region
 
 
-#   forwarding_rule {
-#     entry_port       = 443
-#     entry_protocol   = "https"
-#     target_port      = 80
-#     target_protocol  = "http"
-#     certificate_name = digitalocean_certificate.cert.name
+  forwarding_rule {
+    entry_port       = 443
+    entry_protocol   = "https"
+    target_port      = 80
+    target_protocol  = "http"
+    certificate_name = digitalocean_certificate.cert.name
 
-#   }
-#   healthcheck {
-#     port                     = 80
-#     protocol                 = "http"
-#     path                     = "/"
-#     check_interval_seconds   = 10
-#     response_timeout_seconds = 5
-#     unhealthy_threshold      = 5
-#     healthy_threshold        = 2
-#   }
+  }
+  healthcheck {
+    port                     = 80
+    protocol                 = "http"
+    path                     = "/"
+    check_interval_seconds   = 10
+    response_timeout_seconds = 5
+    unhealthy_threshold      = 5
+    healthy_threshold        = 2
+  }
 
-#   droplet_ids            = digitalocean_droplet.web.*.id
-#   vpc_uuid               = digitalocean_vpc.project.id
-#   redirect_http_to_https = true
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+  droplet_ids            = digitalocean_droplet.web.*.id
+  vpc_uuid               = digitalocean_vpc.project.id
+  redirect_http_to_https = true
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 resource "digitalocean_firewall" "web" {
 
@@ -236,7 +236,8 @@ resource "digitalocean_certificate" "cert" {
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
-  value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
+  # value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
+  value = digitalocean_loadbalancer.web.ipv4_address
   type    = "A"
   ttl     = 300
 }
