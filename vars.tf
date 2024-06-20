@@ -8,7 +8,7 @@ variable "cf_api_token" {
   type = string
 }
 variable "web_droplet_count" {
-  default = 1
+  default = 2
 }
 variable "db_droplet_count" {
   default = 1
