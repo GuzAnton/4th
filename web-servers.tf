@@ -240,14 +240,3 @@ resource "cloudflare_record" "project_subdomain" {
   type    = "A"
   ttl     = 300
 }
-resource "null_resource" "project" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-  provisioner "local-exec" {
-    command = "echo 'Cleanup'"
-  }
-  depends_on = [ 
-    digitalocean_vpc.project 
-    ]
-}
