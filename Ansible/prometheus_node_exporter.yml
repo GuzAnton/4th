@@ -6,4 +6,13 @@
   become: true
   tasks:
 
-  - name: 
+    - name: Install node_exporter package
+      package:
+        name: node_exporter
+        state: present
+
+    - name: Ensure node_exporter service is started and enabled
+      systemd:
+        name: node_exporter
+        state: started
+        enabled: yes
