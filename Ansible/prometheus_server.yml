@@ -83,7 +83,7 @@
         insertafter: "localhost:9090"
         line: "        - {{ item }}:9100"
       with_lines: cat "{{ inventory_file }}" | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
-      when: item != "localhost" and item != "bastion" and item != "web_servers_public"
+      when: item != "localhost" and item in ["bastion", "web_servers_public"]
 
 
     - name: Create Prometheus user
