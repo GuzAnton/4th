@@ -14,7 +14,6 @@
     node_exporter_group: "node_exporter"
   
   tasks:
-
     - name: Ensure download directory exists
       file:
         path: "/tmp"
@@ -68,7 +67,7 @@
         owner: "{{ node_exporter_user }}"
         group: "{{ node_exporter_group }}"
         mode: '0755'
-        state: file
+        state: directory
 
     - name: Create systemd service file for Node Exporter
       copy:
@@ -94,3 +93,7 @@
         name: node_exporter
         state: restarted
         enabled: yes
+
+    - name: Notify that Node Exporter setup is complete
+      debug:
+        msg: "Node Exporter configuration and service setup is complete."
