@@ -77,13 +77,14 @@
                 - targets:
                     - localhost:9090
 
-    - name: Add targets from inventory
+    - name: Add web_servers and db_servers to targets under prometheus job
       lineinfile:
         path: "{{ prometheus_folder_config }}/prometheus.yml"
-        insertafter: 'localhost:9090'
-        line: "          - {{ item }}:9090"
-      with_items: "{{ lookup('ini', 'all_servers', inventory_file).split('\n') }}"
-      when: item != '' and item is search('^[0-9]')
+        insertafter: "localhost:9090"
+        line: "                  - {{ item }}:9090"
+      with_lines: cat "{{ inventory_file }}" | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
+      when: item != "localhost"
+
 
     - name: Create Prometheus user
       user:
