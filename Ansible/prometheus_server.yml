@@ -81,7 +81,7 @@
       lineinfile:
         path: "{{ prometheus_folder_config }}/prometheus.yml"
         insertafter: "localhost:9090"
-        line: "                  - {{ item }}:9090"
+        line: "      - {{ item }}:9090"
       with_lines: cat "{{ inventory_file }}" | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
       when: item != "localhost" and item != "bastion"
 
