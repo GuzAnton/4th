@@ -1,0 +1,9 @@
+---
+- name: Install node_exporter for Web and DB servers
+  hosts: 
+    - web_servers 
+    - db_servers
+  become: true
+  tasks:
+
+  - name: 
