@@ -4,45 +4,67 @@
   become: true
 
   vars:
-    prometheus_version: 2.53.0
+    prometheus_version: "2.53.0"
     prometheus_folder_config: "/etc/prometheus"
     prometheus_folder_data: "/etc/prometheus/data"
-    inventory_file: "inventory.txt"
+    inventory_file: "inventory.txt"  # Adjust the path as necessary
     prometheus_binary_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    download_dir: "/tmp"
+    prometheus_binary: "prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
 
   tasks:
+    - name: Ensure download directory exists
+      file:
+        path: "{{ download_dir }}"
+        state: directory
+
     - name: Download Prometheus binary
       get_url:
         url: "{{ prometheus_binary_url }}"
-        dest: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
+        dest: "{{ download_dir }}/{{ prometheus_binary }}"
+      register: download_result
+
+    - name: Verify Prometheus binary was downloaded
+      stat:
+        path: "{{ download_dir }}/{{ prometheus_binary }}"
+      register: binary_stat
+
+    - name: Fail if Prometheus binary was not downloaded
+      fail:
+        msg: "Prometheus binary was not downloaded successfully."
+      when: not binary_stat.stat.exists
 
     - name: Extract Prometheus binary
       unarchive:
-        src: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
-        dest: /tmp/
+        src: "{{ download_dir }}/{{ prometheus_binary }}"
+        dest: "{{ download_dir }}"
         remote_src: yes
 
     - name: Move Prometheus binary to /usr/bin
       copy:
-        src: /tmp/prometheus-{{ prometheus_version }}.linux-amd64/prometheus
+        src: "{{ download_dir }}/prometheus-{{ prometheus_version }}.linux-amd64/prometheus"
         dest: /usr/bin/prometheus
         mode: '0755'
 
-    - name: Clean up temporary files
+    - name: Clean up downloaded and extracted files
       file:
-        path: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
+        path: "{{ item }}"
         state: absent
+      with_items:
+        - "{{ download_dir }}/{{ prometheus_binary }}"
+        - "{{ download_dir }}/prometheus-{{ prometheus_version }}.linux-amd64"
 
     - name: Create Prometheus configuration directory
       file:
-        path: "{{ item }}"
+        path: "{{ prometheus_folder_config }}"
         state: directory
-        mode: '0755'
-      with_items:
-        - "{{ prometheus_folder_config }}"
-        - "{{ prometheus_folder_data }}"
 
-    - name: Create initial Prometheus configuration file
+    - name: Create Prometheus data directory
+      file:
+        path: "{{ prometheus_folder_data }}"
+        state: directory
+
+    - name: Create Prometheus configuration file
       copy:
         dest: "{{ prometheus_folder_config }}/prometheus.yml"
         content: |
@@ -53,15 +75,15 @@
             - job_name: "prometheus"
               static_configs:
                 - targets:
-                  - localhost:9090
+                    - localhost:9090
 
-    - name: Add web_servers and db_servers to targets under prometheus job
+    - name: Add targets from inventory
       lineinfile:
         path: "{{ prometheus_folder_config }}/prometheus.yml"
-        insertafter: "localhost:9090"
-        line: "                  - {{ item }}:9090"
-      with_lines: cat {{ inventory_file }} | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
-      when: item != "localhost"
+        insertafter: 'localhost:9090'
+        line: "          - {{ item }}:9090"
+      with_items: "{{ lookup('ini', 'all_servers', inventory_file).split('\n') }}"
+      when: item != '' and item is search('^[0-9]')
 
     - name: Create Prometheus user
       user:
@@ -69,7 +91,7 @@
         system: yes
         shell: /bin/false
 
-    - name: Set ownership of Prometheus files
+    - name: Set ownership for Prometheus directories and files
       file:
         path: "{{ item }}"
         owner: prometheus
@@ -77,7 +99,7 @@
         recurse: yes
       with_items:
         - /usr/bin/prometheus
-        - "{{ prometheus_folder_config }}/prometheus.yml"
+        - "{{ prometheus_folder_config }}"
         - "{{ prometheus_folder_data }}"
 
     - name: Create systemd service file for Prometheus
@@ -93,7 +115,20 @@
           Group=prometheus
           Type=simple
           Restart=on-failure
-          ExecStart=/usr/bin/prometheus --config.file {{ prometheus_folder_config }}/prometheus.yml --storage.tsdb.path {{ prometheus_folder_data }}
+          ExecStart=/usr/bin/prometheus \
+            --config.file {{ prometheus_folder_config }}/prometheus.yml \
+            --storage.tsdb.path {{ prometheus_folder_data }}
 
           [Install]
-          WantedBy=multi
+          WantedBy=multi-user.target
+
+    - name: Reload systemd, start and enable Prometheus service
+      systemd:
+        daemon_reload: yes
+        name: prometheus
+        state: restarted
+        enabled: yes
+
+    - name: Notify that Prometheus setup is complete
+      debug:
+        msg: "Prometheus configuration and service setup is complete."
