@@ -75,13 +75,13 @@
             - job_name: "prometheus"
               static_configs:
                 - targets:
-                    - localhost:9090
+                  - localhost:9090
 
     - name: Add web_servers and db_servers to targets under prometheus job
       lineinfile:
         path: "{{ prometheus_folder_config }}/prometheus.yml"
         insertafter: "localhost:9090"
-        line: "           - {{ item }}:9090"
+        line: "          - {{ item }}:9090"
       with_lines: cat "{{ inventory_file }}" | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
       when: item != "localhost" and item != "bastion"
 
