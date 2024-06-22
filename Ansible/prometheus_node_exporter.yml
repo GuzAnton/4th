@@ -4,15 +4,24 @@
     - web_servers 
     - db_servers
   become: true
+  vars:
+    node_exporter_version: "1.8.1"
+    node_exporter_binary_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    node_exporter_binary: "node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    node_exporter_install_dir: "/usr/bin"
+    node_exporter_service_file: "/etc/systemd/system/node_exporter.service"
+    node_exporter_user: "node_exporter"
+    node_exporter_group: "node_exporter"
+  
   tasks:
 
-    - name: Install node_exporter package
-      package:
-        name: node_exporter
-        state: present
-
-    - name: Ensure node_exporter service is started and enabled
-      systemd:
-        name: node_exporter
-        state: started
-        enabled: yes
+    - name: Ensure download directory exists
+      file:
+        path: "/tmp"
+        state: directory
+    
+    - name: Download Node Exporter binary
+      get_url:
+        url: "{{ node_exporter_binary_url }}"
+        dest: "/tmp/{{ node_exporter_binary }}"
+      register: download_result
