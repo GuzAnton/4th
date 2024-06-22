@@ -4,12 +4,11 @@
   become: true
 
   vars:
-    prometheus_version: "2.5.1"
+    prometheus_version: "2.53.0"
     prometheus_folder_config: "/etc/prometheus"
     prometheus_folder_data: "/etc/prometheus/data"
     inventory_file: "inventory.txt"
     prometheus_binary_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
-
   tasks:
     - name: Download Prometheus binary
       get_url:
