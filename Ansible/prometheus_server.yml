@@ -93,15 +93,28 @@
         shell: /bin/false
 
     - name: Set ownership for Prometheus directories and files
+      become: true
       file:
         path: "{{ item }}"
         owner: prometheus
         group: prometheus
         recurse: yes
+        state: directory
       with_items:
+        - /etc/prometheus
+        - /etc/prometheus/data
         - /usr/bin/prometheus
-        - "{{ prometheus_folder_config }}"
-        - "{{ prometheus_folder_data }}"
+      when: item != '/usr/bin/prometheus'  # Skip for non-directory item
+
+    - name: Set ownership for Prometheus binary file
+      become: true
+      file:
+        path: /usr/bin/prometheus
+        owner: prometheus
+        group: prometheus
+        mode: '0755'
+        state: file
+
 
     - name: Create systemd service file for Prometheus
       copy:
