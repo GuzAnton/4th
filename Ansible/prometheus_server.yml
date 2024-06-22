@@ -4,7 +4,7 @@
   become: true
 
   vars:
-    prometheus_version: "2.53.0"
+    prometheus_version: 2.53.0
     prometheus_folder_config: "/etc/prometheus"
     prometheus_folder_data: "/etc/prometheus/data"
     inventory_file: "inventory.txt"
