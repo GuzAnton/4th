@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROMETHEUS_VERSION="2.5.1"
+PROMETHEUS_VERSION="2.5.3"
 PROMETHEUS_FOLDER_CONFIG="/etc/prometheus"
 PROMETHEUS_FOLDER_DATA="/etc/prometheus/data"
 INVENTORY_FILE="inventory.txt"
