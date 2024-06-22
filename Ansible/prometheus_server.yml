@@ -9,6 +9,7 @@
     prometheus_folder_data: "/etc/prometheus/data"
     inventory_file: "inventory.txt"
     prometheus_binary_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+
   tasks:
     - name: Download Prometheus binary
       get_url:
@@ -59,7 +60,7 @@
         path: "{{ prometheus_folder_config }}/prometheus.yml"
         insertafter: "localhost:9090"
         line: "                  - {{ item }}:9090"
-      with_lines: cat inventory.txt | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
+      with_lines: cat {{ inventory_file }} | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
       when: item != "localhost"
 
     - name: Create Prometheus user
@@ -95,11 +96,4 @@
           ExecStart=/usr/bin/prometheus --config.file {{ prometheus_folder_config }}/prometheus.yml --storage.tsdb.path {{ prometheus_folder_data }}
 
           [Install]
-          WantedBy=multi-user.target
-
-    - name: Reload systemd, start and enable Prometheus service
-      systemd:
-        daemon_reload: yes
-        name: prometheus
-        state: restarted
-        enabled: yes
+          WantedBy=multi
