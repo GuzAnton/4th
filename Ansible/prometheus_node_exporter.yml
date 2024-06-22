@@ -61,7 +61,7 @@
 
     - name: Set ownership for Node Exporter binary
       file:
-        path: "{{ item }}
+        path: "{{ item }}"
         recurse: yes
         owner: node_exporter
         group: node_exporter
