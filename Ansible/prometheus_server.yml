@@ -1,0 +1,106 @@
+---
+- name: Install and configure Prometheus
+  hosts: localhost
+  become: true
+
+  vars:
+    prometheus_version: "2.5.1"
+    prometheus_folder_config: "/etc/prometheus"
+    prometheus_folder_data: "/etc/prometheus/data"
+    inventory_file: "inventory.txt"
+    prometheus_binary_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+
+  tasks:
+    - name: Download Prometheus binary
+      get_url:
+        url: "{{ prometheus_binary_url }}"
+        dest: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
+
+    - name: Extract Prometheus binary
+      unarchive:
+        src: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
+        dest: /tmp/
+        remote_src: yes
+
+    - name: Move Prometheus binary to /usr/bin
+      copy:
+        src: /tmp/prometheus-{{ prometheus_version }}.linux-amd64/prometheus
+        dest: /usr/bin/prometheus
+        mode: '0755'
+
+    - name: Clean up temporary files
+      file:
+        path: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
+        state: absent
+
+    - name: Create Prometheus configuration directory
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - "{{ prometheus_folder_config }}"
+        - "{{ prometheus_folder_data }}"
+
+    - name: Create initial Prometheus configuration file
+      copy:
+        dest: "{{ prometheus_folder_config }}/prometheus.yml"
+        content: |
+          global:
+            scrape_interval: 60s
+
+          scrape_configs:
+            - job_name: "prometheus"
+              static_configs:
+                - targets:
+                  - localhost:9090
+
+    - name: Add web_servers and db_servers to targets under prometheus job
+      lineinfile:
+        path: "{{ prometheus_folder_config }}/prometheus.yml"
+        insertafter: "localhost:9090"
+        line: "                  - {{ item }}:9090"
+      with_lines: cat inventory.txt | awk '/^\[.*\]/ { group=$1; next } group && NF { print $1 }'
+      when: item != "localhost"
+
+    - name: Create Prometheus user
+      user:
+        name: prometheus
+        system: yes
+        shell: /bin/false
+
+    - name: Set ownership of Prometheus files
+      file:
+        path: "{{ item }}"
+        owner: prometheus
+        group: prometheus
+        recurse: yes
+      with_items:
+        - /usr/bin/prometheus
+        - "{{ prometheus_folder_config }}/prometheus.yml"
+        - "{{ prometheus_folder_data }}"
+
+    - name: Create systemd service file for Prometheus
+      copy:
+        dest: /etc/systemd/system/prometheus.service
+        content: |
+          [Unit]
+          Description=Prometheus Server
+          After=network.target
+
+          [Service]
+          User=prometheus
+          Group=prometheus
+          Type=simple
+          Restart=on-failure
+          ExecStart=/usr/bin/prometheus --config.file {{ prometheus_folder_config }}/prometheus.yml --storage.tsdb.path {{ prometheus_folder_data }}
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd, start and enable Prometheus service
+      systemd:
+        daemon_reload: yes
+        name: prometheus
+        state: restarted
+        enabled: yes
