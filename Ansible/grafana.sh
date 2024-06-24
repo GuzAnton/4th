@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GRAFANA_VERSION="10.4.4"
-PROMETHEUS_URL=""
+# PROMETHEUS_URL=""
 
 sudo apt-get install -y apt-transport-https software-properties-common wget
 sudo mkdir -p /etc/apt/keyrings/
@@ -15,13 +15,13 @@ wget https://dl.grafana.com/enterprise/release/grafana-enterprise_${GRAFANA_VERS
 sudo dpkg -i grafana-enterprise_${GRAFANA_VERSION}_amd64.deb
 echo "export PATH=/usr/share/grafana/bin:$PATH" >> /etc/profile
 
-cat <<EOF> /etc/grafana/provisioning/datasources/prometheus.yaml
-api.version: 1
-datasources:
-    - name: Prometheus
-      type: Prometheus
-      url: ${PROMETHEUS_URL}
-EOF
+# cat <<EOF> /etc/grafana/provisioning/datasources/prometheus.yaml
+# api.version: 1
+# datasources:
+#     - name: Prometheus
+#       type: Prometheus
+#       url: ${PROMETHEUS_URL}
+# EOF
 
 systemctl daemon-reload
 systemctl start grafana-server
