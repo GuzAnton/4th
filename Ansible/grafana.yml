@@ -1,6 +1,6 @@
 ---
 - name: Install Grafana and configure Prometheus datasource
-  hosts: web_servers
+  hosts: localhost
   become: true
   vars:
     grafana_version: "10.4.4"
