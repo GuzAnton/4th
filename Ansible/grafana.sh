@@ -9,15 +9,6 @@ sudo apt-get update
 sudo apt-get install -y adduser libfontconfig1 musl
 wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.0.0_amd64.deb
 sudo dpkg -i grafana-enterprise_11.0.0_amd64.deb
-
-# cat <<EOF> /etc/grafana/provisioning/datasources/prometheus.yaml
-# api.version: 1
-# datasources:
-#     - name: Prometheus
-#       type: Prometheus
-#       url: ${PROMETHEUS_URL}
-# EOF
-
 systemctl daemon-reload
 systemctl start grafana-server
 systemctl enable grafana-server
