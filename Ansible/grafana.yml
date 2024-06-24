@@ -4,6 +4,7 @@
   become: true
   vars:
     grafana_version: "10.4.4"
+    prometheus_url: "http://localhost:9090"
     download_dir: "/tmp"
   tasks:
     - name: Ensure apt-transport-https and other dependencies are installed
@@ -81,7 +82,7 @@
           datasources:
             - name: Prometheus
               type: prometheus
-              url: http://{{ ansible_default_ipv4.address }}:9090
+              url: "{{ prometheus_url }}"
         mode: '0644'
 
     - name: Reload systemd daemon
