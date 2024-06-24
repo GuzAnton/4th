@@ -37,9 +37,13 @@
         update_cache: yes  
     
     - name: Add Grafana APT repository
-      apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
-        state: present
+      blockinfile:
+        path: /etc/apt/sources.list.d/grafana.list
+        block: |
+          deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main
+        create: yes
+        insertbefore: EOF
+
 
     - name: Update APT package list
       apt:
