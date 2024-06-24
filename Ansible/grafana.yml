@@ -1,0 +1,90 @@
+---
+- name: Install Grafana and configure Prometheus datasource
+  hosts: web_servers
+  become: true
+  vars:
+    grafana_version: "10.4.4"
+    download_dir: "/tmp"
+  tasks:
+    - name: Ensure apt-transport-https and other dependencies are installed
+      apt:
+        name:
+          - apt-transport-https
+          - software-properties-common
+          - wget
+        state: present
+        update_cache: yes
+
+    - name: Create directory for Grafana keyring
+      file:
+        path: /etc/apt/keyrings/
+        state: directory
+        mode: '0755'
+
+    - name: Download Grafana GPG key
+      command: wget -q -O - https://apt.grafana.com/gpg.key
+      register: grafana_gpg_key
+
+    - name: Save Grafana GPG key
+      copy:
+        content: "{{ grafana_gpg_key.stdout }}"
+        dest: /etc/apt/keyrings/grafana.gpg
+        mode: '0644'
+
+    - name: Add Grafana APT repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
+        state: present
+
+    - name: Update APT package list
+      apt:
+        update_cache: yes
+
+    - name: Install Grafana dependencies
+      apt:
+        name:
+          - adduser
+          - libfontconfig1
+          - musl
+        state: present
+
+    - name: Download Grafana enterprise package
+      get_url:
+        url: "https://dl.grafana.com/enterprise/release/grafana-enterprise_{{ grafana_version }}_amd64.deb"
+        dest: "{{ download_dir }}/grafana-enterprise_{{ grafana_version }}_amd64.deb"
+
+    - name: Install Grafana enterprise package
+      apt:
+        deb: "{{ download_dir }}/grafana-enterprise_{{ grafana_version }}_amd64.deb"
+
+    - name: Add Grafana bin directory to PATH
+      lineinfile:
+        path: /etc/profile
+        line: "export PATH=/usr/share/grafana/bin:$PATH"
+        state: present
+
+    - name: Create Grafana provisioning directory
+      file:
+        path: /etc/grafana/provisioning/datasources
+        state: directory
+        mode: '0755'
+
+    - name: Create Prometheus datasource configuration file
+      copy:
+        dest: /etc/grafana/provisioning/datasources/prometheus.yaml
+        content: |
+          api.version: 1
+          datasources:
+            - name: Prometheus
+              type: prometheus
+              url: http://{{ ansible_default_ipv4.address }}:9090
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      command: systemctl daemon-reload
+
+    - name: Start Grafana server
+      service:
+        name: grafana-server
+        state: started
+        enabled: yes
