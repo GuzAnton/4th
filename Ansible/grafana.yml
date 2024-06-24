@@ -31,6 +31,10 @@
         dest: /etc/apt/keyrings/grafana.gpg
         mode: '0644'
 
+    - name: Update APT package list
+      apt:
+        update_cache: yes  
+    
     - name: Add Grafana APT repository
       apt_repository:
         repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
