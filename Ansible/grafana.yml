@@ -44,11 +44,6 @@
         create: yes
         insertbefore: EOF
 
-
-    - name: Update APT package list
-      apt:
-        update_cache: yes
-
     - name: Install Grafana dependencies
       apt:
         name:
