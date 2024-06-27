@@ -1,0 +1,99 @@
+---
+- name: Install node_exporter for Web and DB servers
+  hosts: 
+    - web_servers 
+    - db_servers
+  become: true
+  vars:
+    node_exporter_version: "1.8.1"
+    node_exporter_binary_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    node_exporter_binary: "node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    node_exporter_install_dir: "/usr/bin"
+    node_exporter_service_file: "/etc/systemd/system/node_exporter.service"
+    node_exporter_user: "node_exporter"
+    node_exporter_group: "node_exporter"
+  
+  tasks:
+
+    - name: Ensure download directory exists
+      file:
+        path: "/tmp"
+        state: directory
+    
+    - name: Download Node Exporter binary
+      get_url:
+        url: "{{ node_exporter_binary_url }}"
+        dest: "/tmp/{{ node_exporter_binary }}"
+      register: download_result
+      delegate_to: localhost  # Download on the Ansible controller
+
+    - name: Verify Node Exporter binary was downloaded
+      stat:
+        path: "/tmp/{{ node_exporter_binary }}"
+      register: binary_stat
+      delegate_to: localhost  # Check on the Ansible controller
+
+    - name: Fail if Node Exporter binary was not downloaded
+      fail:
+        msg: "Node Exporter binary was not downloaded successfully."
+      when: not binary_stat.stat.exists
+      delegate_to: localhost  # Check on the Ansible controller
+
+    - name: Extract Node Exporter binary
+      unarchive:
+        src: "/tmp/{{ node_exporter_binary }}"
+        dest: "/tmp"
+      delegate_to: localhost  # Extract on the Ansible controller
+
+    - name: Move Node Exporter binary to installation directory
+      copy:
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+        dest: "{{ node_exporter_install_dir }}/node_exporter"
+        mode: '0755'
+
+    - name: Clean up downloaded and extracted files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "/tmp/{{ node_exporter_binary }}"
+        - "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64"
+
+    - name: Create Node Exporter user
+      user:
+        name: "{{ node_exporter_user }}"
+        system: yes
+        shell: /bin/false
+
+    - name: Set ownership for Node Exporter binary
+      file:
+        path: "{{ node_exporter_install_dir }}/node_exporter"
+        owner: "{{ node_exporter_user }}"
+        group: "{{ node_exporter_group }}"
+        mode: '0755'
+        state: file
+
+    - name: Create systemd service file for Node Exporter
+      copy:
+        dest: "{{ node_exporter_service_file }}"
+        content: |
+          [Unit]
+          Description=Prometheus Node Exporter
+          After=network.target
+
+          [Service]
+          User={{ node_exporter_user }}
+          Group={{ node_exporter_group }}
+          Type=simple
+          Restart=on-failure
+          ExecStart={{ node_exporter_install_dir }}/node_exporter
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd and start Node Exporter service
+      systemd:
+        daemon_reload: yes
+        name: node_exporter
+        state: restarted
+        enabled: yes

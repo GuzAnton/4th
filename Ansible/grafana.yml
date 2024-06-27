@@ -1,0 +1,62 @@
+---
+- name: Install Grafana Enterprise
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - software-properties-common
+          - wget
+        state: present
+        update_cache: yes
+
+    - name: Create directory for apt keyrings
+      file:
+        path: /etc/apt/keyrings/
+        state: directory
+        mode: '0755'
+
+    - name: Download and add Grafana GPG key
+      command: >
+        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/keyrings/grafana.gpg
+      args:
+        creates: /etc/apt/keyrings/grafana.gpg
+
+    - name: Add Grafana APT repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
+        state: present
+        filename: grafana
+
+    - name: Update APT package index
+      apt:
+        update_cache: yes
+
+    - name: Install Grafana dependencies
+      apt:
+        name:
+          - adduser
+          - libfontconfig1
+          - musl
+        state: present
+
+    - name: Download Grafana Enterprise package
+      get_url:
+        url: https://dl.grafana.com/enterprise/release/grafana-enterprise_11.0.0_amd64.deb
+        dest: /tmp/grafana-enterprise_11.0.0_amd64.deb
+
+    - name: Install Grafana Enterprise
+      apt:
+        deb: /tmp/grafana-enterprise_11.0.0_amd64.deb
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Start and enable Grafana server
+      systemd:
+        name: grafana-server
+        state: started
+        enabled: yes

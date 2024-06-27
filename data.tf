@@ -3,9 +3,6 @@ data "template_file" "inventory_template" {
 [web_servers]
 ${join("\n", digitalocean_droplet.web.*.ipv4_address_private)}
 
-[web_servers_public]
-${join("\n", digitalocean_droplet.web.*.ipv4_address)}
-
 [db_servers]
 ${join("\n", digitalocean_droplet.db.*.ipv4_address_private)}
 
@@ -16,6 +13,9 @@ bastion ansible_host=${digitalocean_droplet.bastion.ipv4_address_private} ansibl
 #when working with load balancer we have to add this in TENPLATE section
 #[load_balancers]
 # ${join("\n", [digitalocean_loadbalancer.web.ip])}
+#[web_servers_public]
+#${join("\n", digitalocean_droplet.web.*.ipv4_address)}
+
 
 data "cloudflare_zones" "fourthestate_app" {
   filter {
