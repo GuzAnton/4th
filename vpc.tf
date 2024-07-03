@@ -1,5 +1,5 @@
 resource "digitalocean_vpc" "project" {
-  name     = "project-vpc"
+  name     = var.vpc_name
   region   = var.region
-  ip_range = "172.20.1.0/24"
+  ip_range = var.vpc_range
 }

@@ -14,6 +14,7 @@ variable "db_droplet_count" {
   default = 1
 }
 variable "name" {
+  description = "Project name"
   default = "Fourth_Estate"
 }
 variable "web_image" {
@@ -45,14 +46,25 @@ variable "LoadBalancer_Name" {
 variable "FireWall_Name_Web" {
   default = "web"
 }
-
 variable "FireWall_Name_DB" {
   default = "db"
 }
 variable "Bastion_firewall_name" {
   default = "bastion"
 }
-
 variable "MyIP" {
   default = "164.92.190.148"
+}
+variable "vpc_name" {
+  description = "Name of current VPC"
+  default = "project-vpc"
+}
+variable "vpc_range" {
+  default = "172.20.1.0/24"  
+}
+variable "ssh_key_name" {
+  default = "key"
+}
+variable "cert_name" {
+  default = "fourthestate-app-cert"
 }
