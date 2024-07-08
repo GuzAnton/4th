@@ -1,10 +1,15 @@
-# provider "digitalocean" {
-#   token = var.do_token
-# }
+provider "digitalocean" {
+  token = var.do_token
+}
+
 provider "cloudflare" {
   api_token = var.cf_api_token
 }
 
+module "keys_and_certs" {
+  source = "./modules/keys_and_certs"
+  do_token = var.do_token
+}
 resource "local_file" "inventory" {
   filename = "${path.module}/Ansible/inventory.txt"
   content  = data.template_file.inventory_template.rendered
@@ -24,7 +29,4 @@ resource "null_resource" "send_inventory_to_bastion" {
       done
     EOT
   }
-}
-module "keys_and_certs" {
-  source = "./modules/keys_and_certs"
 }
