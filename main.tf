@@ -6,10 +6,10 @@ provider "cloudflare" {
   api_token = var.cf_api_token
 }
 
-# module "keys_and_certs" {
-#   source = "./modules/keys_and_certs"
-#   do_token = var.do_token
-# }
+module "keys_and_certs" {
+  source = "./modules/keys_and_certs"
+  do_token = var.do_token
+}
 resource "local_file" "inventory" {
   filename = "${path.module}/Ansible/inventory.txt"
   content  = data.template_file.inventory_template.rendered
