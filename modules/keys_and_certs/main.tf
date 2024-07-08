@@ -12,12 +12,3 @@ resource "digitalocean_certificate" "cert" {
   leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
 }
-
-output "ssh_key_id" {
-  value = digitalocean_ssh_key.default.fingerprint
-}
-
-output "certificate_id" {
-  value = digitalocean_certificate.cert.name
-}
-
