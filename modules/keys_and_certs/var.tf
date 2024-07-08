@@ -7,3 +7,6 @@ variable "cert_name" {
   description = "Name of the certificate"
   default     = "fourthestate_cert"
 }
+variable "do_token" {
+  type = string
+}
