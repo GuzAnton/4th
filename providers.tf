@@ -10,3 +10,12 @@ terraform {
     }
   }
 }
+
+  module "keys_and_certs" {
+  source = "./modules/keys_and_certs"
+
+  providers = {
+    digitalocean = digitalocean.digitalocean
+  }
+
+}
