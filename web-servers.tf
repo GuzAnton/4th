@@ -42,10 +42,10 @@ resource "digitalocean_droplet" "db" {
   depends_on = [ digitalocean_vpc.project ]
 }
 
-resource "digitalocean_ssh_key" "default" {
-  name       = var.ssh_key_name
-  public_key = file("~/.ssh/id_rsa.pub")
-}
+# resource "digitalocean_ssh_key" "default" {
+#   name       = var.ssh_key_name
+#   public_key = file("~/.ssh/id_rsa.pub")
+# }
 
 # resource "digitalocean_loadbalancer" "web" {
 #   name   = var.LoadBalancer_Name
@@ -227,12 +227,12 @@ resource "digitalocean_firewall" "db" {
 #     destination_addresses = ["0.0.0.0/0"]
 #   }
 # }
-resource "digitalocean_certificate" "cert" {
-  name              = var.cert_name
-  private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
-  leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
-  certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
-}
+# resource "digitalocean_certificate" "cert" {
+#   name              = var.cert_name
+#   private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
+#   leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
+#   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
+# }
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain

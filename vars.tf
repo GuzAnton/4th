@@ -62,9 +62,32 @@ variable "vpc_name" {
 variable "vpc_range" {
   default = "172.20.1.0/24"  
 }
-variable "ssh_key_name" {
-  default = "key"
-}
-variable "cert_name" {
-  default = "fourthestate-app-cert"
-}
+# variable "ssh_key_name" {
+#   default = "key"
+# }
+# variable "cert_name" {
+#   default = "fourthestate-app-cert"
+# }
+# variable "create_resources" {
+#   description = "Flag to indicate whether to create the resources or use existing ones"
+#   type        = bool
+#   default     = true
+# }
+# variable "cert_name" {
+#   description = "Name of the certificate"
+#   default     = "fourthestate-app-cert"
+# }
+
+# variable "private_key_path" {
+#   description = "Path to the private key file"
+#   default     = "/etc/letsencrypt/live/fourthestate.app/privkey.pem"
+# }
+
+# variable "cert_path" {
+#   description = "Path to the certificate file"
+#   default     = "/etc/letsencrypt/live/fourthestate.app/cert.pem"
+# }
+# variable "chain_path" {
+#   description = "Path to the certificate chain file"
+#   default     = "/etc/letsencrypt/live/fourthestate.app/fullchain.pem"
+# }
