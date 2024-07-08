@@ -14,10 +14,10 @@ resource "digitalocean_certificate" "cert" {
 }
 
 output "ssh_key_id" {
-  value = digitalocean_ssh_key.default.id
+  value = digitalocean_ssh_key.default.fingerprint
 }
 
 output "certificate_id" {
-  value = digitalocean_certificate.cert.id
+  value = digitalocean_certificate.cert.name
 }
 
