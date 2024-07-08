@@ -25,6 +25,6 @@ resource "null_resource" "send_inventory_to_bastion" {
     EOT
   }
 }
-# module "keys_and_certs" {
-#   source             = "./modules/keys_and_certs"
-# }
+module "keys_and_certs" {
+  source             = "./modules/keys_and_certs"
+}

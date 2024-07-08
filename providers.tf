@@ -10,17 +10,3 @@ terraform {
     }
   }
 }
-
-  module "keys_and_certs" {
-    source = "./modules/keys_and_certs"
-
-    providers = {
-      digitalocean = {
-        source = "digitalocean/digitalocean"
-      }
-      
-    }
-
-    cert_name    = var.cert_name
-    ssh_key_name = var.ssh_key_name
-}
