@@ -5,7 +5,7 @@ variable "ssh_key_name" {
 
 variable "cert_name" {
   description = "Name of the certificate"
-  default     = "fourthestate_cert"
+  default     = "fourthestate-app-cert"
 }
 variable "do_token" {
   type = string
