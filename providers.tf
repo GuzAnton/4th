@@ -12,12 +12,12 @@ terraform {
 }
 
   module "keys_and_certs" {
-  source = "./modules/keys_and_certs"
+    source = "./modules/keys_and_certs"
 
-  providers = {
-    digitalocean = digitalocean/digitalocean
-  }
+    providers = {
+      digitalocean = digitalocean.digitalocean
+    }
 
-  cert_name    = var.cert_name
-  ssh_key_name = var.ssh_key_name
+    cert_name    = var.cert_name
+    ssh_key_name = var.ssh_key_name
 }
