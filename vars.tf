@@ -15,7 +15,7 @@ variable "db_droplet_count" {
 }
 variable "name" {
   description = "Project name"
-  default = "Fourth_Estate"
+  default     = "Fourth_Estate"
 }
 variable "web_image" {
   default = "ubuntu-20-04-x64"
@@ -57,10 +57,10 @@ variable "MyIP" {
 }
 variable "vpc_name" {
   description = "Name of current VPC"
-  default = "project-vpc"
+  default     = "project-vpc"
 }
 variable "vpc_range" {
-  default = "172.20.1.0/24"  
+  default = "172.20.1.0/24"
 }
 variable "ssh_key_name" {
   default = "key"

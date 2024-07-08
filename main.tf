@@ -7,9 +7,9 @@ provider "cloudflare" {
 }
 
 module "keys_and_certs" {
-  source = "./modules/keys_and_certs"
+  source   = "./modules/keys_and_certs"
   do_token = var.do_token
-  
+
 }
 
 resource "local_file" "inventory" {
