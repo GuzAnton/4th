@@ -15,7 +15,10 @@ terraform {
     source = "./modules/keys_and_certs"
 
     providers = {
-      digitalocean = digitalocean.digitalocean
+      digitalocean = {
+        source = "digitalocean/digitalocean"
+      }
+      
     }
 
     cert_name    = var.cert_name
