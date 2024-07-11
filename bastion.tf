@@ -61,7 +61,7 @@ resource "null_resource" "generate_ssh_key" {
 
   provisioner "remote-exec" {
     inline = [
-      "ssh-keygen -t rsa -b 4096 -C 'bastion' -f ~/.ssh/id_rsa -N ''"
+      "ssh-keygen -t rsa -b 4096 -C '${var.subdomain}-bastion' -f ~/.ssh/id_rsa -N ''"
     ]
 
     connection {
