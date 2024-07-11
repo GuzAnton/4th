@@ -22,3 +22,9 @@ data "cloudflare_zones" "fourthestate_app" {
     name = var.domain_name
   }
 }
+data "digitalocean_ssh_key" "default" {
+  name = "autodeploy_key"
+}
+data "digitalocean_certificate" "cert"{
+  name = "autodeploy-certificate"
+}
