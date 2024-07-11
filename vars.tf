@@ -62,9 +62,6 @@ variable "vpc_name" {
 variable "vpc_range" {
   default = "172.20.1.0/24"
 }
-variable "ssh_key_name" {
-  default = "key"
-}
 variable "cert_name" {
   default = "fourthestate-app-cert"
 }
