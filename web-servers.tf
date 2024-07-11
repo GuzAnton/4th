@@ -42,11 +42,6 @@ resource "digitalocean_droplet" "db" {
   depends_on = [digitalocean_vpc.project]
 }
 
-resource "digitalocean_ssh_key" "default" {
-  name       = "key"
-  public_key = file("~/.ssh/id_rsa.pub")
-}
-
 resource "digitalocean_loadbalancer" "web" {
   name   = var.LoadBalancer_Name
   region = var.region
