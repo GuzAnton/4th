@@ -57,7 +57,7 @@ resource "digitalocean_droplet" "db" {
 #     entry_protocol   = "https"
 #     target_port      = 80
 #     target_protocol  = "http"
-#     certificate_name = digitalocean_certificate.cert.name
+#     certificate_name = data.digitalocean_certificate.cert.name
 
 #   }
 #   healthcheck {
