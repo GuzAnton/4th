@@ -62,9 +62,6 @@ variable "vpc_name" {
 variable "vpc_range" {
   default = "172.20.1.0/24"
 }
-# variable "cert_name" {
-#   default = "autodeploy-certificate"
-# }
 variable "private_key_path" {
   description = "Path to the private key file"
   default     = "/etc/letsencrypt/live/fourthestate.app/privkey.pem"
