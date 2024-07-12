@@ -39,17 +39,17 @@ resource "digitalocean_firewall" "bastion" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = [var.MyIP,]
+    source_addresses = [var.MyIP,"68.183.69.38"]
   }
   inbound_rule {
     protocol = "tcp"
     port_range = "9090"
-    source_addresses = [var.MyIP, "176.36.180.171", "193.93.77.227"]
+    source_addresses = [var.MyIP, "176.36.180.171", "193.93.77.227","68.183.69.38"]
   }
   inbound_rule {
     protocol = "tcp"
     port_range = "3000"
-    source_addresses = ["176.36.180.171", "193.93.77.227"]
+    source_addresses = ["176.36.180.171", "193.93.77.227","68.183.69.38"]
   }
   outbound_rule {
     protocol              = "tcp"
