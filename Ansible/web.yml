@@ -63,7 +63,7 @@
             listen 80;
             listen [::]:80;
 
-            server_name test.fourthestate.app;
+            server_name {{domain_name}};
             server_tokens off;
 
             location / {
@@ -75,7 +75,7 @@
             listen 443 ssl;
             listen [::]:443 ssl;
 
-            server_name test.fourthestate.app;
+            server_name {{domain_name}};
 
             ssl_certificate /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem;
             ssl_certificate_key /etc/letsencrypt/live/test.fourthestate.app/privkey.pem;
@@ -118,7 +118,7 @@
       copy:
         dest: /web/frontend/.env
         content: |
-          NEXT_PUBLIC_GHOST_API_URL='https:{{domain_name}}'
+          NEXT_PUBLIC_GHOST_API_URL='https://{{domain_name}}'
           NEXT_PUBLIC_GHOST_API_KEY='{{front_public_api_key}}'
 
           NEXT_PUBLIC_GOOGLE_CLIENT_ID='21007502974-i97qj0ctd5v4qbaukbptk7dd36fbph3c.apps.googleusercontent.com'
