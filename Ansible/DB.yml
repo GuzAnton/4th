@@ -312,7 +312,12 @@
       shell: |
         cd /opt/web
         docker compose pull
+        docker compose up -d mysql
+        sleep 60
+        docker compose run knex_migrator_init
+        sleep 10
         docker compose up -d
+
 
     - name: Debug pull result
       debug:
