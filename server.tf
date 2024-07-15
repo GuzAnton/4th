@@ -35,7 +35,7 @@ resource "digitalocean_droplet" "server" {
 
 resource "digitalocean_firewall" "server" {
   name        = var.Firewall_name
-  droplet_ids = [digitalocean_droplet.bastion.id]
+  droplet_ids = [digitalocean_droplet.server.id]
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
