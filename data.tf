@@ -1,7 +1,7 @@
 data "template_file" "inventory_template" {
   template = <<-TEMPLATE
 [server]
-${join("\n", digitalocean_droplet.server.ipv4_address)}
+${digitalocean_droplet.server.ipv4_address}
 
 [server]
 ansible_host=${digitalocean_droplet.server.ipv4_address_private} ansible_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa
