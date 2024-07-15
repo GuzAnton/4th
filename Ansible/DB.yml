@@ -214,6 +214,40 @@
         dest: /opt/web/compose.yml
         content: |
           services:
+            knex_migrator_init:
+              profiles: ["knex-migrator-init"]
+              container_name: knex-migrator-init
+              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+              command: "yarn knex-migrator init"
+              ports:
+                - "2368:2368"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+              depends_on:
+                - mysql
+              networks:
+                - webnet
+
+            knex_migrator_migrate:
+              profiles: ["knex-migrator-migrate"]
+              container_name: knex-migrator-migrate
+              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+              command: "yarn knex-migrator migrate --v 5.40 --force"
+              ports:
+                - "2368:2368"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+              depends_on:
+                - mysql
+              networks:
+                - webnet
+
             ghost:
               container_name: ghost
               image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
