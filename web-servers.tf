@@ -55,8 +55,8 @@ resource "digitalocean_loadbalancer" "web" {
   forwarding_rule {
     entry_port       = 443
     entry_protocol   = "https"
-    target_port      = 80
-    target_protocol  = "http"
+    target_port      = 443
+    target_protocol  = "https"
     certificate_name = digitalocean_certificate.cert.name
   }
 
