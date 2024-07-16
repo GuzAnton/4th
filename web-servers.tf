@@ -55,17 +55,17 @@ resource "digitalocean_loadbalancer" "web" {
     certificate_name = data.digitalocean_certificate.cert.id
   }
 
-  # forwarding_rule {
-  #   entry_port = 80
-  #   entry_protocol = "http"
-  #   target_port = 80
-  #   target_protocol = "http"
-  #   certificate_name = data.digitalocean_certificate.cert.id
-  # }
+  forwarding_rule {
+    entry_port = 80
+    entry_protocol = "http"
+    target_port = 80
+    target_protocol = "http"
+    certificate_name = data.digitalocean_certificate.cert.id
+  }
   
   healthcheck {
-    port                     = 443
-    protocol                 = "https"
+    port                     = 80
+    protocol                 = "http"
     path                     = "/"
     check_interval_seconds   = 10
     response_timeout_seconds = 5
@@ -75,7 +75,7 @@ resource "digitalocean_loadbalancer" "web" {
 
   droplet_ids            = [ for d in digitalocean_droplet.web : d.id]
   vpc_uuid               = digitalocean_vpc.project.id
-  #redirect_http_to_https = true
+  redirect_http_to_https = false
   lifecycle {
     create_before_destroy = true
   }
