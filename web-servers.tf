@@ -55,17 +55,17 @@ resource "digitalocean_loadbalancer" "web" {
     certificate_name = data.digitalocean_certificate.cert.id
   }
 
-  forwarding_rule {
-    entry_port = 80
-    entry_protocol = "http"
-    target_port = 80
-    target_protocol = "http"
-    certificate_name = data.digitalocean_certificate.cert.id
-  }
+  # forwarding_rule {
+  #   entry_port = 80
+  #   entry_protocol = "http"
+  #   target_port = 80
+  #   target_protocol = "http"
+  #   certificate_name = data.digitalocean_certificate.cert.id
+  # }
   
   healthcheck {
-    port                     = 80
-    protocol                 = "http"
+    port                     = 443
+    protocol                 = "https"
     path                     = "/"
     check_interval_seconds   = 10
     response_timeout_seconds = 5
