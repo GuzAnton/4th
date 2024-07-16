@@ -109,7 +109,7 @@
               "host": "::"
             },
             "frontend": {
-              "url": "https://{{domain_name}}"
+              "url": "https://{{groups['web_servers'][0]}}"
             },
             "database": {
               "client": "mysql",
