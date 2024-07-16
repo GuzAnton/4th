@@ -32,7 +32,7 @@ resource "digitalocean_droplet" "db" {
   name     = "db-${count.index + 1}"
   region   = var.region
   size     = var.db_droplet_size
-  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-db"]
 
@@ -40,11 +40,6 @@ resource "digitalocean_droplet" "db" {
     create_before_destroy = true
   }
   depends_on = [digitalocean_vpc.project]
-}
-
-resource "digitalocean_ssh_key" "default" {
-  name       = "key"
-  public_key = file("~/.ssh/id_rsa.pub")
 }
 
 resource "digitalocean_loadbalancer" "web" {

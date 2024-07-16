@@ -4,7 +4,7 @@ resource "digitalocean_droplet" "bastion" {
   name     = "Bastion"
   region   = var.region
   size     = "s-1vcpu-1gb"
-  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
   vpc_uuid = digitalocean_vpc.project.id
   tags     = ["${var.name}-bastion"]
 
