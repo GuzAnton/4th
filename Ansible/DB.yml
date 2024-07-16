@@ -92,10 +92,6 @@
               proxy_set_header Host $http_host;
               proxy_pass http://ghost:2368;
 
-              proxy_ignore_headers Set-Cookie Cache-Control;
-              proxy_hide_header Set-Cookie;
-              add_header X-Robots-Tag "noindex, nofollow";
-              proxy_buffering on;
             }
           }
     - name: Upload Ghost configuration
