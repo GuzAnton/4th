@@ -52,7 +52,7 @@ resource "digitalocean_loadbalancer" "web" {
     entry_protocol   = "https"
     target_port      = 443
     target_protocol  = "https"
-    certificate_name = data.digitalocean_certificate.cert.name
+    certificate_name = data.digitalocean_certificate.cert.id
   }
 
   # forwarding_rule {
@@ -215,21 +215,6 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-# resource "digitalocean_firewall" "digitalocean_loadbalancer" {
-#   name        = "balancer_firewall"
-#   droplet_ids = [digitalocean_loadbalancer.web.*.id]
-
-#   inbound_rule {
-#     protocol         = "tcp"
-#     port_range       = "443"
-#     source_addresses = ["0.0.0.0/0"]
-#   }
-#   outbound_rule {
-#     protocol              = "tcp"
-#     port_range            = "all"
-#     destination_addresses = ["0.0.0.0/0"]
-#   }
-# }
 
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
