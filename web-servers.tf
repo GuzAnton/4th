@@ -57,7 +57,7 @@ resource "digitalocean_loadbalancer" "web" {
     entry_protocol   = "https"
     target_port      = 443
     target_protocol  = "https"
-    certificate_name = data.digitalocean_certificate.cert.id
+    certificate_name = digitalocean_certificate.cert.name
   }
 
   forwarding_rule {
@@ -65,7 +65,7 @@ resource "digitalocean_loadbalancer" "web" {
     entry_protocol = "http"
     target_port = 80
     target_protocol = "http"
-    certificate_name = data.digitalocean_certificate.cert.id
+    certificate_name = digitalocean_certificate.cert.name
   }
   
   healthcheck {
@@ -234,12 +234,12 @@ resource "digitalocean_firewall" "db" {
 #     destination_addresses = ["0.0.0.0/0"]
 #   }
 # }
-# resource "digitalocean_certificate" "cert" {
-#   name              = "fourthestate-app-cert"
-#   private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
-#   leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
-#   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
-# }
+resource "digitalocean_certificate" "cert" {
+  name              = "fourthestate-app-cert"
+  private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
+  leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
+  certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
+}
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
