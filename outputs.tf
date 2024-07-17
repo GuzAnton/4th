@@ -13,3 +13,9 @@ output "db_server_private_ips" {
 output "web_public_ip" {
   value = digitalocean_droplet.web.*.ipv4_address
 }
+output "cert" {
+  value = data.digitalocean_certificate.cert.id
+}
+output "cert" {
+  value = data.digitalocean_certificate.cert.name
+}
