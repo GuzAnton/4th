@@ -17,3 +17,8 @@ variable "certificate_chain_path" {
   description = "The path to the certificate chain file."
   type        = string
 }
+variable "create_cert" {
+  description = "Flag to indicate whether to create the certificate or not"
+  type        = bool
+  default     = false
+}
