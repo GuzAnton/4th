@@ -25,4 +25,3 @@ data "cloudflare_zones" "fourthestate_app" {
 # data "digitalocean_certificate" "cert" {
 #   name = "autodeploy-certificate"
 # }
-
