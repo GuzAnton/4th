@@ -16,6 +16,3 @@ output "web_public_ip" {
 output "cert" {
   value = data.digitalocean_certificate.cert.id
 }
-output "cert" {
-  value = data.digitalocean_certificate.cert.name
-}
