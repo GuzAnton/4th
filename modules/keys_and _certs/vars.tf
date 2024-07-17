@@ -1,0 +1,19 @@
+variable "cert_name" {
+  description = "The name of the DigitalOcean certificate."
+  type        = string
+}
+
+variable "private_key_path" {
+  description = "The path to the private key file."
+  type        = string
+}
+
+variable "leaf_certificate_path" {
+  description = "The path to the leaf certificate file."
+  type        = string
+}
+
+variable "certificate_chain_path" {
+  description = "The path to the certificate chain file."
+  type        = string
+}
