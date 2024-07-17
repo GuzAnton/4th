@@ -214,23 +214,8 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-# resource "digitalocean_firewall" "digitalocean_loadbalancer" {
-#   name        = "balancer_firewall"
-#   droplet_ids = [digitalocean_loadbalancer.web.*.id]
-
-#   inbound_rule {
-#     protocol         = "tcp"
-#     port_range       = "443"
-#     source_addresses = ["0.0.0.0/0"]
-#   }
-#   outbound_rule {
-#     protocol              = "tcp"
-#     port_range            = "all"
-#     destination_addresses = ["0.0.0.0/0"]
-#   }
-# }
 # resource "digitalocean_certificate" "cert" {
-#   name              = "fourthestate-app-cert"
+#   name              = "autodeploy-certificate"
 #   private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
 #   leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
 #   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
