@@ -14,5 +14,5 @@ output "web_public_ip" {
   value = digitalocean_droplet.web.*.ipv4_address
 }
 output "cert" {
-  value = digitalocean_certificate.cert.name
+  value = data.digitalocean_certificate.cert.id
 }
