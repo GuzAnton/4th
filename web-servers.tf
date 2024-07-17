@@ -52,7 +52,7 @@ resource "digitalocean_loadbalancer" "web" {
     entry_protocol   = "https"
     target_port      = 443
     target_protocol  = "https"
-    certificate_name = data.digitalocean_certificate.cert.name
+    certificate_name = [data.digitalocean_certificate.cert.id]
   }
 
   forwarding_rule {
@@ -60,7 +60,7 @@ resource "digitalocean_loadbalancer" "web" {
     entry_protocol = "http"
     target_port = 80
     target_protocol = "http"
-    certificate_name = data.digitalocean_certificate.cert.name
+    certificate_name = [data.digitalocean_certificate.cert.id]
   }
   
   healthcheck {
