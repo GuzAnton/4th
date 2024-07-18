@@ -25,11 +25,13 @@ resource "null_resource" "send_inventory_to_bastion" {
     EOT
   }
 }
+
 module "keys_and_certs" {
-  source                 = "./modules/certs"
+  source                 = "./modules/keys_and_certs"
   cert_name              = "fourthestate-app-cert"
   private_key_path       = "/etc/letsencrypt/live/fourthestate.app/privkey.pem"
   leaf_certificate_path  = "/etc/letsencrypt/live/fourthestate.app/cert.pem"
   certificate_chain_path = "/etc/letsencrypt/live/fourthestate.app/fullchain.pem"
+  create_cert            = true  # true для першого проекту надалі false
 }
 

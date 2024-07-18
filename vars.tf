@@ -56,3 +56,7 @@ variable "Bastion_firewall_name" {
 variable "MyIP" {
   default = "164.92.190.148"
 }
+variable "create_cert" {
+  type = bool
+  default = false
+}
