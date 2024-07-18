@@ -58,7 +58,7 @@ variable "MyIP" {
 }
 variable "create_cert" {
   type = bool
-  default = false
+  default = true
 }
 variable "vpc_name" {
   default = "project-vpc"
