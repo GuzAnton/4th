@@ -15,7 +15,7 @@ variable "server_image" {
   default = "ubuntu-20-04-x64"
 }
 variable "server_size" {
-  default = "s-1vcpu-1gb"
+  default = "s-2vcpu-2gb"
 }
 variable "domain_name" {
   type    = string
