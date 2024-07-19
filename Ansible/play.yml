@@ -12,7 +12,7 @@
 
     - name: Check if Docker setup script exists
       stat:
-        path: /tmp/setup_docker.sh
+        path: ./setup_docker.sh
       register: script_stat
 
     - name: Ensure Docker setup script is executable
