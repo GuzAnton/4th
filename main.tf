@@ -18,6 +18,6 @@ resource "null_resource" "copy_ssl_certificates" {
   }
 
   provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no /etc/letsencrypt/live/fourthestate.app/*.pem root@${digitalocean_droplet.bastion.ipv4_address}:/etc/letsencrypt/live/test.fourthestate.app/"
+    command = "scp -o StrictHostKeyChecking=no /etc/letsencrypt/live/fourthestate.app/*.pem root@${digitalocean_droplet.server.ipv4_address}:/etc/letsencrypt/live/test.fourthestate.app/"
   }
 }
