@@ -1,11 +1,10 @@
-- name : Setup Server
+- name: Setup Server
   hosts: localhost
   gather_facts: yes
   become: true
   vars_files:
     - ./group_vars/all/vault.yml
   tasks:
-
     - name: Check current user
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
@@ -24,7 +23,7 @@
     - name: Execute Docker setup script
       shell: ./setup_docker.sh
       register: script_output
-      when: not script_stat.stat.exists
+      when: script_stat.stat.exists
 
     - name: Install required system packages
       apt:
@@ -77,6 +76,7 @@
               proxy_buffering on;
             }
           }
+    
     - name: Upload Ghost configuration
       copy:
         dest: /project/backend/ghost/config.json
@@ -93,10 +93,10 @@
             "database": {
               "client": "mysql",
               "connection": {
-                "host"     : "mysql",
-                "user"     : "{{ mysql_user }}",
-                "password" : "{{ mysql_password }}",
-                "database" : "{{ mysql_database }}"
+                "host": "mysql",
+                "user": "{{ mysql_user }}",
+                "password": "{{ mysql_password }}",
+                "database": "{{ mysql_database }}"
               }
             },
             "paths": {
@@ -251,6 +251,7 @@
               proxy_set_header X-Forwarded-Proto https;
             }
           }
+
     - name: Upload Frontend configuration
       copy:
         dest: /project/front/frontend/.env
@@ -267,11 +268,11 @@
 
           NEXT_PUBLIC_DOMAIN='164.90.243.167'
 
-
     - name: Upload Docker Compose configuration
       copy:
         dest: /project/compose.yml
         content: |
+          version: '3.8'
           services:
             knex_migrator_init:
               profiles: ["knex-migrator-init"]
@@ -283,8 +284,8 @@
               environment:
                 - NODE_ENV=production
               volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+                - ./backend/ghost/content/:/app/ghost/core/content/:rw
+                - ./backend/ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
               depends_on:
                 - mysql
               networks:
@@ -300,8 +301,8 @@
               environment:
                 - NODE_ENV=production
               volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+                - ./backend/ghost/content/:/app/ghost/core/content/:rw
+                - ./backend/ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
               depends_on:
                 - mysql
               networks:
@@ -316,8 +317,8 @@
               environment:
                 - NODE_ENV=production
               volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+                - ./backend/ghost/content/:/app/ghost/core/content/:rw
+                - ./backend/ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
               depends_on:
                 - mysql
               networks:
@@ -335,7 +336,7 @@
               ports:
                 - "3306:3306"
               volumes:
-                - ./mysql/data:/var/lib/mysql
+                - ./backend/mysql/data:/var/lib/mysql
               networks:
                 - webnet
 
@@ -348,7 +349,7 @@
               environment:
                 - NODE_ENV=production
               volumes:
-                - ./frontend/.env:/app/.env
+                - ./front/frontend/.env:/app/.env
               networks:
                 - webnet
 
@@ -357,7 +358,7 @@
               image: nginx:latest
               restart: always
               volumes:
-                - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+                - ./front/nginx/default.conf:/etc/nginx/conf.d/default.conf
               ports:
                 - "80:80"
                 - "443:443"
@@ -367,7 +368,7 @@
           networks:
             webnet:
               driver: bridge
-   
+
     - name: Log into Docker registry
       docker_login:
         registry: "{{ docker_registry }}"
@@ -391,9 +392,6 @@
         sleep 10
         docker compose up -d
 
-
     - name: Debug pull result
       debug:
         var: pull_result
-
-    
