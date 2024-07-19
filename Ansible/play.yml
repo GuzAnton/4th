@@ -1,5 +1,5 @@
-- name : Setup DB
-  hosts: db_servers
+- name : Setup Server
+  hosts: localhost
   gather_facts: yes
   become: true
   vars_files:
@@ -10,57 +10,22 @@
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
 
-    # - name: Install Nginx
-    #   apt:
-    #     name: nginx
-    #     state: present
-    #     update_cache: yes
-    #   tags:
-    #     - package
-
-    # - name: Start & Enable Nginx
-    #   service: 
-    #     name: nginx
-    #     state: started
-    #     enabled: yes
-    #   tags:
-    #     - service
-
-    # - name: Disable default website
-    #   file:
-    #     path: /etc/nginx/sites-enabled/default
-    #     state: absent
-    #   tags:
-    #     - conf
-
     - name: Check if Docker setup script exists
       stat:
         path: /tmp/setup_docker.sh
       register: script_stat
 
-    - name: Copy Docker setup script to remote if not exists
-      copy:
-        src: ./setup_docker.sh
-        dest: /tmp/setup_docker.sh
-        mode: '0755'
-      when: not script_stat.stat.exists
+    # - name: Copy Docker setup script to remote if not exists
+    #   copy:
+    #     src: ./setup_docker.sh
+    #     dest: /tmp/setup_docker.sh
+    #     mode: '0755'
+    #   when: not script_stat.stat.exists
 
     - name: Execute Docker setup script
-      shell: /tmp/setup_docker.sh
+      shell: ./setup_docker.sh
       register: script_output
       when: not script_stat.stat.exists
-
-    - name: Create directories
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-      loop:
-        - /opt
-        - /opt/web
-        - /opt/web/nginx
-        - /opt/web/ghost
-        - /opt/web/ghost/content
-        - /opt/web/ghost/content/logs
 
     - name: Install required system packages
       apt:
@@ -75,10 +40,25 @@
         name: docker
         state: present
     
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /project
+        - /project/backend
+        - /project/front
+        - /project/front/nginx
+        - /project/front/frontend
+        - /project/front/nginx/ssl/live/test.fourthestate.app
+        - /project/backend/nginx
+        - /project/backend/ghost
+        - /project/backend/ghost/content
+        - /project/backend/ghost/content/logs
     
     - name: Upload Nginx configuration
       copy:
-        dest: /opt/web/nginx/default.conf
+        dest: /project/backend/nginx/default.conf
         content: |
           server {
             listen 80;
@@ -100,7 +80,7 @@
           }
     - name: Upload Ghost configuration
       copy:
-        dest: /opt/web/ghost/config.json
+        dest: /project/backend/ghost/config.json
         content: |
           {
             "url": "http://localhost:2368",
@@ -209,9 +189,89 @@
               "apiKey": "{{ mail_search_api }}"
             }
           }
+
+    - name: Copy SSL to NGINX
+      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* /project/front/nginx/ssl/live/test.fourthestate.app"
+      delegate_to: localhost
+
+    - name: Upload Nginx configuration
+      copy:
+        dest: /project/front/nginx/default.conf
+        content: |
+          server {
+            listen 80;
+            listen [::]:80;
+
+            server_name {{domain_name}};
+            server_tokens off;
+
+            location / {
+              return 301 https://$host$request_uri;
+            }
+          }
+
+          server {
+            listen 443 ssl;
+            listen [::]:443 ssl;
+
+            server_name {{domain_name}};
+
+            ssl_certificate /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem;
+            ssl_certificate_key /etc/letsencrypt/live/test.fourthestate.app/privkey.pem;
+            
+            location / {
+              proxy_pass http://frontend:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+            }
+            
+            location ~^/socket\.io {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+
+            location ~ ^/members/webhooks/stripe/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Host $host;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+
+            location ~*^/(ghost|p|members|content)/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+          }
+    - name: Upload Frontend configuration
+      copy:
+        dest: /project/front/frontend/.env
+        content: |
+          NEXT_PUBLIC_GHOST_API_URL='https://{{domain_name}}'
+          NEXT_PUBLIC_GHOST_API_KEY='{{front_public_api_key}}'
+
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID='21007502974-i97qj0ctd5v4qbaukbptk7dd36fbph3c.apps.googleusercontent.com'
+          NEXT_PUBLIC_MICROSOFT_CLIENT_ID='f704b78c-637c-4b2f-b851-3bdbdc8e8f66'
+          NEXT_PUBLIC_FACEBOOK_CLIENT_ID='969714300971210'
+
+          NEXT_PUBLIC_APPLE_CLIENT_ID='com.fourthestate.app'
+          NEXT_PUBLIC_APPLE_REDIRECT_URI='https://dev-mediaplatform.fourthestate.app'
+
+          NEXT_PUBLIC_DOMAIN='164.90.243.167'
+
+
     - name: Upload Docker Compose configuration
       copy:
-        dest: /opt/web/compose.yml
+        dest: /project/compose.yml
         content: |
           services:
             knex_migrator_init:
@@ -269,14 +329,27 @@
               image: mysql:8.0.32
               restart: always
               environment:
-                MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
-                MYSQL_DATABASE: "{{ mysql_database }}"
-                MYSQL_USER: "{{ mysql_user }}"
-                MYSQL_PASSWORD: "{{ mysql_password }}"
+                MYSQL_ROOT_PASSWORD: root
+                MYSQL_DATABASE: ghost
+                MYSQL_USER: admin
+                MYSQL_PASSWORD: admin
               ports:
                 - "3306:3306"
               volumes:
                 - ./mysql/data:/var/lib/mysql
+              networks:
+                - webnet
+
+            frontend:
+              container_name: frontend
+              image: "gitlab.fourthestate.app:5050/mp/mediaplatform-frontend-app/autodeploy:latest"
+              restart: always
+              ports:
+                - "3000:3000"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./frontend/.env:/app/.env
               networks:
                 - webnet
 
@@ -291,10 +364,11 @@
                 - "443:443"
               networks:
                 - webnet
+
           networks:
             webnet:
               driver: bridge
-
+   
     - name: Log into Docker registry
       docker_login:
         registry: "{{ docker_registry }}"
@@ -310,7 +384,7 @@
 
     - name: Start all services
       shell: |
-        cd /opt/web
+        cd /project
         docker compose pull
         docker compose up -d mysql
         sleep 60
@@ -322,3 +396,5 @@
     - name: Debug pull result
       debug:
         var: pull_result
+
+    

@@ -1,3 +1,2 @@
-- import_playbook: bastion.yml
-- import_playbook: DB.yml
-- import_playbook: web.yml
+
+

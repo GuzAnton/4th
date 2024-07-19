@@ -6,35 +6,35 @@
     - ./group_vars/all/vault.yml
   tasks:
 
-    - name: Install required system packages
-      apt:
-        pkg:
-          - python3-pip
-        state: latest
-        update_cache: true
-      when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
+    # - name: Install required system packages
+    #   apt:
+    #     pkg:
+    #       - python3-pip
+    #     state: latest
+    #     update_cache: true
+    #   when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
 
-    - name: Check if Docker setup script exists
-      stat:
-        path: /tmp/setup_docker.sh
-      register: script_stat
+    # - name: Check if Docker setup script exists
+    #   stat:
+    #     path: /tmp/setup_docker.sh
+    #   register: script_stat
 
-    - name: Copy Docker setup script to remote if not exists
-      copy:
-        src: ./setup_docker.sh
-        dest: /tmp/setup_docker.sh
-        mode: '0755'
-      when: not script_stat.stat.exists
+    # - name: Copy Docker setup script to remote if not exists
+    #   copy:
+    #     src: ./setup_docker.sh
+    #     dest: /tmp/setup_docker.sh
+    #     mode: '0755'
+    #   when: not script_stat.stat.exists
 
-    - name: Execute Docker setup script
-      shell: /tmp/setup_docker.sh
-      register: script_output
-      when: not script_stat.stat.exists
+    # - name: Execute Docker setup script
+    #   shell: /tmp/setup_docker.sh
+    #   register: script_output
+    #   when: not script_stat.stat.exists
 
-    - name: Install Docker SDK for Python
-      pip:
-        name: docker
-        state: present
+    # - name: Install Docker SDK for Python
+    #   pip:
+    #     name: docker
+    #     state: present
 
     - name: Create directories
       ansible.builtin.file:
@@ -46,13 +46,12 @@
         - /web/frontend
         - /web/nginx/ssl/live/test.fourthestate.app
         
-    - name: Copy SSL certificates to web servers
-      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{ item }}:/etc/letsencrypt/live/test.fourthestate.app"
-      with_items: "{{ groups['web_servers'] }}"
-      delegate_to: localhost
+    # - name: Copy SSL certificates to web servers
+    #   shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{ item }}:/etc/letsencrypt/live/test.fourthestate.app"
+    #   with_items: "{{ groups['web_servers'] }}"
+    #   delegate_to: localhost
     - name: Copy SSL to NGINX
-      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* root@{{item}}:/web/nginx/ssl/live/test.fourthestate.app"
-      with_items: "{{groups['web_servers']}}"
+      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* /web/nginx/ssl/live/test.fourthestate.app"
       delegate_to: localhost
         
     - name: Upload Nginx configuration
@@ -89,7 +88,7 @@
             }
             
             location ~^/socket\.io {
-              proxy_pass http://{{ groups['db_servers'][0] }};
+              proxy_pass http://ghost:2368;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -97,7 +96,7 @@
             }
 
             location ~ ^/members/webhooks/stripe/ {
-              proxy_pass http://{{ groups['db_servers'][0] }};
+              proxy_pass http://ghost:2368;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -106,7 +105,7 @@
             }
 
             location ~*^/(ghost|p|members|content)/ {
-              proxy_pass http://{{ groups['db_servers'][0] }};
+              proxy_pass http://ghost:2368;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
