@@ -15,12 +15,11 @@
         path: /tmp/setup_docker.sh
       register: script_stat
 
-    # - name: Copy Docker setup script to remote if not exists
-    #   copy:
-    #     src: ./setup_docker.sh
-    #     dest: /tmp/setup_docker.sh
-    #     mode: '0755'
-    #   when: not script_stat.stat.exists
+    - name: Ensure Docker setup script is executable
+      file:
+        path: ./setup_docker.sh
+        mode: '0755'
+      when: script_stat.stat.exists
 
     - name: Execute Docker setup script
       shell: ./setup_docker.sh
