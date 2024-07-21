@@ -51,7 +51,7 @@
     #   with_items: "{{ groups['web_servers'] }}"
     #   delegate_to: localhost
     - name: Copy SSL to NGINX
-      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* /web/nginx/ssl/live/test.fourthestate.app"
+      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* /project/nginx/ssl/live/test.fourthestate.app"
       delegate_to: localhost
         
     - name: Upload Nginx configuration
