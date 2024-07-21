@@ -58,7 +58,7 @@ resource "digitalocean_firewall" "server" {
   }
   inbound_rule {
     protocol         = "udp"
-    port_range       = "all"
+    port_range       = "1-65535"
     source_addresses = [digitalocean_vpc.project.ip_range]
   }
   inbound_rule {
