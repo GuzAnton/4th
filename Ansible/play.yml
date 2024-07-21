@@ -276,7 +276,7 @@
               environment:
                 - NODE_ENV=production
               volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/content/:/project/ghost/core/content/:rw
                 - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
               depends_on:
                 - mysql
