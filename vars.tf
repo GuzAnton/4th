@@ -38,29 +38,29 @@ variable "domain_name" {
 }
 variable "subdomain" {
   type    = string
-  default = "test"
+  default = "test10"
 }
 variable "LoadBalancer_Name" {
-  default = "web"
+  default = "web10"
 }
 variable "FireWall_Name_Web" {
-  default = "web"
+  default = "web10"
 }
 variable "FireWall_Name_DB" {
-  default = "db"
+  default = "db10"
 }
 variable "Bastion_firewall_name" {
-  default = "bastion"
+  default = "bastion10"
 }
 variable "MyIP" {
   default = "164.92.190.148"
 }
 variable "vpc_name" {
   description = "Name of current VPC"
-  default     = "project-vpc"
+  default     = "project-vpc10"
 }
 variable "vpc_range" {
-  default = "172.20.1.0/24"
+  default = "172.20.10.0/24"
 }
 variable "private_key_path" {
   description = "Path to the private key file"
