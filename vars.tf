@@ -60,7 +60,7 @@ variable "vpc_name" {
   default     = "project-vpc10"
 }
 variable "vpc_range" {
-  default = "172.20.10.0/24"
+  default = "172.20.80.0/24"
 }
 variable "private_key_path" {
   description = "Path to the private key file"
