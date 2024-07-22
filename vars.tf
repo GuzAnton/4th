@@ -23,20 +23,20 @@ variable "domain_name" {
 }
 variable "subdomain" {
   type    = string
-  default = "test"
+  default = "test10"
 }
 variable "Firewall_name" {
-  default = "server-firewall"
+  default = "server-firewall10"
 }
 variable "MyIP" {
   default = "164.92.190.148"
 }
 variable "vpc_name" {
   description = "Name of current VPC"
-  default     = "project-vpc"
+  default     = "project-vpc10"
 }
 variable "vpc_range" {
-  default = "172.20.1.0/24"
+  default = "172.20.10.0/24"
 }
 variable "private_key_path" {
   description = "Path to the private key file"
