@@ -29,9 +29,9 @@ resource "null_resource" "send_inventory_to_bastion" {
 module "keys_and_certs" {
   source                 = "./modules/certs"
   cert_name              = "fourthestate-app-cert"
-  private_key_path       = "/etc/letsencrypt/live/fourthestate.app/privkey.pem"
-  leaf_certificate_path  = "/etc/letsencrypt/live/fourthestate.app/cert.pem"
-  certificate_chain_path = "/etc/letsencrypt/live/fourthestate.app/fullchain.pem"
+  private_key_path       = "/etc/letsencrypt/live/fourthestate.app-0001/privkey.pem"
+  leaf_certificate_path  = "/etc/letsencrypt/live/fourthestate.app-0001/cert.pem"
+  certificate_chain_path = "/etc/letsencrypt/live/fourthestate.app-0001/fullchain.pem"
   create_cert            = var.create_cert
 }
 
