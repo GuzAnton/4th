@@ -37,20 +37,20 @@ variable "domain_name" {
 }
 variable "subdomain" {
   type    = string
-  default = "test"
+  default = "test10"
 }
 variable "LoadBalancer_Name" {
-  default = "web"
+  default = "web10"
 }
 variable "FireWall_Name_Web" {
-  default = "web"
+  default = "web10"
 }
 
 variable "FireWall_Name_DB" {
-  default = "db"
+  default = "db10"
 }
 variable "Bastion_firewall_name" {
-  default = "bastion"
+  default = "bastion10"
 }
 
 variable "MyIP" {
@@ -58,11 +58,11 @@ variable "MyIP" {
 }
 variable "create_cert" {
   type = bool
-  default = true
+  default = false
 }
 variable "vpc_name" {
-  default = "project-vpc"
+  default = "project-vpc10"
 }
 variable "vpc_range" {
-  default = "172.20.1.0/24"
+  default = "172.20.10.0/24"
 }
