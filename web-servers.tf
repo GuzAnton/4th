@@ -214,12 +214,7 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-# resource "digitalocean_certificate" "cert" {
-#   name              = "autodeploy-certificate"
-#   private_key       = file("/etc/letsencrypt/live/fourthestate.app/privkey.pem")
-#   leaf_certificate  = file("/etc/letsencrypt/live/fourthestate.app/cert.pem")
-#   certificate_chain = file("/etc/letsencrypt/live/fourthestate.app/fullchain.pem")
-# }
+#When we need to downgrade - we need to comment current value and uncomment pointing to droplet ip
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
