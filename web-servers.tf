@@ -50,11 +50,19 @@ resource "digitalocean_droplet" "db" {
 #   forwarding_rule {
 #     entry_port       = 443
 #     entry_protocol   = "https"
-#     target_port      = 80
-#     target_protocol  = "http"
-#     certificate_name = data.digitalocean_certificate.cert.name
-
+#     target_port      = 443
+#     target_protocol  = "https"
+#     certificate_name = module.keys_and_certs.cert_name
 #   }
+
+#   forwarding_rule {
+#     entry_port = 80
+#     entry_protocol = "http"
+#     target_port = 80
+#     target_protocol = "http"
+#     certificate_name = module.keys_and_certs.cert_name
+#   }
+  
 #   healthcheck {
 #     port                     = 80
 #     protocol                 = "http"
@@ -65,9 +73,8 @@ resource "digitalocean_droplet" "db" {
 #     healthy_threshold        = 2
 #   }
 
-#   droplet_ids            = digitalocean_droplet.web.*.id
+#   droplet_ids            = [ for d in digitalocean_droplet.web : d.id]
 #   vpc_uuid               = digitalocean_vpc.project.id
-#   redirect_http_to_https = true
 #   lifecycle {
 #     create_before_destroy = true
 #   }
@@ -211,6 +218,7 @@ resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
   value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
+  
   type    = "A"
   ttl     = 300
 }
