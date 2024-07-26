@@ -22,7 +22,3 @@ data "cloudflare_zones" "fourthestate_app" {
 data "digitalocean_ssh_key" "default" {
   name = "autodeploy_key"
 }
-# when changing to basic - uncomment
-# data "digitalocean_certificate" "cert"{
-#   name = "autodeploy-certificate"
-# }
