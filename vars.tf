@@ -56,13 +56,14 @@ variable "Bastion_firewall_name" {
 variable "MyIP" {
   default = "164.92.190.148"
 }
-variable "create_cert" {
-  type = bool
-  default = false
-}
+
 variable "vpc_name" {
   default = "project-vpc10"
 }
 variable "vpc_range" {
   default = "172.20.10.0/24"
+}
+variable "create_cert" {
+  type = bool
+  default = false
 }
