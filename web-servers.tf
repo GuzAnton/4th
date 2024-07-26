@@ -41,7 +41,7 @@ resource "digitalocean_droplet" "db" {
   }
   depends_on = [digitalocean_vpc.project]
 }
-
+# when changing to basic - comment
 resource "digitalocean_loadbalancer" "web" {
   name   = var.LoadBalancer_Name
   region = var.region
