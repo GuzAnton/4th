@@ -52,7 +52,9 @@ variable "chain_path" {
 }
 variable "do_spaces_access_key" {
   type = string
+  sensitive = true
 }
 variable "do_spaces_secret_key" {
   type = string
+  sensitive = true
 }
