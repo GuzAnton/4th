@@ -83,16 +83,12 @@ resource "cloudflare_record" "project_subdomain" {
 terraform {
   backend "s3" {
     bucket         = "fe-autodeploy-01"
-    key            = locals.backend_key
+    key            = "terraform-backend/test10/terraform.tfstate"
     region         = "us-east-1"
     endpoint       = "https://fra1.digitaloceanspaces.com"
-    access_key     = var.do_spaces_access_key  
-    secret_key     = var.do_spaces_secret_key
+    access_key     = "${TF_VAR_do_spaces_access_key}"  
+    secret_key     = "${TF_VAR_do_spaces_secret_key}"
     skip_credentials_validation = true
     skip_metadata_api_check     = true
   }
 }
-locals {
-  backend_key = "terraform-backend/${var.subdomain}/terraform.tfstate"
-}
-

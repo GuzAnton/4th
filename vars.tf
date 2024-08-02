@@ -50,11 +50,9 @@ variable "chain_path" {
   description = "Path to the certificate chain file"
   default     = "/etc/letsencrypt/live/fourthestate.app/fullchain.pem"
 }
-variable "do_spaces_access_key" {
-  type = string
+variable "TF_VAR_do_spaces_access_key" {
   sensitive = true
 }
-variable "do_spaces_secret_key" {
-  type = string
+variable "TF_VAR_do_spaces_secret_key" {
   sensitive = true
 }
