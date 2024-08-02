@@ -16,8 +16,8 @@ terraform {
 }
 provider "aws" {
   region              = "us-east-1"
-  access_key          = "${TF_VAR_do_spaces_access_key}"
-  secret_key          = "${TF_VAR_do_spaces_secret_key}"
+  access_key          = "${AWS_ACCESS_KEY_ID}"
+  secret_key          = "${AWS_SECRET_ACCESS_KEY}"
 
   endpoints {
     s3 = "https://fra1.digitaloceanspaces.com"
