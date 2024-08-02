@@ -85,8 +85,6 @@ terraform {
     key            = "terraform-backend/test10/terraform.tfstate"
     region         = "us-east-1"
     endpoint       = "https://fra1.digitaloceanspaces.com"
-    access_key     = "${AWS_ACCESS_KEY_ID}"
-    secret_key     = "${AWS_SECRET_ACCESS_KEY}"
     skip_credentials_validation = true
     skip_metadata_api_check     = true
   }
