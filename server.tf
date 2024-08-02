@@ -80,13 +80,22 @@ resource "cloudflare_record" "project_subdomain" {
   ttl     = 300
 }
 terraform {
+required_version = ">= 1.6.3"
+
   backend "s3" {
-    endpoint                    = "fra1.digitaloceanspaces.com"
-    key                         = "terraform.tfstate"
-    bucket                      = "fe-autodeploy-01"
-    region                      = "us-east-1"
-    skip_requesting_account_id  = true
+    endpoints = {
+      s3 = "https://fra1.digitaloceanspaces.com"
+    }
+
+    bucket = "fe-autodeploy-01"
+    key    = "terraform.tfstate"
+
+    # Deactivate a few AWS-specific checks
     skip_credentials_validation = true
+    skip_requesting_account_id  = true
     skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_s3_checksum            = true
+    region                      = "us-east-1"
   }
 }
