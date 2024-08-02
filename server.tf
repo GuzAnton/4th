@@ -81,11 +81,13 @@ resource "cloudflare_record" "project_subdomain" {
 }
 terraform {
   backend "s3" {
-    bucket         = "fe-autodeploy-01"
-    key            = "terraform-backend/test10/terraform.tfstate"
-    region         = "us-east-1"
-    endpoint       = "https://fra1.digitaloceanspaces.com"
+    endpoint                    = "fra1.digitaloceanspaces.com"
+    key                         = "terraform.tfstate"
+    bucket                      = "fe-autodeploy-01"
+    region                      = "us-east-1"
+    skip_requesting_account_id  = true
     skip_credentials_validation = true
+    skip_get_ec2_platforms      = true
     skip_metadata_api_check     = true
   }
 }
