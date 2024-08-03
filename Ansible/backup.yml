@@ -1,0 +1,42 @@
+- name: Backup and Archive MySQL and Ghost Content
+  hosts: localhost
+  become: true
+
+  vars_files:
+    - ./group_vars/all/vault.yml
+  tasks:
+    - name: Ensure backup directory exists
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+
+    - name: Backup MySQL database
+      command: >
+        docker exec mysql /usr/bin/mysqldump -u root --password=root ghost > {{ mysql_dump_file }}
+
+    - name: Archive Ghost content
+      archive:
+        path: "{{ ghost_content_dir }}"
+        dest: "{{ ghost_archive_file }}"
+
+    - name: Upload MySQL backup to DigitalOcean Spaces
+      s3:
+        bucket: "{{ spaces_bucket }}"
+        object: "backups/mysql_backup.sql"
+        src: "{{ mysql_dump_file }}"
+        mode: put
+        region: "{{ spaces_region }}"
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        endpoint_url: "https://{{ spaces_region }}.digitaloceanspaces.com"
+
+    - name: Upload Ghost content archive to DigitalOcean Spaces
+      s3:
+        bucket: "{{ spaces_bucket }}"
+        object: "backups/ghost_content_backup.tar.gz"
+        src: "{{ ghost_archive_file }}"
+        mode: put
+        region: "{{ spaces_region }}"
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        endpoint_url: "https://{{ spaces_region }}.digitaloceanspaces.com"
