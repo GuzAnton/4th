@@ -88,7 +88,7 @@ required_version = ">= 1.6.3"
     }
 
     bucket = "fe-autodeploy-01"
-    key    = "${var.subdomain}/state/terraform.tfstate"
+    key    = "test10/state/terraform.tfstate"
 
     # Deactivate a few AWS-specific checks
     skip_credentials_validation = true
