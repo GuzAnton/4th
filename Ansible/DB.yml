@@ -302,7 +302,7 @@
       shell: >
         docker exec -i mysql /usr/bin/mysql
         -u {{ mysql_user }}
-        --password={{ mysql_password }}
+        -p {{ mysql_password }}
         {{ mysql_database }} < /opt/web/mysql_backup.sql
       args:
         executable: /bin/bash
