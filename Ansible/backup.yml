@@ -11,6 +11,23 @@
         path: "{{ backup_dir }}"
         state: directory
 
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Install Python3-pip
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install required Python libraries (boto3 and botocore)
+      pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+
     - name: Backup MySQL database
       shell: >
         docker exec mysql /usr/bin/mysqldump
