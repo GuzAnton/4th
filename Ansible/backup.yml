@@ -4,6 +4,7 @@
 
   vars_files:
     - ./group_vars/all/vault.yml
+
   tasks:
     - name: Ensure backup directory exists
       file:
@@ -26,22 +27,37 @@
 
     - name: Upload MySQL backup to DigitalOcean Spaces
       aws_s3:
-        bucket: "{{ spaces_bucket }}"
-        object: "backups/mysql_backup.sql"
-        src: "{{ mysql_dump_file }}"
-        mode: put
-        region: "{{ spaces_region }}"
         aws_access_key: "{{ spaces_access_key }}"
         aws_secret_key: "{{ spaces_secret_key }}"
-        endpoint_url: "https://{{ spaces_region }}.digitaloceanspaces.com"
+        s3_url: "{{ spaces_endpoint }}"  # Используем s3_url для указания DigitalOcean Spaces
+        bucket: "{{ spaces_bucket }}"
+        object: "test10/backups/mysql_backup.sql"
+        src: "{{ mysql_dump_file }}"
+        mode: put
+        encrypt: false
+        rgw: true  # Указывает, что используется совместимый с S3 API, такой как DigitalOcean Spaces
 
     - name: Upload Ghost content archive to DigitalOcean Spaces
       aws_s3:
-        bucket: "{{ spaces_bucket }}"
-        object: "backups/ghost_content_backup.tar.gz"
-        src: "{{ ghost_archive_file }}"
-        mode: put
-        region: "{{ spaces_region }}"
         aws_access_key: "{{ spaces_access_key }}"
         aws_secret_key: "{{ spaces_secret_key }}"
-        endpoint_url: "https://{{ spaces_region }}.digitaloceanspaces.com"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "test10/backups/ghost_content_backup.tar.gz"
+        src: "{{ ghost_archive_file }}"
+        mode: put
+        encrypt: false
+        rgw: true
+
+    - name: List objects in Space
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        mode: list
+        rgw: true
+      register: spaces_items
+
+    - debug:
+        msg: "Contents of {{ spaces_bucket }}: {{ spaces_items.s3_keys }}"
