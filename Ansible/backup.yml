@@ -25,7 +25,7 @@
         dest: "{{ ghost_archive_file }}"
 
     - name: Upload MySQL backup to DigitalOcean Spaces
-      amazon.aws.s3:
+      aws_s3:
         bucket: "{{ spaces_bucket }}"
         object: "backups/mysql_backup.sql"
         src: "{{ mysql_dump_file }}"
@@ -36,7 +36,7 @@
         endpoint_url: "https://{{ spaces_region }}.digitaloceanspaces.com"
 
     - name: Upload Ghost content archive to DigitalOcean Spaces
-      amazon.aws.s3:
+      aws_s3:
         bucket: "{{ spaces_bucket }}"
         object: "backups/ghost_content_backup.tar.gz"
         src: "{{ ghost_archive_file }}"
