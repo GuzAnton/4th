@@ -301,9 +301,9 @@
     - name: Restore MySQL database
       shell: >
         docker exec -i mysql /usr/bin/mysql
-        -u {{ mysql_user }}
-        -p {{ mysql_password }}
-        {{ mysql_database }} < /opt/web/mysql_backup.sql
+        -u {{mysql_user}}
+        -p{{mysql_password}}
+        {{mysql_database}} < /opt/web/mysql_backup.sql
       args:
         executable: /bin/bash
 
