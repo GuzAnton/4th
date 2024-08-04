@@ -50,25 +50,7 @@
         - /project/ghost
         - /project/ghost/content
         - /project/ghost/content/logs
-    
-    # - name: Upload Nginx configuration
-    #   copy:
-    #     dest: /project/nginx/default.conf
-    #     content: |
-    #       server {
-    #         listen 80;
-    #         listen [::]:80;
-    #         server_name _;
 
-    #         location / {
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Proto $scheme;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header Host $http_host;
-    #           proxy_pass http://ghost:2368;
-    #         }
-    #       }
-    
     - name: Upload Ghost configuration
       copy:
         dest: /project/ghost/config.json
