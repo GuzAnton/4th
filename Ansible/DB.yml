@@ -1,4 +1,4 @@
-- name : Setup DB
+- name: Setup DB
   hosts: db_servers
   gather_facts: yes
   become: true
@@ -10,30 +10,7 @@
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
 
-    # - name: Install Nginx
-    #   apt:
-    #     name: nginx
-    #     state: present
-    #     update_cache: yes
-    #   tags:
-    #     - package
-
-    # - name: Start & Enable Nginx
-    #   service: 
-    #     name: nginx
-    #     state: started
-    #     enabled: yes
-    #   tags:
-    #     - service
-
-    # - name: Disable default website
-    #   file:
-    #     path: /etc/nginx/sites-enabled/default
-    #     state: absent
-    #   tags:
-    #     - conf
-
-    - name: Check if Docker setup script exists
+    - name: Ensure Docker setup script exists
       stat:
         path: /tmp/setup_docker.sh
       register: script_stat
@@ -74,8 +51,53 @@
       pip:
         name: docker
         state: present
-    
-    
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Install required Python libraries (boto3 and botocore)
+      pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+
+    - name: Log into Docker registry
+      docker_login:
+        registry: "{{ docker_registry }}"
+        username: "{{ registry_username }}"
+        password: "{{ registry_password }}"
+        reauthorize: yes
+      register: login_result
+      ignore_errors: yes
+
+    - name: Debug Docker login result
+      debug:
+        var: login_result
+
+    - name: Download MySQL backup from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "test10/backups/mysql_backup.sql"
+        dest: "/opt/web/mysql_backup.sql"
+        mode: get
+        rgw: true
+
+    - name: Download Ghost content archive from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "test10/backups/ghost_content_backup.tar.gz"
+        dest: "/opt/web/ghost_content_backup.tar.gz"
+        mode: get
+        rgw: true
+
     - name: Upload Nginx configuration
       copy:
         dest: /opt/web/nginx/default.conf
@@ -91,8 +113,14 @@
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header Host $http_host;
               proxy_pass http://ghost:2368;
+
+              proxy_ignore_headers Set-Cookie Cache-Control;
+              proxy_hide_header Set-Cookie;
+              add_header X-Robots-Tag "noindex, nofollow";
+              proxy_buffering on;
             }
           }
+
     - name: Upload Ghost configuration
       copy:
         dest: /opt/web/ghost/config.json
@@ -204,45 +232,13 @@
               "apiKey": "{{ mail_search_api }}"
             }
           }
+
     - name: Upload Docker Compose configuration
       copy:
         dest: /opt/web/compose.yml
         content: |
+          version: '3.8'
           services:
-            knex_migrator_init:
-              profiles: ["knex-migrator-init"]
-              container_name: knex-migrator-init
-              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-              command: "yarn knex-migrator init"
-              ports:
-                - "2368:2368"
-              environment:
-                - NODE_ENV=production
-              volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-              depends_on:
-                - mysql
-              networks:
-                - webnet
-
-            knex_migrator_migrate:
-              profiles: ["knex-migrator-migrate"]
-              container_name: knex-migrator-migrate
-              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-              command: "yarn knex-migrator migrate --v 5.40 --force"
-              ports:
-                - "2368:2368"
-              environment:
-                - NODE_ENV=production
-              volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-              depends_on:
-                - mysql
-              networks:
-                - webnet
-
             ghost:
               container_name: ghost
               image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
@@ -290,29 +286,32 @@
             webnet:
               driver: bridge
 
-    - name: Log into Docker registry
-      docker_login:
-        registry: "{{ docker_registry }}"
-        username: "{{ registry_username }}"
-        password: "{{ registry_password }}"
-        reauthorize: yes
-      register: login_result
-      ignore_errors: yes
-
-    - name: Debug Docker login result
-      debug:
-        var: login_result
-
     - name: Start all services
       shell: |
         cd /opt/web
         docker compose pull
-        docker compose up -d mysql
-        sleep 60
-        docker compose run knex_migrator_init
-        sleep 10
         docker compose up -d
 
+    - name: Wait for MySQL to be ready
+      wait_for:
+        port: 3306
+        delay: 10
+        timeout: 60
+
+    - name: Restore MySQL database
+      shell: >
+        docker exec -i mysql /usr/bin/mysql
+        -u {{mysql_user}}
+        -p{{mysql_password}}
+        {{mysql_database}} < /opt/web/mysql_backup.sql
+      args:
+        executable: /bin/bash
+
+    - name: Extract Ghost content
+      unarchive:
+        src: /opt/web/ghost_content_backup.tar.gz
+        dest: /opt/web/ghost/content
+        remote_src: yes
 
     - name: Debug pull result
       debug:
