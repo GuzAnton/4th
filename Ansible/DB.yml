@@ -10,29 +10,6 @@
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
 
-    # - name: Install Nginx
-    #   apt:
-    #     name: nginx
-    #     state: present
-    #     update_cache: yes
-    #   tags:
-    #     - package
-
-    # - name: Start & Enable Nginx
-    #   service: 
-    #     name: nginx
-    #     state: started
-    #     enabled: yes
-    #   tags:
-    #     - service
-
-    # - name: Disable default website
-    #   file:
-    #     path: /etc/nginx/sites-enabled/default
-    #     state: absent
-    #   tags:
-    #     - conf
-
     - name: Check if Docker setup script exists
       stat:
         path: /tmp/setup_docker.sh
@@ -61,7 +38,7 @@
         - /opt/web/ghost
         - /opt/web/ghost/content
         - /opt/web/ghost/content/logs
-
+        - /opt/web/proxy-backend
     - name: Install required system packages
       apt:
         pkg:
@@ -75,7 +52,19 @@
         name: docker
         state: present
     
+    - name: Upload proxy-backend configuration
+      copy:
+        dest: /opt/web/proxy-backend/.env
+        content: |
+          PORT=2367
+          GHOST_URL='http://ghost:2368'
+          REDIS_URL='redis://redis:6379'
+          CACHE_TTL='1 hour'
+          CACHE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_WEBHOOKS=[{% for host in groups['web_servers'] %}"http://{{ host }}:3000/api/revalidate"{% if not loop.last %},{% endif %}{% endfor %}]
     
+
     - name: Upload Nginx configuration
       copy:
         dest: /opt/web/nginx/default.conf
@@ -85,20 +74,48 @@
             listen [::]:80;
             server_name _;
 
-            location / {
-              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto $scheme;
-              proxy_set_header X-Real-IP $remote_addr;
-              proxy_set_header Host $http_host;
+            client_max_body_size 50m;
+
+            location ~^/socket\.io {
               proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+
+            location ~ ^/members/webhooks/stripe/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Host $host;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+
+            location ~* /upload/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+
+            location / {
+              proxy_pass http://proxy-backend:2367;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
             }
           }
+
     - name: Upload Ghost configuration
       copy:
         dest: /opt/web/ghost/config.json
         content: |
           {
-            "url": "http://localhost:2368",
+            "url": "http://{{domain_name}}}",
             "server": {
               "port": 2368,
               "host": "::"
@@ -114,6 +131,12 @@
                 "password" : "{{ mysql_password }}",
                 "database" : "{{ mysql_database }}"
               }
+            },
+            "cacheInvalidateWebhooks": {
+              "enabled": true,
+              "urls": [
+                  "http://proxy-backend:2367/cache/invalidate"
+              ]
             },
             "paths": {
               "contentPath": "content/"
@@ -136,8 +159,8 @@
                 "secure": true,
                 "port": 465,
                 "auth": {
-                  "user": "mail_user",
-                  "pass": "mail_pass"
+                  "user": "{{ mail_user }}",
+                  "pass": "{{ mail_pass }}"
                 }
               }
             },
@@ -286,6 +309,28 @@
                 - "443:443"
               networks:
                 - webnet
+             proxy-backend:
+              container_name: proxy-backend
+              image: "gitlab.fourthestate.app:5050/mp/ghost-proxy/dev:latest"
+              restart: always
+              ports:
+                - "2367:2367"
+              volumes:
+                - ./proxy-backend/.env:/home/node/app/.env
+              depends_on:
+                - redis
+              networks:
+                - webnet
+
+            redis:
+              container_name: redis
+              image: redis:7.2.4
+              restart: always
+              ports:
+                - "6379:6379"
+              networks:
+                - webnet
+
           networks:
             webnet:
               driver: bridge
