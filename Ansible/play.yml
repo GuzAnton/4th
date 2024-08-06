@@ -51,13 +51,28 @@
         - /project/ghost/content
         - /project/ghost/content/logs
         - /project/ghost/content/data
+        - /project/proxy-backend
 
+    - name: Upload proxy-backend configuration
+      copy:
+        dest: /project/proxy-backend/.env
+        content: |
+          PORT=2367
+          GHOST_URL='http://ghost:2368'
+          REDIS_URL='redis://redis:6379'
+          CACHE_TTL='1 hour'
+          CACHE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_WEBHOOKS=["http://frontend:3000/api/revalidate"]
+    
+
+    
     - name: Upload Ghost configuration
       copy:
         dest: /project/ghost/config.json
         content: |
           {
-            "url": "http://localhost:2368",
+            "url": "http://{{domain_name}}",
             "server": {
               "port": 2368,
               "host": "::"
@@ -227,7 +242,6 @@
 
             location ~ ^/members/webhooks/stripe/ {
               proxy_pass http://ghost:2368;
-              # proxy_pass http://proxy-backend:2367;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -259,7 +273,7 @@
           NEXT_PUBLIC_APPLE_CLIENT_ID='com.fourthestate.app'
           NEXT_PUBLIC_APPLE_REDIRECT_URI='https://dev-mediaplatform.fourthestate.app'
 
-          NEXT_PUBLIC_DOMAIN='164.90.243.167'
+          NEXT_PUBLIC_DOMAIN='{{domain_name}}'
 
     - name: Upload Docker Compose configuration
       copy:
@@ -322,10 +336,10 @@
               image: mysql:8.0.32
               restart: always
               environment:
-                MYSQL_ROOT_PASSWORD: root
-                MYSQL_DATABASE: ghost
-                MYSQL_USER: admin
-                MYSQL_PASSWORD: admin
+                MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
+                MYSQL_DATABASE: {{mysql_database}}
+                MYSQL_USER: {{mysql_user}}
+                MYSQL_PASSWORD: {{mysql_password}}
               ports:
                 - "3306:3306"
               volumes:
@@ -366,6 +380,9 @@
               restart: always
               ports:
                 - "2367:2367"
+              volumes:
+                - ./proxy-backend/.env:/home/node/app/.env
+
               depends_on:
                 - redis
               networks:
