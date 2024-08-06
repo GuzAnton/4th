@@ -65,5 +65,5 @@ variable "vpc_range" {
 }
 variable "create_cert" {
   type = bool
-  default = false
+  default = true
 }
