@@ -116,7 +116,7 @@
         dest: /opt/web/ghost/config.json
         content: |
           {
-            "url": "http://localhost:2368",
+            "url": "http://{{domain_name}}}}",
             "server": {
               "port": 2368,
               "host": "::"
@@ -132,6 +132,12 @@
                 "password" : "{{ mysql_password }}",
                 "database" : "{{ mysql_database }}"
               }
+            },
+            "cacheInvalidateWebhooks": {
+              "enabled": true,
+              "urls": [
+                  "http://proxy-backend:2367/cache/invalidate"
+              ]
             },
             "paths": {
               "contentPath": "content/"
@@ -154,8 +160,8 @@
                 "secure": true,
                 "port": 465,
                 "auth": {
-                  "user": "mail_user",
-                  "pass": "mail_pass"
+                  "user": "{{ mail_user }}",
+                  "pass": "{{ mail_pass }}"
                 }
               }
             },
@@ -227,6 +233,40 @@
         dest: /opt/web/compose.yml
         content: |
           services:
+            knex_migrator_init:
+              profiles: ["knex-migrator-init"]
+              container_name: knex-migrator-init
+              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+              command: "yarn knex-migrator init"
+              ports:
+                - "2368:2368"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+              depends_on:
+                - mysql
+              networks:
+                - webnet
+
+            knex_migrator_migrate:
+              profiles: ["knex-migrator-migrate"]
+              container_name: knex-migrator-migrate
+              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+              command: "yarn knex-migrator migrate --v 5.40 --force"
+              ports:
+                - "2368:2368"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+              depends_on:
+                - mysql
+              networks:
+                - webnet
+
             ghost:
               container_name: ghost
               image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
@@ -270,6 +310,29 @@
                 - "443:443"
               networks:
                 - webnet
+            
+            proxy-backend:
+              container_name: proxy-backend
+              image: "gitlab.fourthestate.app:5050/mp/ghost-proxy/dev:latest"
+              restart: always
+              ports:
+                - "2367:2367"
+              volumes:
+                - ./proxy-backend/.env:/home/node/app/.env
+              depends_on:
+                - redis
+              networks:
+                - webnet
+
+            redis:
+              container_name: redis
+              image: redis:7.2.4
+              restart: always
+              ports:
+                - "6379:6379"
+              networks:
+                - webnet
+
           networks:
             webnet:
               driver: bridge
@@ -291,6 +354,10 @@
       shell: |
         cd /opt/web
         docker compose pull
+        docker compose up -d
+        sleep 60
+        docker compose run knex_migrator_init
+        sleep 10
         docker compose up -d
 
     - name: Debug pull result
