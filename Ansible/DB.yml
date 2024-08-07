@@ -53,6 +53,28 @@
         name: docker
         state: present
     
+    - name: Download MySQL backup from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "test10/backups/mysql_backup.sql"
+        dest: "/opt/web/mysql_backup.sql"
+        mode: get
+        rgw: true
+
+    - name: Download Ghost content archive from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "test10/backups/ghost_content_backup.tar.gz"
+        dest: "/opt/web/ghost_content_backup.tar.gz"
+        mode: get
+        rgw: true
+
     - name: Upload proxy-backend configuration
       copy:
         dest: /opt/web/proxy-backend/.env
