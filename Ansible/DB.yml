@@ -52,6 +52,13 @@
         name: docker
         state: present
     
+    - name: Install required Python libraries (boto3 and botocore)
+      pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+        
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
         aws_access_key: "{{ spaces_access_key }}"
