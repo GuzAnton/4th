@@ -38,7 +38,9 @@
         - /opt/web/ghost
         - /opt/web/ghost/content
         - /opt/web/ghost/content/logs
+        - /opt/web/ghost/content/data
         - /opt/web/proxy-backend
+        
     - name: Install required system packages
       apt:
         pkg:
@@ -65,7 +67,7 @@
         aws_secret_key: "{{ spaces_secret_key }}"
         s3_url: "{{ spaces_endpoint }}"
         bucket: "{{ spaces_bucket }}"
-        object: "test10/backups/mysql_backup.sql"
+        object: "env:/{{client_name}}/backups/mysql_backup.sql"
         dest: "/opt/web/mysql_backup.sql"
         mode: get
         rgw: true
@@ -76,7 +78,7 @@
         aws_secret_key: "{{ spaces_secret_key }}"
         s3_url: "{{ spaces_endpoint }}"
         bucket: "{{ spaces_bucket }}"
-        object: "test10/backups/ghost_content_backup.tar.gz"
+        object: "env:/{{client_name}}/backups/ghost_content_backup.tar.gz"
         dest: "/opt/web/ghost_content_backup.tar.gz"
         mode: get
         rgw: true
@@ -144,7 +146,7 @@
         dest: /opt/web/ghost/config.json
         content: |
           {
-            "url": "http://{{domain_name}}}",
+            "url": "https://{{domain_name}}}",
             "server": {
               "port": 2368,
               "host": "::"
