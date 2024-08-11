@@ -146,7 +146,7 @@
         dest: /opt/web/ghost/config.json
         content: |
           {
-            "url": "http://{{domain_name}}}}",
+            "url": "https://{{domain_name}}}}",
             "server": {
               "port": 2368,
               "host": "::"
@@ -258,6 +258,7 @@
               "apiKey": "{{ mail_search_api }}"
             }
           }
+          
     - name: Upload Docker Compose configuration
       copy:
         dest: /opt/web/compose.yml
