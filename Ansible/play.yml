@@ -65,14 +65,12 @@
           FRONTEND_CACHE_REVALIDATE_ENABLED=true
           FRONTEND_CACHE_REVALIDATE_WEBHOOKS=["http://frontend:3000/api/revalidate"]
     
-
-    
     - name: Upload Ghost configuration
       copy:
         dest: /project/ghost/config.json
         content: |
           {
-            "url": "http://{{domain_name}}",
+            "url": "https://{{domain_name}}",
             "server": {
               "port": 2368,
               "host": "::"
@@ -117,7 +115,7 @@
                 "port": 465,
                 "auth": {
                   "user": "{{ mail_user }}",
-                  "pass": "{{mail_pass}}"
+                  "pass": "{{ mail_pass }}"
                 }
               }
             },
@@ -279,7 +277,6 @@
       copy:
         dest: /project/compose.yml
         content: |
-          version: '3.8'
           services:
             knex_migrator_init:
               profiles: ["knex-migrator-init"]
@@ -382,7 +379,6 @@
                 - "2367:2367"
               volumes:
                 - ./proxy-backend/.env:/home/node/app/.env
-
               depends_on:
                 - redis
               networks:
@@ -400,7 +396,6 @@
           networks:
             webnet:
               driver: bridge
-
 
     - name: Log into Docker registry
       docker_login:
