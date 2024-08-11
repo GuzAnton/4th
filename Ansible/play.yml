@@ -53,6 +53,35 @@
         - /project/ghost/content/data
         - /project/proxy-backend
 
+    - name: Install required Python libraries (boto3 and botocore)
+      pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+        
+    - name: Download MySQL backup from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/mysql_backup.sql"
+        dest: "/project/mysql_backup.sql"
+        mode: get
+        rgw: true
+
+    - name: Download Ghost content archive from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/ghost_content_backup.tar.gz"
+        dest: "/project/ghost_content_backup.tar.gz"
+        mode: get
+        rgw: true
+
     - name: Upload proxy-backend configuration
       copy:
         dest: /project/proxy-backend/.env
