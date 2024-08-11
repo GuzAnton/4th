@@ -37,6 +37,7 @@
         - /opt/web/nginx
         - /opt/web/ghost
         - /opt/web/ghost/content
+        - /opt/web/ghost/content/data
         - /opt/web/ghost/content/logs
         - /opt/web/proxy-backend
 
@@ -66,7 +67,7 @@
         aws_secret_key: "{{ spaces_secret_key }}"
         s3_url: "{{ spaces_endpoint }}"
         bucket: "{{ spaces_bucket }}"
-        object: "test10/backups/mysql_backup.sql"
+        object: "env:/{{ client_name }}/backups/mysql_backup.sql"
         dest: "/opt/web/mysql_backup.sql"
         mode: get
         rgw: true
@@ -77,7 +78,7 @@
         aws_secret_key: "{{ spaces_secret_key }}"
         s3_url: "{{ spaces_endpoint }}"
         bucket: "{{ spaces_bucket }}"
-        object: "test10/backups/ghost_content_backup.tar.gz"
+        object: "env:/{{ client_name }}/backups/ghost_content_backup.tar.gz"
         dest: "/opt/web/ghost_content_backup.tar.gz"
         mode: get
         rgw: true
@@ -92,7 +93,7 @@
           CACHE_TTL='1 hour'
           CACHE_ENABLED=true
           FRONTEND_CACHE_REVALIDATE_ENABLED=true
-          FRONTEND_CACHE_REVALIDATE_WEBHOOK='http://{{ groups['web_servers'][0] }}:3000/api/revalidate'
+          FRONTEND_CACHE_REVALIDATE_WEBHOOKS=["http://{{ groups['web_servers'][0] }}:3000/api/revalidate"]
     
 
     - name: Upload Nginx configuration
