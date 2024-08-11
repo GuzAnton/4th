@@ -38,7 +38,9 @@
         - /opt/web/ghost
         - /opt/web/ghost/content
         - /opt/web/ghost/content/logs
+        - /opt/web/ghost/content/data
         - /opt/web/proxy-backend
+
     - name: Install required system packages
       apt:
         pkg:
@@ -63,7 +65,6 @@
           CACHE_ENABLED=true
           FRONTEND_CACHE_REVALIDATE_ENABLED=true
           FRONTEND_CACHE_REVALIDATE_WEBHOOKS=[{% for host in groups['web_servers'] %}"http://{{ host }}:3000/api/revalidate"{% if not loop.last %},{% endif %}{% endfor %}]
-    
 
     - name: Upload Nginx configuration
       copy:
@@ -115,7 +116,7 @@
         dest: /opt/web/ghost/config.json
         content: |
           {
-            "url": "http://{{domain_name}}}",
+            "url": "https://{{domain_name}}}",
             "server": {
               "port": 2368,
               "host": "::"
@@ -227,6 +228,7 @@
               "apiKey": "{{ mail_search_api }}"
             }
           }
+          
     - name: Upload Docker Compose configuration
       copy:
         dest: /opt/web/compose.yml
