@@ -1,0 +1,80 @@
+- name: Backup and Archive MySQL and Ghost Content
+  hosts: db_servers
+  become: true
+
+  vars_files:
+   - ./group_vars/all/vault.yml
+
+  tasks:
+    - name: Ensure backup directory exists
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Install Python3-pip
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install required Python libraries (boto3 and botocore)
+      pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+
+    - name: Backup MySQL database
+      shell: >
+        docker exec mysql /usr/bin/mysqldump
+        -u {{ mysql_user }}
+        --password={{ mysql_password }}
+        {{ mysql_database }} > {{ mysql_dump_file }}
+      args:
+        executable: /bin/bash
+
+    - name: Archive Ghost content
+      archive:
+        path: "{{ ghost_content_dir }}"
+        dest: "{{ ghost_archive_file }}"
+
+    - name: Upload MySQL backup to DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"  
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/mysql_backup.sql"
+        src: "{{ mysql_dump_file }}"
+        mode: put
+        encrypt: false
+        rgw: true  
+
+    - name: Upload Ghost content archive to DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/ghost_content_backup.tar.gz"
+        src: "{{ ghost_archive_file }}"
+        mode: put
+        encrypt: false
+        rgw: true
+
+    - name: List objects in Space
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        mode: list
+        rgw: true
+      register: spaces_items
+
+    - debug:
+        msg: "Contents of {{ spaces_bucket }}: {{ spaces_items.s3_keys }}"
