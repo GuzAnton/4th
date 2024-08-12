@@ -75,10 +75,11 @@ resource "digitalocean_firewall" "server" {
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
-  value   = digitalocean_droplet.server.ipv4_address
+  content   = digitalocean_droplet.server.ipv4_address
   type    = "A"
   ttl     = 300
 }
+
 terraform {
 required_version = ">= 1.6.3"
 
