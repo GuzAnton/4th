@@ -72,10 +72,9 @@
       register: backup_folder_check
       ignore_errors: yes
 
-    - name: Ensure backup folder exists
-      fail:
-        msg: "Backup folder does not exist in DigitalOcean Spaces."
-      when: backup_folder_check.s3_objects | length == 0
+    - name: Set backup_present variable
+      set_fact:
+        backup_present: "{{ backup_folder_check.s3_objects | length > 0 }}"
 
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
@@ -87,7 +86,7 @@
         dest: "/project/mysql_backup.sql"
         mode: get
         rgw: true
-      when: backup_folder_check.s3_objects | length == 0
+      when: backup_present
 
     - name: Download Ghost content archive from DigitalOcean Spaces
       aws_s3:
@@ -99,7 +98,7 @@
         dest: "/project/ghost_content_backup.tar.gz"
         mode: get
         rgw: true
-      when: backup_folder_check.s3_objects | length == 0
+      when: backup_present
 
     - name: Upload proxy-backend configuration
       copy:
@@ -291,207 +290,30 @@
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Host $host;
               proxy_set_header X-Forwarded-Proto https;
             }
 
-            location ~*^/(ghost|p|members|content)/ {
-              # proxy_pass http://ghost:2368;
-              proxy_pass http://proxy-backend:2367;
-              proxy_set_header Host $host;
-              proxy_set_header X-Real-IP $remote_addr;
-              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto https;
-            }
           }
-
-    - name: Upload Frontend configuration
-      copy:
-        dest: /project/frontend/.env
-        content: |
-          NEXT_PUBLIC_GHOST_API_URL='https://{{domain_name}}'
-          NEXT_PUBLIC_GHOST_API_KEY='{{front_public_api_key}}'
-
-          NEXT_PUBLIC_GOOGLE_CLIENT_ID='21007502974-i97qj0ctd5v4qbaukbptk7dd36fbph3c.apps.googleusercontent.com'
-          NEXT_PUBLIC_MICROSOFT_CLIENT_ID='f704b78c-637c-4b2f-b851-3bdbdc8e8f66'
-          NEXT_PUBLIC_FACEBOOK_CLIENT_ID='969714300971210'
-
-          NEXT_PUBLIC_APPLE_CLIENT_ID='com.fourthestate.app'
-          NEXT_PUBLIC_APPLE_REDIRECT_URI='https://dev-mediaplatform.fourthestate.app'
-
-          NEXT_PUBLIC_DOMAIN='{{domain_name}}'
-
-    - name: Upload Docker Compose configuration
-      copy:
-        dest: /project/compose.yml
-        content: |
-          services:
-            knex_migrator_init:
-              profiles: ["knex-migrator-init"]
-              container_name: knex-migrator-init
-              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-              command: "yarn knex-migrator init"
-              ports:
-                - "2368:2368"
-              environment:
-                - NODE_ENV=production
-              volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-              depends_on:
-                - mysql
-              networks:
-                - webnet
-
-            knex_migrator_migrate:
-              profiles: ["knex-migrator-migrate"]
-              container_name: knex-migrator-migrate
-              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-              command: "yarn knex-migrator migrate --v 5.40 --force"
-              ports:
-                - "2368:2368"
-              environment:
-                - NODE_ENV=production
-              volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-              depends_on:
-                - mysql
-              networks:
-                - webnet
-
-            ghost:
-              container_name: ghost
-              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-              restart: always
-              ports:
-                - "2368:2368"
-              environment:
-                - NODE_ENV=production
-              volumes:
-                - ./ghost/content/:/app/ghost/core/content/:rw
-                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-              depends_on:
-                - mysql
-              networks:
-                - webnet
-
-            mysql:
-              container_name: mysql
-              image: mysql:8.0.32
-              restart: always
-              environment:
-                MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
-                MYSQL_DATABASE: {{mysql_database}}
-                MYSQL_USER: {{mysql_user}}
-                MYSQL_PASSWORD: {{mysql_password}}
-              ports:
-                - "3306:3306"
-              volumes:
-                - ./mysql/data:/var/lib/mysql
-              networks:
-                - webnet
-
-            frontend:
-              container_name: frontend
-              image: "gitlab.fourthestate.app:5050/mp/mediaplatform-frontend-app/autodeploy:latest"
-              restart: always
-              ports:
-                - "3000:3000"
-              environment:
-                - NODE_ENV=production
-              volumes:
-                - ./frontend/.env:/app/.env
-              networks:
-                - webnet
-
-            nginx:
-              container_name: nginx
-              image: nginx:latest
-              restart: always
-              volumes:
-                - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-                - ./nginx/ssl/:/etc/letsencrypt/:ro
-                - ./nginx/ssl/:/etc/nginx/ssl/:ro
-              ports:
-                - "80:80"
-                - "443:443"
-              networks:
-                - webnet
-            
-            proxy-backend:
-              container_name: proxy-backend
-              image: "gitlab.fourthestate.app:5050/mp/ghost-proxy/dev:latest"
-              restart: always
-              ports:
-                - "2367:2367"
-              volumes:
-                - ./proxy-backend/.env:/home/node/app/.env
-              depends_on:
-                - redis
-              networks:
-                - webnet
-
-            redis:
-              container_name: redis
-              image: redis:7.2.4
-              restart: always
-              ports:
-                - "6379:6379"
-              networks:
-                - webnet
-
-          networks:
-            webnet:
-              driver: bridge
-
-    - name: Log into Docker registry
-      docker_login:
-        registry: "{{ docker_registry }}"
-        username: "{{ registry_username }}"
-        password: "{{ registry_password }}"
-        reauthorize: yes
-      register: login_result
-      ignore_errors: yes
-
-    - name: Debug Docker login result
-      debug:
-        var: login_result
-
-    - name: Start all services
-      shell: |
-        cd /project
-        docker compose pull
-        docker compose up -d mysql
-        sleep 60
-        docker compose run knex_migrator_init
-        sleep 10
-        docker compose up -d
 
     - name: Wait for MySQL to be ready
       wait_for:
+        host: mysql
         port: 3306
         delay: 10
-        timeout: 60
-      when: backup_folder_check.s3_objects | length == 0
+        timeout: 300
+        state: started
+      when: backup_present
 
     - name: Restore MySQL database
-      shell: >
-        docker exec -i mysql /usr/bin/mysql
-        -u {{mysql_user}}
-        -p{{mysql_password}}
-        {{mysql_database}} < /project/mysql_backup.sql
-      args:
-        executable: /bin/bash
-      when: backup_folder_check.s3_objects | length == 0
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: import
+        target: /project/mysql_backup.sql
+      when: backup_present
 
     - name: Extract Ghost content
       unarchive:
         src: /project/ghost_content_backup.tar.gz
         dest: /project/ghost/content
         remote_src: yes
-      when: backup_folder_check.s3_objects | length == 0
-
-    - name: Debug pull result
-      debug:
-        var: pull_result
+      when: backup_present
