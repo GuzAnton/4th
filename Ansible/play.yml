@@ -67,7 +67,7 @@
         s3_url: "{{ spaces_endpoint }}"
         bucket: "{{ spaces_bucket }}"
         object: "env:/{{client_name}}/backups/"
-        mode: get
+        mode: list
         rgw: true
       register: backup_folder_check
       ignore_errors: yes
@@ -75,7 +75,7 @@
     - name: Ensure backup folder exists
       fail:
         msg: "Backup folder does not exist in DigitalOcean Spaces."
-      when: backup_folder_check.failed
+      when: backup_folder_check.s3_objects | length == 0
 
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
@@ -87,7 +87,7 @@
         dest: "/project/mysql_backup.sql"
         mode: get
         rgw: true
-      when: not backup_folder_check.failed
+      when: backup_folder_check.s3_objects | length == 0
 
     - name: Download Ghost content archive from DigitalOcean Spaces
       aws_s3:
@@ -99,7 +99,7 @@
         dest: "/project/ghost_content_backup.tar.gz"
         mode: get
         rgw: true
-      when: not backup_folder_check.failed
+      when: backup_folder_check.s3_objects | length == 0
 
     - name: Upload proxy-backend configuration
       copy:
@@ -473,7 +473,7 @@
         port: 3306
         delay: 10
         timeout: 60
-      when: not backup_folder_check.failed
+      when: backup_folder_check.s3_objects | length == 0
 
     - name: Restore MySQL database
       shell: >
@@ -483,15 +483,15 @@
         {{mysql_database}} < /project/mysql_backup.sql
       args:
         executable: /bin/bash
-      when: not backup_folder_check.failed
+      when: backup_folder_check.s3_objects | length == 0
 
     - name: Extract Ghost content
       unarchive:
         src: /project/ghost_content_backup.tar.gz
         dest: /project/ghost/content
         remote_src: yes
-      when: not backup_folder_check.failed
-      
+      when: backup_folder_check.s3_objects | length == 0
+
     - name: Debug pull result
       debug:
         var: pull_result
