@@ -59,6 +59,7 @@
         name:
           - boto3
           - botocore
+
     - name: Check if any object exists under backups folder
       aws_s3:
         aws_access_key: "{{ spaces_access_key }}"
@@ -68,7 +69,6 @@
         object: "env:/{{ client_name }}/backups/"
         mode: list
         rgw: true
-        delimiter: '/'
       register: backup_folder_check
       ignore_errors: yes
 
@@ -76,14 +76,16 @@
       debug:
         msg: "{{ backup_folder_check.s3_keys }}"
 
-    - name: Check if any objects exist in backups folder
+    - name: Set backup_present variable
       set_fact:
-        backup_present: "{{ backup_folder_check.s3_keys | select('search', '^env:/{{ client_name }}/backups/') | list | length > 0 }}"
+        backup_present: >-
+          {{
+            backup_folder_check.s3_keys | select('search', '^env:/{{ client_name }}/backups/') | list | length > 0
+          }}
 
     - name: Debug - Show backup_present variable
       debug:
         msg: "{{ backup_present }}"
-
 
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
