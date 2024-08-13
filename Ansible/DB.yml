@@ -67,7 +67,7 @@
         aws_secret_key: "{{ spaces_secret_key }}"
         s3_url: "{{ spaces_endpoint }}"
         bucket: "{{ spaces_bucket }}"
-        object: "env:/{{client_name}}/backups/"
+        object: "env:/shop/backups/"
         mode: list
         rgw: true
       register: backup_folder_check
@@ -78,7 +78,7 @@
         backup_present: >-
           {{
             backup_folder_check.s3_keys | 
-            select('search', '^env:/{{client_name}}/backups/.*') | 
+            select('search', '^env:/"env:/shop/backups/"/backups/.*') | 
             list | 
             length > 0
           }}
