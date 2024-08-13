@@ -82,7 +82,7 @@
         backup_present: >-
           {{
             backup_folder_check.s3_keys | select('match', '^env:/{{client_name}}/backups/.*(mysql_backup.sql|ghost_content_backup.tar.gz)$') | list | length > 0
-        
+          }}
     - name: Debug - Show backup_present variable
       debug:
         msg: "{{ backup_present }}"
