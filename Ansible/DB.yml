@@ -75,7 +75,13 @@
 
     - name: Set backup_present variable
       set_fact:
-        backup_present: "{{ backup_folder_check.s3_keys | select('match', 'env:/{{client_name}}/backups/') | list | length > 0 }}"
+        backup_present: >-
+          {{
+            backup_folder_check.s3_keys | 
+            select('search', '^env:/{{client_name}}/backups/.*') | 
+            list | 
+            length > 0
+          }}
 
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
