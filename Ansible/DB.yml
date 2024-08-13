@@ -77,10 +77,12 @@
       debug:
         msg: "{{ backup_folder_check.s3_keys }}"
 
-    - name: Set backup_present variable based on S3 keys
+    - name: Set backup_present variable using custom filter
       set_fact:
-        backup_present: "{{ ('env:/{{client_name}}/backups/mysql_backup.sql' in backup_folder_check.s3_keys) or ('env:/{{client_name}}/backups/ghost_content_backup.tar.gz' in backup_folder_check.s3_keys) }}"
-    
+        backup_present: >-
+          {{
+            backup_folder_check.s3_keys | select('match', '^env:/{{client_name}}/backups/.*(mysql_backup.sql|ghost_content_backup.tar.gz)$') | list | length > 0
+        
     - name: Debug - Show backup_present variable
       debug:
         msg: "{{ backup_present }}"
