@@ -104,332 +104,332 @@
         rgw: true
       when: backup_present
 
-    # - name: Upload proxy-backend configuration
-    #   copy:
-    #     dest: /opt/web/proxy-backend/.env
-    #     content: |
-    #       PORT=2367
-    #       GHOST_URL='http://ghost:2368'
-    #       REDIS_URL='redis://redis:6379'
-    #       CACHE_TTL='1 hour'
-    #       CACHE_ENABLED=true
-    #       FRONTEND_CACHE_REVALIDATE_ENABLED=true
-    #       FRONTEND_CACHE_REVALIDATE_WEBHOOK=["http://{{ groups['web_servers'][0] }}:3000/api/revalidate"]
+    - name: Upload proxy-backend configuration
+      copy:
+        dest: /opt/web/proxy-backend/.env
+        content: |
+          PORT=2367
+          GHOST_URL='http://ghost:2368'
+          REDIS_URL='redis://redis:6379'
+          CACHE_TTL='1 hour'
+          CACHE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_WEBHOOK=["http://{{ groups['web_servers'][0] }}:3000/api/revalidate"]
     
-    # - name: Upload Nginx configuration
-    #   copy:
-    #     dest: /opt/web/nginx/default.conf
-    #     content: |
-    #       limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
+    - name: Upload Nginx configuration
+      copy:
+        dest: /opt/web/nginx/default.conf
+        content: |
+          limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
 
-    #       server {
-    #         listen 80;
-    #         listen [::]:80;
-    #         server_name _;
+          server {
+            listen 80;
+            listen [::]:80;
+            server_name _;
 
-    #         client_max_body_size 50m;
+            client_max_body_size 50m;
 
-    #         location ~^/socket\.io {
-    #           proxy_pass http://ghost:2368;
-    #           proxy_set_header Host $host;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Proto https;
-    #         }
+            location ~^/socket\.io {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
 
-    #         location ~ ^/members/webhooks/stripe/ {
-    #           proxy_pass http://ghost:2368;
-    #           proxy_set_header Host $host;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Host $host;
-    #           proxy_set_header X-Forwarded-Proto https;
-    #         }
+            location ~ ^/members/webhooks/stripe/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Host $host;
+              proxy_set_header X-Forwarded-Proto https;
+            }
 
-    #         location ~* /upload/ {
-    #           proxy_pass http://ghost:2368;
-    #           proxy_set_header Host $host;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Proto https;
-    #         }
+            location ~* /upload/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
 
-    #         location / {
-    #           proxy_pass http://proxy-backend:2367;
-    #           proxy_set_header Host $host;
-    #           proxy_set_header X-Real-IP $remote_addr;
-    #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #           proxy_set_header X-Forwarded-Proto https;
-    #         }
-    #       }
+            location / {
+              proxy_pass http://proxy-backend:2367;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+          }
 
-    # - name: Upload Ghost configuration
-    #   copy:
-    #     dest: /opt/web/ghost/config.json
-    #     content: |
-    #       {
-    #         "url": "https://{{domain_name}}}}",
-    #         "server": {
-    #           "port": 2368,
-    #           "host": "::"
-    #         },
-    #         "frontend": {
-    #           "url": "https://{{domain_name}}"
-    #         },
-    #         "database": {
-    #           "client": "mysql",
-    #           "connection": {
-    #             "host"     : "mysql",
-    #             "user"     : "{{ mysql_user }}",
-    #             "password" : "{{ mysql_password }}",
-    #             "database" : "{{ mysql_database }}"
-    #           }
-    #         },
-    #         "cacheInvalidateWebhooks": {
-    #           "enabled": true,
-    #           "urls": [
-    #               "http://proxy-backend:2367/cache/invalidate"
-    #           ]
-    #         },
-    #         "paths": {
-    #           "contentPath": "content/"
-    #         },
-    #         "privacy": {
-    #           "useUpdateCheck": false,
-    #           "useGravatar": false,
-    #           "useRpcPing": false
-    #         },
-    #         "imageOptimization": {
-    #           "maxWidth": 1240,
-    #           "resize": true,
-    #           "srcsets": false
-    #         },
-    #         "mail": {
-    #           "transport": "SMTP",
-    #           "options": {
-    #             "service": "Mailgun",
-    #             "host": "smtp.mailgun.org",
-    #             "secure": true,
-    #             "port": 465,
-    #             "auth": {
-    #               "user": "{{ mail_user }}",
-    #               "pass": "{{ mail_pass }}"
-    #             }
-    #           }
-    #         },
-    #         "logging": {
-    #           "level": "info",
-    #           "rotation": {
-    #             "enabled": true
-    #           },
-    #           "transports": ["file", "stdout"]
-    #         },
-    #         "enableGA": false,
-    #         "autoletters": {
-    #           "enabled": false,
-    #           "whiteList": ["bohdan.r@fourthestate.app"]
-    #         },
-    #         "membersNotifications": {
-    #           "enabled": false,
-    #           "email": {
-    #             "enabled": true,
-    #             "from": "Kyiv Independent <community@kyivindependent.com>",
-    #             "unsubscribeUrl": "/settings#notifications"
-    #           }
-    #         },
-    #         "fakeTheme": {
-    #           "enabled": true,
-    #           "config": {
-    #             "post": {
-    #               "liveUpdatesFrom": {
-    #                 "type": "string",
-    #                 "name": "Live Updates From (Format: 'yyyy-mm-dd')"
-    #               },
-    #               "liveUpdatesTo": {
-    #                 "type": "string",
-    #                 "name": "Live Updates To (Format: 'yyyy-mm-dd')"
-    #               },
-    #               "liveUpdatesSlug": {
-    #                 "type": "string",
-    #                 "name": "Live Updates Slug (Post URL)"
-    #               },
-    #               "isLiveUpdatesEnded": {
-    #                 "type": "boolean",
-    #                 "name": "Is Live Updates Finished?"
-    #               },
-    #               "isLiveUpdatesShortNews": {
-    #                 "type": "boolean",
-    #                 "name": "Is Live Updates short news"
-    #               }
-    #             },
-    #             "custom": {
-    #               "enable_hot_topic": {
-    #                 "type": "boolean",
-    #                 "default": false
-    #               },
-    #               "enable_live_updates": {
-    #                 "type": "boolean",
-    #                 "default": false
-    #               }
-    #             }
-    #           }
-    #         },
-    #         "meilisearch": {
-    #           "enabled": false,
-    #           "host": "http://localhost:7700",
-    #           "apiKey": "{{ mail_search_api }}"
-    #         }
-    #       }
+    - name: Upload Ghost configuration
+      copy:
+        dest: /opt/web/ghost/config.json
+        content: |
+          {
+            "url": "https://{{domain_name}}}}",
+            "server": {
+              "port": 2368,
+              "host": "::"
+            },
+            "frontend": {
+              "url": "https://{{domain_name}}"
+            },
+            "database": {
+              "client": "mysql",
+              "connection": {
+                "host"     : "mysql",
+                "user"     : "{{ mysql_user }}",
+                "password" : "{{ mysql_password }}",
+                "database" : "{{ mysql_database }}"
+              }
+            },
+            "cacheInvalidateWebhooks": {
+              "enabled": true,
+              "urls": [
+                  "http://proxy-backend:2367/cache/invalidate"
+              ]
+            },
+            "paths": {
+              "contentPath": "content/"
+            },
+            "privacy": {
+              "useUpdateCheck": false,
+              "useGravatar": false,
+              "useRpcPing": false
+            },
+            "imageOptimization": {
+              "maxWidth": 1240,
+              "resize": true,
+              "srcsets": false
+            },
+            "mail": {
+              "transport": "SMTP",
+              "options": {
+                "service": "Mailgun",
+                "host": "smtp.mailgun.org",
+                "secure": true,
+                "port": 465,
+                "auth": {
+                  "user": "{{ mail_user }}",
+                  "pass": "{{ mail_pass }}"
+                }
+              }
+            },
+            "logging": {
+              "level": "info",
+              "rotation": {
+                "enabled": true
+              },
+              "transports": ["file", "stdout"]
+            },
+            "enableGA": false,
+            "autoletters": {
+              "enabled": false,
+              "whiteList": ["bohdan.r@fourthestate.app"]
+            },
+            "membersNotifications": {
+              "enabled": false,
+              "email": {
+                "enabled": true,
+                "from": "Kyiv Independent <community@kyivindependent.com>",
+                "unsubscribeUrl": "/settings#notifications"
+              }
+            },
+            "fakeTheme": {
+              "enabled": true,
+              "config": {
+                "post": {
+                  "liveUpdatesFrom": {
+                    "type": "string",
+                    "name": "Live Updates From (Format: 'yyyy-mm-dd')"
+                  },
+                  "liveUpdatesTo": {
+                    "type": "string",
+                    "name": "Live Updates To (Format: 'yyyy-mm-dd')"
+                  },
+                  "liveUpdatesSlug": {
+                    "type": "string",
+                    "name": "Live Updates Slug (Post URL)"
+                  },
+                  "isLiveUpdatesEnded": {
+                    "type": "boolean",
+                    "name": "Is Live Updates Finished?"
+                  },
+                  "isLiveUpdatesShortNews": {
+                    "type": "boolean",
+                    "name": "Is Live Updates short news"
+                  }
+                },
+                "custom": {
+                  "enable_hot_topic": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "enable_live_updates": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            },
+            "meilisearch": {
+              "enabled": false,
+              "host": "http://localhost:7700",
+              "apiKey": "{{ mail_search_api }}"
+            }
+          }
    
-    # - name: Upload Docker Compose configuration
-    #   copy:
-    #     dest: /opt/web/compose.yml
-    #     content: |
-    #       services:
-    #         knex_migrator_init:
-    #           profiles: ["knex-migrator-init"]
-    #           container_name: knex-migrator-init
-    #           image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-    #           command: "yarn knex-migrator init"
-    #           ports:
-    #             - "2368:2368"
-    #           environment:
-    #             - NODE_ENV=production
-    #           volumes:
-    #             - ./ghost/content/:/app/ghost/core/content/:rw
-    #             - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-    #           depends_on:
-    #             - mysql
-    #           networks:
-    #             - webnet
-    #         knex_migrator_migrate:
-    #           profiles: ["knex-migrator-migrate"]
-    #           container_name: knex-migrator-migrate
-    #           image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-    #           command: "yarn knex-migrator migrate --v 5.40 --force"
-    #           ports:
-    #             - "2368:2368"
-    #           environment:
-    #             - NODE_ENV=production
-    #           volumes:
-    #             - ./ghost/content/:/app/ghost/core/content/:rw
-    #             - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-    #           depends_on:
-    #             - mysql
-    #           networks:
-    #             - webnet
-    #         ghost:
-    #           container_name: ghost
-    #           image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
-    #           restart: always
-    #           ports:
-    #             - "2368:2368"
-    #           environment:
-    #             - NODE_ENV=production
-    #           volumes:
-    #             - ./ghost/content/:/app/ghost/core/content/:rw
-    #             - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
-    #           depends_on:
-    #             - mysql
-    #           networks:
-    #             - webnet
-    #         mysql:
-    #           container_name: mysql
-    #           image: mysql:8.0.32
-    #           restart: always
-    #           environment:
-    #             MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
-    #             MYSQL_DATABASE: "{{ mysql_database }}"
-    #             MYSQL_USER: "{{ mysql_user }}"
-    #             MYSQL_PASSWORD: "{{ mysql_password }}"
-    #           ports:
-    #             - "3306:3306"
-    #           volumes:
-    #             - ./mysql/data:/var/lib/mysql
-    #           networks:
-    #             - webnet
-    #         nginx:
-    #           container_name: nginx
-    #           image: nginx:latest
-    #           restart: always
-    #           volumes:
-    #             - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    #           ports:
-    #             - "80:80"
-    #             - "443:443"
-    #           networks:
-    #             - webnet
-    #         proxy-backend:
-    #           container_name: proxy-backend
-    #           image: "gitlab.fourthestate.app:5050/mp/ghost-proxy/dev:latest"
-    #           restart: always
-    #           ports:
-    #             - "2367:2367"
-    #           volumes:
-    #             - ./proxy-backend/.env:/home/node/app/.env
-    #           depends_on:
-    #             - redis
-    #           networks:
-    #             - webnet
-    #         redis:
-    #           container_name: redis
-    #           image: redis:7.2.4
-    #           restart: always
-    #           ports:
-    #             - "6379:6379"
-    #           networks:
-    #             - webnet
-    #       networks:
-    #         webnet:
-    #           driver: bridge
+    - name: Upload Docker Compose configuration
+      copy:
+        dest: /opt/web/compose.yml
+        content: |
+          services:
+            knex_migrator_init:
+              profiles: ["knex-migrator-init"]
+              container_name: knex-migrator-init
+              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+              command: "yarn knex-migrator init"
+              ports:
+                - "2368:2368"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+              depends_on:
+                - mysql
+              networks:
+                - webnet
+            knex_migrator_migrate:
+              profiles: ["knex-migrator-migrate"]
+              container_name: knex-migrator-migrate
+              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+              command: "yarn knex-migrator migrate --v 5.40 --force"
+              ports:
+                - "2368:2368"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+              depends_on:
+                - mysql
+              networks:
+                - webnet
+            ghost:
+              container_name: ghost
+              image: "gitlab.fourthestate.app:5050/mp/ghost/dev:latest"
+              restart: always
+              ports:
+                - "2368:2368"
+              environment:
+                - NODE_ENV=production
+              volumes:
+                - ./ghost/content/:/app/ghost/core/content/:rw
+                - ./ghost/config.json:/app/ghost/core/core/shared/config/env/config.production.json
+              depends_on:
+                - mysql
+              networks:
+                - webnet
+            mysql:
+              container_name: mysql
+              image: mysql:8.0.32
+              restart: always
+              environment:
+                MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+                MYSQL_DATABASE: "{{ mysql_database }}"
+                MYSQL_USER: "{{ mysql_user }}"
+                MYSQL_PASSWORD: "{{ mysql_password }}"
+              ports:
+                - "3306:3306"
+              volumes:
+                - ./mysql/data:/var/lib/mysql
+              networks:
+                - webnet
+            nginx:
+              container_name: nginx
+              image: nginx:latest
+              restart: always
+              volumes:
+                - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+              ports:
+                - "80:80"
+                - "443:443"
+              networks:
+                - webnet
+            proxy-backend:
+              container_name: proxy-backend
+              image: "gitlab.fourthestate.app:5050/mp/ghost-proxy/dev:latest"
+              restart: always
+              ports:
+                - "2367:2367"
+              volumes:
+                - ./proxy-backend/.env:/home/node/app/.env
+              depends_on:
+                - redis
+              networks:
+                - webnet
+            redis:
+              container_name: redis
+              image: redis:7.2.4
+              restart: always
+              ports:
+                - "6379:6379"
+              networks:
+                - webnet
+          networks:
+            webnet:
+              driver: bridge
 
-    # - name: Log into Docker registry
-    #   docker_login:
-    #     registry: "{{ docker_registry }}"
-    #     username: "{{ registry_username }}"
-    #     password: "{{ registry_password }}"
-    #     reauthorize: yes
-    #   register: login_result
-    #   ignore_errors: yes
+    - name: Log into Docker registry
+      docker_login:
+        registry: "{{ docker_registry }}"
+        username: "{{ registry_username }}"
+        password: "{{ registry_password }}"
+        reauthorize: yes
+      register: login_result
+      ignore_errors: yes
 
-    # - name: Debug Docker login result
-    #   debug:
-    #     var: login_result
+    - name: Debug Docker login result
+      debug:
+        var: login_result
 
-    # - name: Start all services
-    #   shell: |
-    #     cd /opt/web
-    #     docker compose pull
-    #     docker compose up -d
-    #     sleep 60
-    #     docker compose run knex_migrator_init
-    #     sleep 10
-    #     docker compose up -d
+    - name: Start all services
+      shell: |
+        cd /opt/web
+        docker compose pull
+        docker compose up -d
+        sleep 60
+        docker compose run knex_migrator_init
+        sleep 10
+        docker compose up -d
 
-    # - name: Wait for MySQL to be ready
-    #   wait_for:
-    #     port: 3306
-    #     delay: 10
-    #     timeout: 60
-    #   when: backup_present
+    - name: Wait for MySQL to be ready
+      wait_for:
+        port: 3306
+        delay: 10
+        timeout: 60
+      when: backup_present
 
-    # - name: Restore MySQL database
-    #   shell: >
-    #     docker exec -i mysql /usr/bin/mysql
-    #     -u {{mysql_user}}
-    #     -p{{mysql_password}}
-    #     {{mysql_database}} < /opt/web/mysql_backup.sql
-    #   args:
-    #     executable: /bin/bash
-    #   when: backup_present
+    - name: Restore MySQL database
+      shell: >
+        docker exec -i mysql /usr/bin/mysql
+        -u {{mysql_user}}
+        -p{{mysql_password}}
+        {{mysql_database}} < /opt/web/mysql_backup.sql
+      args:
+        executable: /bin/bash
+      when: backup_present
 
-    # - name: Extract Ghost content
-    #   unarchive:
-    #     src: /opt/web/ghost_content_backup.tar.gz
-    #     dest: /opt/web/ghost/content
-    #     remote_src: yes
-    #   when: backup_present
+    - name: Extract Ghost content
+      unarchive:
+        src: /opt/web/ghost_content_backup.tar.gz
+        dest: /opt/web/ghost/content
+        remote_src: yes
+      when: backup_present
       
-    # - name: Debug pull result
-    #   debug:
-    #     var: pull_result
+    - name: Debug pull result
+      debug:
+        var: pull_result
