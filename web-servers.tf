@@ -41,7 +41,7 @@ resource "digitalocean_droplet" "db" {
   }
   depends_on = [digitalocean_vpc.project]
 }
-# when changing to basic - comment
+
 resource "digitalocean_loadbalancer" "web" {
   name   = var.LoadBalancer_Name
   region = var.region
@@ -214,12 +214,11 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-#When we need to downgrade - we need to comment current value and uncomment pointing to droplet ip
+
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
-  # value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
-  value = digitalocean_loadbalancer.web.ip
+  content = digitalocean_loadbalancer.web.ip
   type  = "A"
   ttl   = 300
 }
