@@ -1,0 +1,318 @@
+- name: Setup Server
+  hosts: localhost
+  gather_facts: yes
+  become: true
+  vars_files:
+    - ./group_vars/all/vault.yml
+  tasks:
+    - name: Check current user
+      debug:
+        msg: "Current user is {{ lookup('env', 'USER') }}"
+
+    - name: Check if Docker setup script exists
+      stat:
+        path: ./setup_docker.sh
+      register: script_stat
+
+    - name: Ensure Docker setup script is executable
+      file:
+        path: ./setup_docker.sh
+        mode: '0755'
+      when: script_stat.stat.exists
+
+    - name: Execute Docker setup script
+      shell: ./setup_docker.sh
+      register: script_output
+      when: script_stat.stat.exists
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - python3-pip
+        state: latest
+        update_cache: true
+      when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
+
+    - name: Install Docker SDK for Python
+      pip:
+        name: docker
+        state: present
+
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /project
+        - /project/nginx
+        - /project/frontend
+        - /project/nginx/ssl/live/test.fourthestate.app
+        - /project/ghost
+        - /project/ghost/content
+        - /project/ghost/content/logs
+        - /project/ghost/content/data
+        - /project/proxy-backend
+
+    - name: Install required Python libraries (boto3 and botocore)
+      pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+
+    - name: Check if backup folder exists in DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/"
+        mode: list
+        rgw: true
+      register: backup_folder_check
+      ignore_errors: yes
+
+    - name: Set backup_present variable
+      set_fact:
+        backup_present: "{{ backup_folder_check.s3_objects is defined and backup_folder_check.s3_objects | length > 0 }}"
+
+    - name: Download MySQL backup from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/mysql_backup.sql"
+        dest: "/project/mysql_backup.sql"
+        mode: get
+        rgw: true
+      when: backup_present
+
+    - name: Download Ghost content archive from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/ghost_content_backup.tar.gz"
+        dest: "/project/ghost_content_backup.tar.gz"
+        mode: get
+        rgw: true
+      when: backup_present
+
+    - name: Upload proxy-backend configuration
+      copy:
+        dest: /project/proxy-backend/.env
+        content: |
+          PORT=2367
+          GHOST_URL='http://ghost:2368'
+          REDIS_URL='redis://redis:6379'
+          CACHE_TTL='1 hour'
+          CACHE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_ENABLED=true
+          FRONTEND_CACHE_REVALIDATE_WEBHOOKS=["http://frontend:3000/api/revalidate"]
+    
+    - name: Upload Ghost configuration
+      copy:
+        dest: /project/ghost/config.json
+        content: |
+          {
+            "url": "https://{{domain_name}}",
+            "server": {
+              "port": 2368,
+              "host": "::"
+            },
+            "frontend": {
+              "url": "https://{{domain_name}}"
+            },
+            "database": {
+              "client": "mysql",
+              "connection": {
+                "host": "mysql",
+                "user": "{{ mysql_user }}",
+                "password": "{{ mysql_password }}",
+                "database": "{{ mysql_database }}"
+              }
+            },
+            "cacheInvalidateWebhooks": {
+              "enabled": true,
+              "urls": [
+                  "http://proxy-backend:2367/cache/invalidate"
+              ]
+            },
+            "paths": {
+              "contentPath": "content/"
+            },
+            "privacy": {
+              "useUpdateCheck": false,
+              "useGravatar": false,
+              "useRpcPing": false
+            },
+            "imageOptimization": {
+              "maxWidth": 1240,
+              "resize": true,
+              "srcsets": false
+            },
+            "mail": {
+              "transport": "SMTP",
+              "options": {
+                "service": "Mailgun",
+                "host": "smtp.mailgun.org",
+                "secure": true,
+                "port": 465,
+                "auth": {
+                  "user": "{{ mail_user }}",
+                  "pass": "{{ mail_pass }}"
+                }
+              }
+            },
+            "logging": {
+              "level": "info",
+              "rotation": {
+                "enabled": true
+              },
+              "transports": ["file", "stdout"]
+            },
+            "enableGA": false,
+            "autoletters": {
+              "enabled": false,
+              "whiteList": ["bohdan.r@fourthestate.app"]
+            },
+            "membersNotifications": {
+              "enabled": false,
+              "email": {
+                "enabled": true,
+                "from": "Kyiv Independent <community@kyivindependent.com>",
+                "unsubscribeUrl": "/settings#notifications"
+              }
+            },
+            "fakeTheme": {
+              "enabled": true,
+              "config": {
+                "post": {
+                  "liveUpdatesFrom": {
+                    "type": "string",
+                    "name": "Live Updates From (Format: 'yyyy-mm-dd')"
+                  },
+                  "liveUpdatesTo": {
+                    "type": "string",
+                    "name": "Live Updates To (Format: 'yyyy-mm-dd')"
+                  },
+                  "liveUpdatesSlug": {
+                    "type": "string",
+                    "name": "Live Updates Slug (Post URL)"
+                  },
+                  "isLiveUpdatesEnded": {
+                    "type": "boolean",
+                    "name": "Is Live Updates Finished?"
+                  },
+                  "isLiveUpdatesShortNews": {
+                    "type": "boolean",
+                    "name": "Is Live Updates short news"
+                  }
+                },
+                "custom": {
+                  "enable_hot_topic": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "enable_live_updates": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            },
+            "meilisearch": {
+              "enabled": false,
+              "host": "http://localhost:7700",
+              "apiKey": "{{ mail_search_api }}"
+            }
+          }
+
+    - name: Copy SSL to NGINX
+      shell: "scp /etc/letsencrypt/live/test.fourthestate.app/* /project/nginx/ssl/live/test.fourthestate.app"
+      delegate_to: localhost
+
+    - name: Upload Nginx configuration
+      copy:
+        dest: /project/nginx/default.conf
+        content: |
+          server {
+            listen 80;
+            listen [::]:80;
+
+            server_name {{domain_name}};
+            server_tokens off;
+
+            location / {
+              return 301 https://$host$request_uri;
+            }
+          }
+
+          server {
+            listen 443 ssl;
+            listen [::]:443 ssl;
+
+            server_name {{domain_name}};
+
+            ssl_certificate /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem;
+            ssl_certificate_key /etc/letsencrypt/live/test.fourthestate.app/privkey.pem;
+            
+            client_max_body_size 50m;
+
+            location / {
+              proxy_pass http://frontend:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+            }
+            
+            location ~^/socket\.io {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+
+          location ~* /upload/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+
+            location ~ ^/members/webhooks/stripe/ {
+              proxy_pass http://ghost:2368;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+          }
+
+    - name: Wait for MySQL to be ready
+      wait_for:
+        host: mysql
+        port: 3306
+        delay: 10
+        timeout: 300
+        state: started
+      when: backup_present
+
+    - name: Restore MySQL database
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: import
+        target: /project/mysql_backup.sql
+      when: backup_present
+
+    - name: Extract Ghost content
+      unarchive:
+        src: /project/ghost_content_backup.tar.gz
+        dest: /project/ghost/content
+        remote_src: yes
+      when: backup_present

@@ -60,7 +60,23 @@
           - boto3
           - botocore
         state: present
-        
+    
+    - name: Check if backup folder exists in DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/"
+        mode: list
+        rgw: true
+      register: backup_folder_check
+      ignore_errors: yes
+
+    - name: Set backup_present variable
+      set_fact:
+        backup_present: "{{ backup_folder_check.s3_objects is defined and backup_folder_check.s3_objects | length > 0 }}"
+
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
         aws_access_key: "{{ spaces_access_key }}"
@@ -71,6 +87,7 @@
         dest: "/opt/web/mysql_backup.sql"
         mode: get
         rgw: true
+      when: backup_present
 
     - name: Download Ghost content archive from DigitalOcean Spaces
       aws_s3:
@@ -82,7 +99,8 @@
         dest: "/opt/web/ghost_content_backup.tar.gz"
         mode: get
         rgw: true
-        
+      when: backup_present
+
     - name: Upload proxy-backend configuration
       copy:
         dest: /opt/web/proxy-backend/.env
@@ -388,6 +406,7 @@
         port: 3306
         delay: 10
         timeout: 60
+      when: backup_present
 
     - name: Restore MySQL database
       shell: >
@@ -397,13 +416,15 @@
         {{mysql_database}} < /opt/web/mysql_backup.sql
       args:
         executable: /bin/bash
+      when: backup_present
 
     - name: Extract Ghost content
       unarchive:
         src: /opt/web/ghost_content_backup.tar.gz
         dest: /opt/web/ghost/content
         remote_src: yes
-
+      when: backup_present
+      
     - name: Debug pull result
       debug:
         var: pull_result
