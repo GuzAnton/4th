@@ -72,23 +72,9 @@
       register: backup_folder_check
       ignore_errors: yes
 
-    - name: Write S3 keys to a file
-      copy:
-        content: "{{ backup_folder_check.s3_keys | join('\n') }}"
-        dest: "backup_folder_check.txt"
-      delegate_to: localhost
-
-    - name: Debug - Show file content
-      command: cat backup_folder_check.txt
-      register: file_content
-      ignore_errors: yes
-
-    - name: Set backup_present variable based on file content
+    - name: Set backup_present variable based on S3 keys
       set_fact:
-        backup_present: >-
-          {{
-            (file_content.stdout | search('env:/{{ client_name }}/backups/')) != ''
-          }}
+        backup_present: "{{ backup_folder_check.s3_keys | select('search', 'env:/{{ client_name }}/backups/') | list | length > 0 }}"
 
     - name: Debug - Show backup_present variable
       debug:
