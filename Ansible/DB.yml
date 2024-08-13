@@ -75,11 +75,11 @@
     - name: Write S3 keys to a file
       copy:
         content: "{{ backup_folder_check.s3_keys | join('\n') }}"
-        dest: "/tmp/backup_folder_check.txt"
+        dest: "backup_folder_check.txt"
       delegate_to: localhost
 
     - name: Debug - Show file content
-      command: cat /tmp/backup_folder_check.txt
+      command: cat backup_folder_check.txt
       register: file_content
       ignore_errors: yes
 
