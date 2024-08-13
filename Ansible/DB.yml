@@ -73,14 +73,27 @@
       register: backup_folder_check
       ignore_errors: yes
 
+    - name: Debug - Show all S3 keys found
+      debug:
+        msg: "{{ backup_folder_check.s3_keys }}"
+
     - name: Set backup_present variable
       set_fact:
         backup_present: >-
           {{
             backup_folder_check.s3_keys | 
-            select('search', '^env:/"env:/shop/backups/"/backups/.*') | 
+            select('search', '^env:/{{client_name}}/backups/.*') | 
             list | 
             length > 0
+          }}
+
+    - name: Debug - Show filtered S3 keys
+      debug:
+        msg: >-
+          {{
+            backup_folder_check.s3_keys | 
+            select('search', '^env:/{{client_name}}/backups/.*') | 
+            list
           }}
 
     - name: Debug - Show backup_present variable
