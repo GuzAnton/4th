@@ -117,6 +117,8 @@
       copy:
         dest: /opt/web/nginx/default.conf
         content: |
+          limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
+
           server {
             listen 80;
             listen [::]:80;
