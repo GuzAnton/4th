@@ -41,44 +41,6 @@ resource "digitalocean_droplet" "db" {
   }
   depends_on = [digitalocean_vpc.project]
 }
-# when we move to premium we need to uncomment Load Balancer
-# resource "digitalocean_loadbalancer" "web" {
-#   name   = var.LoadBalancer_Name
-#   region = var.region
-
-
-#   forwarding_rule {
-#     entry_port       = 443
-#     entry_protocol   = "https"
-#     target_port      = 443
-#     target_protocol  = "https"
-#     certificate_name = module.keys_and_certs.cert_name
-#   }
-
-#   forwarding_rule {
-#     entry_port = 80
-#     entry_protocol = "http"
-#     target_port = 80
-#     target_protocol = "http"
-#     certificate_name = module.keys_and_certs.cert_name
-#   }
-  
-#   healthcheck {
-#     port                     = 80
-#     protocol                 = "http"
-#     path                     = "/"
-#     check_interval_seconds   = 10
-#     response_timeout_seconds = 5
-#     unhealthy_threshold      = 5
-#     healthy_threshold        = 2
-#   }
-
-#   droplet_ids            = [ for d in digitalocean_droplet.web : d.id]
-#   vpc_uuid               = digitalocean_vpc.project.id
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
 
 resource "digitalocean_firewall" "web" {
 
@@ -214,12 +176,11 @@ resource "digitalocean_firewall" "db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 }
-#When we need to change to prem - comment current value and point A Record to load balancer ip
+
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
-  value   = element(digitalocean_droplet.web.*.ipv4_address, 0)
-  # value = digitalocean_loadbalancer.web.ip
+  content   = element(digitalocean_droplet.web.*.ipv4_address, 0)
   type    = "A"
   ttl     = 300
 }
