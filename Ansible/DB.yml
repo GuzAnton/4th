@@ -73,9 +73,13 @@
       register: backup_folder_check
       ignore_errors: yes
 
-    - name: Set backup_present variable
+    - name: Set backup_present variable based on S3 keys
       set_fact:
-        backup_present: "{{ backup_folder_check.s3_objects is defined and backup_folder_check.s3_objects | length > 0 }}"
+        backup_present: "{{ backup_folder_check.s3_keys | select('search', 'env:/'+client_name+'/backups/') | list | length > 0 }}"
+
+    - name: Debug - Show backup_present variable
+      debug:
+        msg: "{{ backup_present }}"
 
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
