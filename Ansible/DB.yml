@@ -77,16 +77,23 @@
       debug:
         msg: "{{ backup_folder_check.s3_keys }}"
 
+    
     - name: Set backup_present variable
       set_fact:
         backup_present: >-
           {{
-            backup_folder_check.s3_keys | select('search', '^env:/{{ client_name }}/backups/') | list | length > 0
+            backup_folder_check.s3_keys | 
+            select('search', '^env:/{{ client_name }}/backups/') | 
+            list | 
+            length > 0
           }}
-
-    - name: Debug - Show backup_present variable
+    - name: Debug - Show backup_folder_check variable
       debug:
-        msg: "{{ backup_present }}"
+        msg: "{{ backup_folder_check }}"
+    - name: Check if any backups are listed
+      debug:
+        msg: "{{ backup_folder_check.s3_keys | select('search', '^env:/{{ client_name }}/backups/') | list }}"
+
 
     - name: Download MySQL backup from DigitalOcean Spaces
       aws_s3:
