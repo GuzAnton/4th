@@ -6,59 +6,59 @@
     - ./group_vars/all/vault.yml
   tasks:
 
-    # - name: Check current user
-    #   debug:
-    #     msg: "Current user is {{ lookup('env', 'USER') }}"
+    - name: Check current user
+      debug:
+        msg: "Current user is {{ lookup('env', 'USER') }}"
 
-    # - name: Check if Docker setup script exists
-    #   stat:
-    #     path: /tmp/setup_docker.sh
-    #   register: script_stat
+    - name: Check if Docker setup script exists
+      stat:
+        path: /tmp/setup_docker.sh
+      register: script_stat
 
-    # - name: Copy Docker setup script to remote if not exists
-    #   copy:
-    #     src: ./setup_docker.sh
-    #     dest: /tmp/setup_docker.sh
-    #     mode: '0755'
-    #   when: not script_stat.stat.exists
+    - name: Copy Docker setup script to remote if not exists
+      copy:
+        src: ./setup_docker.sh
+        dest: /tmp/setup_docker.sh
+        mode: '0755'
+      when: not script_stat.stat.exists
 
-    # - name: Execute Docker setup script
-    #   shell: /tmp/setup_docker.sh
-    #   register: script_output
-    #   when: not script_stat.stat.exists
+    - name: Execute Docker setup script
+      shell: /tmp/setup_docker.sh
+      register: script_output
+      when: not script_stat.stat.exists
 
-    # - name: Create directories
-    #   ansible.builtin.file:
-    #     path: "{{ item }}"
-    #     state: directory
-    #   loop:
-    #     - /opt
-    #     - /opt/web
-    #     - /opt/web/nginx
-    #     - /opt/web/ghost
-    #     - /opt/web/ghost/content
-    #     - /opt/web/ghost/content/logs
-    #     - /opt/web/ghost/content/data
-    #     - /opt/web/proxy-backend
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /opt
+        - /opt/web
+        - /opt/web/nginx
+        - /opt/web/ghost
+        - /opt/web/ghost/content
+        - /opt/web/ghost/content/logs
+        - /opt/web/ghost/content/data
+        - /opt/web/proxy-backend
 
-    # - name: Install required system packages
-    #   apt:
-    #     pkg:
-    #       - python3-pip
-    #     state: latest
-    #     update_cache: true
-    #   when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
+    - name: Install required system packages
+      apt:
+        pkg:
+          - python3-pip
+        state: latest
+        update_cache: true
+      when: ansible_facts.packages is undefined or 'python3-pip' not in ansible_facts.packages
 
-    # - name: Install Docker SDK for Python
-    #   pip:
-    #     name: docker
-    #     state: present
+    - name: Install Docker SDK for Python
+      pip:
+        name: docker
+        state: present
     
-    # - name: Install required Python libraries (boto3 and botocore)
-    #   pip:
-    #     name:
-    #       - boto3
-    #       - botocore
+    - name: Install required Python libraries (boto3 and botocore)
+      pip:
+        name:
+          - boto3
+          - botocore
 
     - name: Check if backups folder contains any objects
       aws_s3:
