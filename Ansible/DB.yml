@@ -61,13 +61,13 @@
           - botocore
         state: present
     
-    - name: Check if backup folder exists in DigitalOcean Spaces
+    - name: Check if backups folder exists in DigitalOcean Spaces
       aws_s3:
         aws_access_key: "{{ spaces_access_key }}"
         aws_secret_key: "{{ spaces_secret_key }}"
         s3_url: "{{ spaces_endpoint }}"
         bucket: "{{ spaces_bucket }}"
-        object: "env:/{{client_name}}/backups/"
+        object: "env:/{{ client_name }}/backups/"
         mode: list
         rgw: true
       register: backup_folder_check
@@ -77,12 +77,13 @@
       debug:
         msg: "{{ backup_folder_check.s3_keys }}"
 
-    - name: Set backup_present variable using custom filter
+    - name: Set backup_present variable
       set_fact:
         backup_present: >-
           {{
-            backup_folder_check.s3_keys | select('match', '^env:/{{client_name}}/backups/.*(mysql_backup.sql|ghost_content_backup.tar.gz)$') | list | length > 0
+            backup_folder_check.s3_keys | select('search', '^env:/{{ client_name }}/backups/') | list | length > 0
           }}
+
     - name: Debug - Show backup_present variable
       debug:
         msg: "{{ backup_present }}"
