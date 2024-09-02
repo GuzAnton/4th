@@ -40,9 +40,7 @@ variable "subdomain" {
   type    = string
   default = "test10"
 }
-variable "LoadBalancer_Name" {
-  default = "web10"
-}
+
 variable "FireWall_Name_Web" {
   default = "web10"
 }
