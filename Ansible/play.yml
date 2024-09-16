@@ -39,6 +39,9 @@
         state: present
       when: not swapfile_stat.stat.exists
 
+    - name: Show swap status
+      command: swapon --show
+
     - name: Check if Docker setup script exists
       stat:
         path: ./setup_docker.sh
