@@ -10,6 +10,39 @@
       debug:
         msg: "Current user is {{ lookup('env', 'USER') }}"
 
+    - name: Check if swap file exists
+      stat:
+        path: /swapfile
+      register: swapfile_stat
+
+    - name: Create swap file
+      command: fallocate -l 1G /swapfile
+      when: not swapfile_stat.stat.exists
+
+    - name: Set swap file permissions
+      file:
+        path: /swapfile
+        mode: '0600'
+      when: not swapfile_stat.stat.exists
+
+    - name: Format swap file
+      command: mkswap /swapfile
+      when: not swapfile_stat.stat.exists
+
+    - name: Enable swap file
+      command: swapon /swapfile
+      when: not swapfile_stat.stat.exists
+
+    - name: Ensure swap is enabled on reboot
+      lineinfile:
+        path: /etc/fstab
+        line: '/swapfile none swap sw 0 0'
+        state: present
+      when: not swapfile_stat.stat.exists
+
+    - name: Show swap status
+      command: swapon --show
+
     - name: Check if Docker setup script exists
       stat:
         path: /tmp/setup_docker.sh
