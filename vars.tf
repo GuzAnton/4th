@@ -64,6 +64,6 @@ variable "MyIP" {
 #   default = "172.20.10.0/24"
 # }
 variable "create_cert" {
-  type = bool
+  type    = bool
   default = true
 }

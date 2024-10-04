@@ -11,11 +11,11 @@ resource "digitalocean_database_firewall" "mysql_ki_firewall" {
   cluster_id = digitalocean_database_cluster.mysql__ki_cluster.id
 
   rule {
-    type = "tag"
+    type  = "tag"
     value = "${var.name}-web"
   }
   rule {
-    type = "ip_addr"
+    type  = "ip_addr"
     value = digitalocean_droplet.bastion.ipv4_address_private
   }
 }

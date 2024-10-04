@@ -55,13 +55,13 @@ resource "digitalocean_loadbalancer" "web" {
   }
 
   forwarding_rule {
-    entry_port = 80
-    entry_protocol = "http"
-    target_port = 80
-    target_protocol = "http"
+    entry_port       = 80
+    entry_protocol   = "http"
+    target_port      = 80
+    target_protocol  = "http"
     certificate_name = module.keys_and_certs.cert_name
   }
-  
+
   healthcheck {
     port                     = 80
     protocol                 = "http"
@@ -72,8 +72,8 @@ resource "digitalocean_loadbalancer" "web" {
     healthy_threshold        = 2
   }
 
-  droplet_ids            = [ for d in digitalocean_droplet.web : d.id]
-  vpc_uuid               = data.digitalocean_vpc.ki_vpc.id
+  droplet_ids = [for d in digitalocean_droplet.web : d.id]
+  vpc_uuid    = data.digitalocean_vpc.ki_vpc.id
   lifecycle {
     create_before_destroy = true
   }
@@ -218,11 +218,11 @@ resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
   name    = var.subdomain
   content = digitalocean_loadbalancer.web.ip
-  type  = "A"
-  ttl   = 300
+  type    = "A"
+  ttl     = 300
 }
 terraform {
-required_version = ">= 1.6.3"
+  required_version = ">= 1.6.3"
 
   backend "s3" {
     endpoints = {
