@@ -5,7 +5,7 @@ resource "digitalocean_droplet" "bastion" {
   region   = var.region
   size     = "s-1vcpu-1gb"
   ssh_keys = [data.digitalocean_ssh_key.default.id]
-  vpc_uuid = digitalocean_vpc.project.id
+  vpc_uuid = data.digitalocean_vpc.ki_vpc.id
   tags     = ["${var.name}-bastion"]
 
 
@@ -44,11 +44,11 @@ resource "digitalocean_firewall" "bastion" {
   outbound_rule {
     protocol              = "tcp"
     port_range            = "22"
-    destination_addresses = [digitalocean_vpc.project.ip_range]
+    destination_addresses = [digitalocean_vpc.ki_vpc.ip_range]
   }
   outbound_rule {
     protocol              = "icmp"
-    destination_addresses = [digitalocean_vpc.project.ip_range]
+    destination_addresses = [digitalocean_vpc.ki_vpc.ip_range]
   }
   outbound_rule {
     protocol              = "tcp"
