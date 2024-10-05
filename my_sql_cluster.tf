@@ -6,7 +6,6 @@ resource "digitalocean_database_cluster" "mysql__ki_cluster" {
   region     = var.region
   node_count = var.cluster_node_count
 }
-
 resource "digitalocean_database_firewall" "mysql_ki_firewall" {
   cluster_id = digitalocean_database_cluster.mysql__ki_cluster.id
 

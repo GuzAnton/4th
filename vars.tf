@@ -3,9 +3,11 @@ variable "region" {
 }
 variable "do_token" {
   type = string
+  sensitive = true
 }
 variable "cf_api_token" {
   type = string
+  sensitive = true
 }
 variable "web_droplet_count" {
   default = 2
@@ -26,10 +28,10 @@ variable "cluster_image" {
   default = "ubuntu-22-04-x64"
 }
 variable "web_droplet_size" {
-  default = "s-1vcpu-1gb"
+  default = "s-2vcpu-2gb"
 }
 variable "cluster_size" {
-  default = "s-2vcpu-2gb"
+  default = "s-2vcpu-4gb"
 }
 variable "domain_name" {
   type    = string
