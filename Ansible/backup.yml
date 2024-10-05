@@ -28,31 +28,31 @@
           - botocore
         state: present
 
-    - name: Backup MySQL database
-      shell: >
-        docker exec mysql /usr/bin/mysqldump
-        -u {{ mysql_user }}
-        --password={{ mysql_password }}
-        {{ mysql_database }} > {{ mysql_dump_file }}
-      args:
-        executable: /bin/bash
+    # - name: Backup MySQL database
+    #   shell: >
+    #     docker exec mysql /usr/bin/mysqldump
+    #     -u {{ mysql_user }}
+    #     --password={{ mysql_password }}
+    #     {{ mysql_database }} > {{ mysql_dump_file }}
+    #   args:
+    #     executable: /bin/bash
 
     - name: Archive Ghost content
       archive:
         path: "{{ ghost_content_dir }}"
         dest: "{{ ghost_archive_file }}"
 
-    - name: Upload MySQL backup to DigitalOcean Spaces
-      aws_s3:
-        aws_access_key: "{{ spaces_access_key }}"
-        aws_secret_key: "{{ spaces_secret_key }}"
-        s3_url: "{{ spaces_endpoint }}"  
-        bucket: "{{ spaces_bucket }}"
-        object: "env:/{{client_name}}/backups/mysql_backup.sql"
-        src: "{{ mysql_dump_file }}"
-        mode: put
-        encrypt: false
-        rgw: true  
+    # - name: Upload MySQL backup to DigitalOcean Spaces
+    #   aws_s3:
+    #     aws_access_key: "{{ spaces_access_key }}"
+    #     aws_secret_key: "{{ spaces_secret_key }}"
+    #     s3_url: "{{ spaces_endpoint }}"  
+    #     bucket: "{{ spaces_bucket }}"
+    #     object: "env:/{{client_name}}/backups/mysql_backup.sql"
+    #     src: "{{ mysql_dump_file }}"
+    #     mode: put
+    #     encrypt: false
+    #     rgw: true  
 
     - name: Upload Ghost content archive to DigitalOcean Spaces
       aws_s3:
