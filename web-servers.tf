@@ -25,21 +25,20 @@ resource "digitalocean_droplet" "web" {
   }
 }
 
-# resource "digitalocean_droplet" "db" {
-#   count    = var.db_droplet_count
-#   image    = var.db_image
-#   name     = "db-${count.index + 1}"
-#   region   = var.region
-#   size     = var.db_droplet_size
-#   ssh_keys = [data.digitalocean_ssh_key.default.id]
-#   vpc_uuid = digitalocean_vpc.project.id
-#   tags     = ["${var.name}-db"]
+resource "digitalocean_droplet" "db" {
+  count    = var.db_droplet_count
+  image    = var.db_image
+  name     = "db-${count.index + 1}"
+  region   = var.region
+  size     = var.db_droplet_size
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
+  vpc_uuid = data.digitalocean_vpc.ki_vpc.id
+  tags     = ["${var.name}-db"]
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-#   depends_on = [digitalocean_vpc.project]
-# }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 resource "digitalocean_loadbalancer" "web" {
   name   = var.LoadBalancer_Name

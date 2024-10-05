@@ -12,6 +12,9 @@ variable "cf_api_token" {
 variable "web_droplet_count" {
   default = 2
 }
+variable "db_droplet_count" {
+  default = 1
+}
 variable "cluster_node_count" {
   default = 2
 }
@@ -24,6 +27,9 @@ variable "web_image" {
 variable "bastion_image" {
   default = "ubuntu-22-04-x64"
 }
+variable "db_image" {
+  default = "ubuntu-22-04-x64"
+}
 variable "cluster_image" {
   default = "ubuntu-22-04-x64"
 }
@@ -32,6 +38,9 @@ variable "web_droplet_size" {
 }
 variable "cluster_size" {
   default = "s-2vcpu-4gb"
+}
+variable "db_droplet_size" {
+  default = "s-2vcpu-2gb"
 }
 variable "domain_name" {
   type    = string
@@ -48,9 +57,9 @@ variable "FireWall_Name_Web" {
   default = "web1"
 }
 
-# variable "FireWall_Name_DB" {
-#   default = "db1"
-# }
+variable "FireWall_Name_DB" {
+  default = "db1"
+}
 variable "Bastion_firewall_name" {
   default = "bastion1"
 }

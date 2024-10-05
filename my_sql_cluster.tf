@@ -14,6 +14,10 @@ resource "digitalocean_database_firewall" "mysql_ki_firewall" {
     value = "${var.name}-web"
   }
   rule {
+    type = "tag"
+    value = "${var.name}-db"
+  }
+  rule {
     type  = "ip_addr"
     value = digitalocean_droplet.bastion.ipv4_address_private
   }
