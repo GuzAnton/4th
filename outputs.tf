@@ -13,7 +13,16 @@ output "web_public_ip" {
 output "mysql_cluster_host" {
   value = digitalocean_database_cluster.mysql_ki_cluster.host
 }
-
 output "mysql_cluster_port" {
   value = digitalocean_database_cluster.mysql_ki_cluster.port
+}
+
+output "mysql_cluster_user" {
+  value     = digitalocean_database_cluster.mysql_ki_cluster.user
+  sensitive = true
+}
+
+output "mysql_cluster_password" {
+  value     = digitalocean_database_cluster.mysql_ki_cluster.password
+  sensitive = true
 }

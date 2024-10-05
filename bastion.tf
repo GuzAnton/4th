@@ -96,15 +96,15 @@ resource "null_resource" "copy_ssh_key_to_web" {
   }
 }
 
-resource "null_resource" "copy_ssh_key_to_db" {
-  for_each = { for idx, instance in digitalocean_droplet.db : idx => instance.ipv4_address }
+# resource "null_resource" "copy_ssh_key_to_db" {
+#   for_each = { for idx, instance in digitalocean_droplet.db : idx => instance.ipv4_address }
 
-  depends_on = [null_resource.copy_ssh_key_from_bastion]
+#   depends_on = [null_resource.copy_ssh_key_from_bastion]
 
-  provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value}:~/.ssh/authorized_keys"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "scp -o StrictHostKeyChecking=no ~/.ssh/bastion_id_rsa.pub root@${each.value}:~/.ssh/authorized_keys"
+#   }
+# }
 resource "null_resource" "copy_ssl_certificates" {
   depends_on = [digitalocean_droplet.bastion]
 

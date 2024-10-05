@@ -2,11 +2,11 @@ variable "region" {
   default = "ams3"
 }
 variable "do_token" {
-  type = string
+  type      = string
   sensitive = true
 }
 variable "cf_api_token" {
-  type = string
+  type      = string
   sensitive = true
 }
 variable "web_droplet_count" {
