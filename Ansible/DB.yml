@@ -114,18 +114,6 @@
       debug:
         msg: "{{ backup_present }}"
 
-    # - name: Download MySQL backup from DigitalOcean Spaces
-    #   aws_s3:
-    #     aws_access_key: "{{ spaces_access_key }}"
-    #     aws_secret_key: "{{ spaces_secret_key }}"
-    #     s3_url: "{{ spaces_endpoint }}"
-    #     bucket: "{{ spaces_bucket }}"
-    #     object: "env:/{{client_name}}/backups/mysql_backup.sql"
-    #     dest: "/opt/web/mysql_backup.sql"
-    #     mode: get
-    #     rgw: true
-    #   when: backup_present
-
     - name: Download Ghost content archive from DigitalOcean Spaces
       aws_s3:
         aws_access_key: "{{ spaces_access_key }}"
@@ -213,7 +201,7 @@
             "database": {
               "client": "mysql",
               "connection": {
-                "host"     : "mysql",
+                "host"     : "{{ mysql_host }}",
                 "user"     : "{{ mysql_user }}",
                 "password" : "{{ mysql_password }}",
                 "database" : "{{ mysql_database }}"
@@ -370,22 +358,6 @@
               networks:
                 - webnet
 
-            mysql:
-              container_name: mysql
-              image: mysql:8.0.32
-              restart: always
-              environment:
-                MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
-                MYSQL_DATABASE: "{{ mysql_database }}"
-                MYSQL_USER: "{{ mysql_user }}"
-                MYSQL_PASSWORD: "{{ mysql_password }}"
-              ports:
-                - "3306:3306"
-              volumes:
-                - ./mysql/data:/var/lib/mysql
-              networks:
-                - webnet
-
             nginx:
               container_name: nginx
               image: nginx:latest
@@ -397,6 +369,7 @@
                 - "443:443"
               networks:
                 - webnet
+             
              proxy-backend:
               container_name: proxy-backend
               image: "gitlab.fourthestate.app:5050/mp/ghost-proxy/dev:latest"
@@ -440,28 +413,11 @@
       shell: |
         cd /opt/web
         docker compose pull
-        docker compose up -d mysql
+        # docker compose up -d mysql
         sleep 60
         docker compose run knex_migrator_init
         sleep 10
         docker compose up -d
-
-    # - name: Wait for MySQL to be ready
-    #   wait_for:
-    #     port: 3306
-    #     delay: 10
-    #     timeout: 60
-    #   when: backup_present
-
-    # - name: Restore MySQL database
-    #   shell: >
-    #     docker exec -i mysql /usr/bin/mysql
-    #     -u {{mysql_user}}
-    #     -p{{mysql_password}}
-    #     {{mysql_database}} < /opt/web/mysql_backup.sql
-    #   args:
-    #     executable: /bin/bash
-    #   when: backup_present
 
     - name: Extract Ghost content
       unarchive:

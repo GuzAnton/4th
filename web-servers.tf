@@ -103,36 +103,36 @@ resource "digitalocean_firewall" "web" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "1-65535"
-    source_addresses = [digitalocean_vpc.ki_vpc.ip_range]
+    source_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
   }
 
   inbound_rule {
     protocol         = "udp"
     port_range       = "1-65535"
-    source_addresses = [digitalocean_vpc.ki_vpc.ip_range]
+    source_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
   }
 
   inbound_rule {
     protocol         = "icmp"
     port_range       = "1-65535"
-    source_addresses = [digitalocean_vpc.ki_vpc.ip_range]
+    source_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
   }
 
   outbound_rule {
     protocol              = "tcp"
     port_range            = "1-65535"
-    destination_addresses = [digitalocean_vpc.ki.ip_range]
+    destination_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
   }
 
   outbound_rule {
     protocol              = "udp"
     port_range            = "1-65535"
-    destination_addresses = [digitalocean_vpc.ki_vpc.ip_range]
+    destination_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
   }
 
   outbound_rule {
     protocol              = "icmp"
-    destination_addresses = [digitalocean_vpc.ki_vpc.ip_range]
+    destination_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
   }
 
   outbound_rule {
@@ -148,70 +148,70 @@ resource "digitalocean_firewall" "web" {
   }
 }
 
-# resource "digitalocean_firewall" "db" {
+resource "digitalocean_firewall" "db" {
 
-#   #only for internal vpc traffic
+  #only for internal vpc traffic
 
-#   name        = var.FireWall_Name_DB
-#   droplet_ids = digitalocean_droplet.db.*.id
+  name        = var.FireWall_Name_DB
+  droplet_ids = digitalocean_droplet.db.*.id
 
-#   inbound_rule {
-#     protocol         = "tcp"
-#     port_range       = "22"
-#     source_addresses = [var.MyIP]
-#   }
-#   inbound_rule {
-#     protocol         = "tcp"
-#     port_range       = "5050"
-#     source_addresses = ["139.59.153.231"]
-#   }
-#   inbound_rule {
-#     protocol         = "tcp"
-#     port_range       = "1-65535"
-#     source_addresses = [digitalocean_vpc.project.ip_range]
-#   }
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = [var.MyIP]
+  }
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "5050"
+    source_addresses = ["139.59.153.231"]
+  }
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "1-65535"
+    source_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
+  }
 
-#   inbound_rule {
-#     protocol         = "udp"
-#     port_range       = "1-65535"
-#     source_addresses = [digitalocean_vpc.project.ip_range]
-#   }
+  inbound_rule {
+    protocol         = "udp"
+    port_range       = "1-65535"
+    source_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
+  }
 
-#   inbound_rule {
-#     protocol         = "icmp"
-#     port_range       = "1-65535"
-#     source_addresses = [digitalocean_vpc.project.ip_range]
-#   }
+  inbound_rule {
+    protocol         = "icmp"
+    port_range       = "1-65535"
+    source_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
+  }
 
-#   outbound_rule {
-#     protocol              = "tcp"
-#     port_range            = "1-65535"
-#     destination_addresses = [digitalocean_vpc.project.ip_range]
-#   }
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "1-65535"
+    destination_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
+  }
 
-#   outbound_rule {
-#     protocol              = "udp"
-#     port_range            = "1-65535"
-#     destination_addresses = [digitalocean_vpc.project.ip_range]
-#   }
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "1-65535"
+    destination_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
+  }
 
-#   outbound_rule {
-#     protocol              = "icmp"
-#     destination_addresses = [digitalocean_vpc.project.ip_range]
-#   }
+  outbound_rule {
+    protocol              = "icmp"
+    destination_addresses = [data.digitalocean_vpc.ki_vpc.ip_range]
+  }
 
-#   outbound_rule {
-#     protocol              = "udp"
-#     port_range            = "53"
-#     destination_addresses = ["0.0.0.0/0"]
-#   }
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "53"
+    destination_addresses = ["0.0.0.0/0"]
+  }
 
-#   outbound_rule {
-#     protocol              = "tcp"
-#     port_range            = "all"
-#     destination_addresses = ["0.0.0.0/0"]
-#   }
-# }
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "all"
+    destination_addresses = ["0.0.0.0/0"]
+  }
+}
 
 resource "cloudflare_record" "project_subdomain" {
   zone_id = lookup(data.cloudflare_zones.fourthestate_app.zones[0], "id")
