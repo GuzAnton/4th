@@ -1,4 +1,4 @@
-resource "digitalocean_database_cluster" "mysql__ki_cluster" {
+resource "digitalocean_database_cluster" "mysql_ki_cluster" {
   name       = "mysql_ki_cluster"
   engine     = "mysql"
   version    = "8"
