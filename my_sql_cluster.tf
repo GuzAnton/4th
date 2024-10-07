@@ -1,5 +1,5 @@
 resource "digitalocean_database_cluster" "mysql_ki_cluster" {
-  name       = "mysql_ki_cluster"
+  name       = "mysql-ki-cluster"
   engine     = "mysql"
   version    = "8"
   size       = var.cluster_size
