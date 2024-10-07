@@ -14,7 +14,7 @@ resource "digitalocean_database_firewall" "mysql_ki_firewall" {
     value = "${var.name}-web"
   }
   rule {
-    type = "tag"
+    type  = "tag"
     value = "${var.name}-db"
   }
   rule {
