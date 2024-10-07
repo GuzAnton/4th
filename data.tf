@@ -10,8 +10,7 @@ ${join("\n", digitalocean_droplet.web.*.ipv4_address)}
 ${join("\n", digitalocean_droplet.db.*.ipv4_address_private)}
 
 [mysql_cluster]
-${join("\n", [for cluster in digitalocean_database_cluster.mysql_ki_cluster : "mysql_primary ansible_host=${cluster.host} ansible_port=${cluster.port} ansible_user=${cluster.user} ansible_password=${cluster.password}"])}
-
+mysql_primary ansible_host=${digitalocean_database_cluster.mysql_ki_cluster.host} ansible_port=${digitalocean_database_cluster.mysql_ki_cluster.port} ansible_user=${digitalocean_database_cluster.mysql_ki_cluster.user} ansible_password=${digitalocean_database_cluster.mysql_ki_cluster.password}
 
 [bastion]
 bastion ansible_host=${digitalocean_droplet.bastion.ipv4_address_private} ansible_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa
