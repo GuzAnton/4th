@@ -24,4 +24,5 @@ output "mysql_cluster_user" {
 
 output "mysql_cluster_password" {
   value     = digitalocean_database_cluster.mysql_ki_cluster.password
+  sensitive = true
 }
