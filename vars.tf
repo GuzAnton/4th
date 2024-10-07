@@ -71,9 +71,9 @@ variable "MyIP" {
 # variable "vpc_name" {
 #   default = "project-vpc1"
 # }
-variable "vpc_range" {
-  default = "172.20.1.0/24"
-}
+# variable "vpc_range" {
+#   default = "172.20.1.0/24"
+# }
 variable "create_cert" {
   type    = bool
   default = true
