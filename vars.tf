@@ -37,7 +37,7 @@ variable "web_droplet_size" {
   default = "s-2vcpu-2gb"
 }
 variable "cluster_size" {
-  default = "db-s-2vcpu-4gb"
+  default = "db-s-1vcpu-1gb"
 }
 variable "db_droplet_size" {
   default = "s-2vcpu-2gb"
