@@ -10,6 +10,9 @@ output "db_server_private_ips" {
 output "web_public_ip" {
   value = digitalocean_droplet.web.*.ipv4_address
 }
+output "Load Balancer" {
+  value = digitalocean_loadbalancer.web.ip
+}
 output "mysql_cluster_host" {
   value = digitalocean_database_cluster.mysql_ki_cluster.host
 }
