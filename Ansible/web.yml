@@ -95,7 +95,7 @@
             listen 80;
             listen [::]:80;
 
-            server_name test.fourthestate.app;
+            server_name test110.fourthestate.app;
             server_tokens off;
 
             location / {
@@ -107,7 +107,7 @@
             listen 443 ssl;
             listen [::]:443 ssl;
 
-            server_name test.fourthestate.app;
+            server_name test110.fourthestate.app;
 
             ssl_certificate /etc/letsencrypt/live/test.fourthestate.app/fullchain.pem;
             ssl_certificate_key /etc/letsencrypt/live/test.fourthestate.app/privkey.pem;

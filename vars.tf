@@ -37,7 +37,7 @@ variable "domain_name" {
 }
 variable "subdomain" {
   type    = string
-  default = "test10"
+  default = "test110"
 }
 variable "LoadBalancer_Name" {
   default = "web10"
