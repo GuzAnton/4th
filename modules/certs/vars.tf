@@ -1,7 +1,6 @@
 variable "cert_name" {
   description = "The name of the DigitalOcean certificate."
   type        = string
-  default = "ki-cert"
 }
 
 variable "private_key_path" {
@@ -21,5 +20,5 @@ variable "certificate_chain_path" {
 variable "create_cert" {
   description = "Flag to indicate whether to create the certificate or not"
   type        = bool
-  default     = true
+  default     = false
 }
