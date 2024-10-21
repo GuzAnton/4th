@@ -62,8 +62,8 @@ resource "digitalocean_loadbalancer" "web" {
   }
 
   healthcheck {
-    port                     = 80
-    protocol                 = "http"
+    port                     = 443
+    protocol                 = "https"
     path                     = "/"
     check_interval_seconds   = 10
     response_timeout_seconds = 5
