@@ -53,12 +53,12 @@ resource "digitalocean_loadbalancer" "web" {
     certificate_name = module.keys_and_certs.cert_name
   }
 
-  forwarding_rule {
-    entry_port       = 80
-    entry_protocol   = "http"
-    target_port      = 80
-    target_protocol  = "http"
-  }
+  # forwarding_rule {
+  #   entry_port       = 80
+  #   entry_protocol   = "http"
+  #   target_port      = 80
+  #   target_protocol  = "http"
+  # }
 
   healthcheck {
     port                     = 80
