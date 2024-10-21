@@ -58,12 +58,11 @@ resource "digitalocean_loadbalancer" "web" {
     entry_protocol   = "http"
     target_port      = 80
     target_protocol  = "http"
-    certificate_name = module.keys_and_certs.cert_name
   }
 
   healthcheck {
-    port                     = 443
-    protocol                 = "https"
+    port                     = 80
+    protocol                 = "http"
     path                     = "/"
     check_interval_seconds   = 10
     response_timeout_seconds = 5
