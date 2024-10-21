@@ -1,4 +1,4 @@
-resource "digitalocean_certificate" "ki_cert" {
+resource "digitalocean_certificate" "cert" {
   count             = var.create_cert ? 1 : 0
   name              = var.cert_name
   private_key       = file(var.private_key_path)
