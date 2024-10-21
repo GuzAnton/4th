@@ -76,5 +76,5 @@ variable "MyIP" {
 # }
 variable "create_cert" {
   type    = bool
-  default = true
+  default = false
 }
