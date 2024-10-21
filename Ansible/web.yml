@@ -95,7 +95,7 @@
             listen 80;
             listen [::]:80;
 
-            server_name {{doamin_name}};
+            server_name {{domain_name}};
             server_tokens off;
 
             location / {

@@ -201,7 +201,7 @@
             "database": {
               "client": "mysql",
               "connection": {
-                "host"     : "{{ mysql_host }}",
+                "host"     : "mysql",
                 "user"     : "{{ mysql_user }}",
                 "password" : "{{ mysql_password }}",
                 "database" : "{{ mysql_database }}"
