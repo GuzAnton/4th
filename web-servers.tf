@@ -74,7 +74,7 @@ resource "digitalocean_loadbalancer" "web" {
   }
 
   droplet_ids            = [ for d in digitalocean_droplet.web : d.id]
-  vpc_uuid               = digitalocean_vpc.ki_vpc.id
+  vpc_uuid               = digitalocean_vpc.project.id
   lifecycle {
     create_before_destroy = true
   }
