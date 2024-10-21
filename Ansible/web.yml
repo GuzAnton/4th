@@ -211,6 +211,6 @@
 
     - name: Start all services
       shell: |
-        cd /opt/web
+        cd /web
         docker compose pull
         docker compose up -d
