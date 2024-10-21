@@ -15,30 +15,30 @@ variable "web_droplet_count" {
 variable "db_droplet_count" {
   default = 1
 }
-variable "cluster_node_count" {
-  default = 2
-}
+# variable "cluster_node_count" {
+#   default = 2
+# }
 variable "name" {
   default = "Fourth_Estate"
 }
 variable "web_image" {
-  default = "ubuntu-22-04-x64"
+  default = "ubuntu-20-04-x64"
 }
 variable "bastion_image" {
-  default = "ubuntu-22-04-x64"
+  default = "ubuntu-20-04-x64"
 }
 variable "db_image" {
-  default = "ubuntu-22-04-x64"
+  default = "ubuntu-20-04-x64"
 }
-variable "cluster_image" {
-  default = "ubuntu-22-04-x64"
-}
+# variable "cluster_image" {
+#   default = "ubuntu-20-04-x64"
+# }
 variable "web_droplet_size" {
-  default = "s-2vcpu-2gb"
+  default = "s-1vcpu-2gb"
 }
-variable "cluster_size" {
-  default = "db-s-1vcpu-1gb"
-}
+# variable "cluster_size" {
+#   default = "db-s-1vcpu-1gb"
+# }
 variable "db_droplet_size" {
   default = "s-2vcpu-2gb"
 }
