@@ -15,8 +15,11 @@ bastion ansible_host=${digitalocean_droplet.bastion.ipv4_address_private} ansibl
 }
 
 data "cloudflare_zones" "fourthestate_app" {
-  name = var.domain_name
+  filter {
+    name = var.domain_name
+  }
 }
+
 data "digitalocean_ssh_key" "default" {
   name = "autodeploy_key"
 }
