@@ -114,6 +114,18 @@
       debug:
         msg: "{{ backup_present }}"
 
+    - name: Download MySQL backup from DigitalOcean Spaces
+      aws_s3:
+        aws_access_key: "{{ spaces_access_key }}"
+        aws_secret_key: "{{ spaces_secret_key }}"
+        s3_url: "{{ spaces_endpoint }}"
+        bucket: "{{ spaces_bucket }}"
+        object: "env:/{{client_name}}/backups/mysql_backup.sql"
+        dest: "/opt/web/mysql_backup.sql"
+        mode: get
+        rgw: true
+      when: backup_present
+
     - name: Download Ghost content archive from DigitalOcean Spaces
       aws_s3:
         aws_access_key: "{{ spaces_access_key }}"
@@ -357,7 +369,7 @@
                 - mysql
               networks:
                 - webnet
-              
+
             mysql:
               container_name: mysql
               image: mysql:8.0.32
@@ -434,6 +446,23 @@
         docker compose run knex_migrator_init
         sleep 10
         docker compose up -d
+
+    - name: Wait for MySQL to be ready
+      wait_for:
+        port: 3306
+        delay: 10
+        timeout: 60
+      when: backup_present
+
+    - name: Restore MySQL database
+      shell: >
+        docker exec -i mysql /usr/bin/mysql
+        -u {{mysql_user}}
+        -p{{mysql_password}}
+        {{mysql_database}} < /opt/web/mysql_backup.sql
+      args:
+        executable: /bin/bash
+      when: backup_present
 
     - name: Extract Ghost content
       unarchive:
