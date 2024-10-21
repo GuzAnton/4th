@@ -20,5 +20,5 @@ variable "certificate_chain_path" {
 variable "create_cert" {
   description = "Flag to indicate whether to create the certificate or not"
   type        = bool
-  default     = false
+  default     = true
 }
